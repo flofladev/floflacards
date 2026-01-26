@@ -1,0 +1,367 @@
+<resources>
+    <string name="app_name">FloFla Cards</string>
+    
+    <!-- Welcome Flow Strings - Polish (meaning-first, not literal) -->
+    <!-- Introduction Step -->
+    <string name="welcome_intro_title">Gotowy, żeby uczyć się sprytniej?</string>
+    <string name="welcome_intro_description">Unoszące się fiszki, które pojawiają się nad każdą aplikacją – wykorzystaj każdą chwilę.</string>
+    <string name="welcome_intro_benefit">✨ Ucz się podczas pisania wiadomości, przeglądania internetu czy grania</string>
+    <string name="welcome_intro_button">Pokaż mi jak!</string>
+    
+    <!-- Privacy Step -->
+    <string name="welcome_privacy_title">Twoje dane. Twoja kontrola. 🔒</string>
+    <string name="welcome_privacy_description">Wszystko zostaje na Twoim urządzeniu. Żadnego śledzenia, chmury czy zmartwień.</string>
+    <string name="welcome_privacy_flow">📱💾🔒 Lokalnie → Bezpiecznie → Prywatnie</string>
+    <string name="welcome_privacy_button">Jasne!</string>
+    
+    <!-- Backup Folder Step -->
+    <string name="welcome_backup_title">Folder kopii zapasowej 📁</string>
+    <string name="welcome_backup_description">Wybierz folder, w którym będą przechowywane Twoje kopie zapasowe. Dzięki temu dane przetrwają nawet reinstalację aplikacji.</string>
+    <string name="welcome_backup_benefits_title">Główne korzyści:</string>
+    <string name="welcome_backup_benefit_1">💾 Automatyczne tworzenie kopii zapasowych</string>
+    <string name="welcome_backup_benefit_2">🔄 Dane przetrwają reinstalację aplikacji</string>
+    <string name="welcome_backup_benefit_3">📂 Ty kontrolujesz miejsce przechowywania</string>
+    <string name="welcome_backup_benefit_4">🔒 Dbałość o prywatność (bez chmury)</string>
+    <string name="welcome_backup_granted">Folder kopii zapasowej wybrany! ✅</string>
+    <string name="welcome_backup_required">Wymagany folder kopii zapasowej 📁</string>
+    <string name="welcome_backup_button_continue">Dalej</string>
+    <string name="welcome_backup_button_select">Wybierz folder kopii zapasowej</string>
+    
+    <!-- Overlay Permission Step -->
+    <string name="welcome_overlay_title">Uprawnienie nakładki 📱</string>
+    <string name="welcome_overlay_description">To uprawnienie pozwala fiszkom pojawiać się nad innymi aplikacjami dla płynnej nauki.</string>
+    <string name="welcome_overlay_granted">Uprawnienie nakładki przyznane! ✅</string>
+    <string name="welcome_overlay_required">Wybierz moją aplikację po kliknięciu poniższego przycisku 📱</string>
+    <string name="welcome_overlay_button_continue">Dalej</string>
+    <string name="welcome_overlay_button_grant">Przyznaj uprawnienie</string>
+    
+    <!-- Battery Optimization Step -->
+    <string name="welcome_battery_title">Optymalizacja baterii ⚡</string>
+    <string name="welcome_battery_description">Dla najlepszego doświadczenia nauki wyłącz optymalizację baterii, aby aplikacja mogła działać w tle.</string>
+    <string name="welcome_battery_granted">Optymalizacja baterii wyłączona! ✅</string>
+    <string name="welcome_battery_enabled">Optymalizacja baterii włączona ⚡</string>
+    <string name="welcome_battery_button_continue">Dalej</string>
+    <string name="welcome_battery_button_disable">Wyłącz optymalizację</string>
+    <string name="welcome_battery_button_skip">Pomiń</string>
+    
+    <!-- Backup Check Step -->
+    <string name="welcome_backup_check_found_title">Znaleziono kopię zapasową 💾</string>
+    <string name="welcome_backup_check_fresh_title">Nowy start 🆕</string>
+    <string name="welcome_backup_check_found_description">Znaleźliśmy wcześniejszą kopię zapasową Twoich danych!</string>
+    <string name="welcome_backup_check_fresh_description">Nie znaleziono kopii zapasowej. Możesz zacząć od nowa z czystą kartą!</string>
+    <string name="welcome_backup_check_details_title">Szczegóły kopii zapasowej:</string>
+    <string name="welcome_backup_check_created">📅 Utworzona: %1$s</string>
+    <string name="welcome_backup_check_categories">📚 Kategorie: %1$d</string>
+    <string name="welcome_backup_check_flashcards">🗂️ Fiszki: %1$d</string>
+    <string name="welcome_backup_check_question">Czy chcesz przywrócić wcześniejsze dane?</string>
+    <string name="welcome_backup_check_button_restore">Przywróć kopię zapasową</string>
+    <string name="welcome_backup_check_button_fresh">Zacznij od nowa</string>
+    
+    <!-- Completed Step -->
+    <string name="welcome_completed_title">Wszystko gotowe! 🎉</string>
+    <string name="welcome_completed_description">Gratulacje! Twoja aplikacja jest teraz gotowa na niesamowite doświadczenie nauki.</string>
+    <string name="welcome_completed_ready_title">Teraz możesz:</string>
+    <string name="welcome_completed_feature_1">📚 Stworzyć pierwszą kategorię fiszek</string>
+    <string name="welcome_completed_feature_2">🎯 Rozpocząć naukę z unoszącymi się kartami</string>
+    <string name="welcome_completed_feature_3">📊 Śledzić postęp nauki</string>
+    <string name="welcome_completed_feature_4">⚡ Dostosować doświadczenie nauki</string>
+    <string name="welcome_completed_happy_learning">Miłej nauki! 🚀</string>
+    <string name="welcome_completed_button">Wejdź do aplikacji</string>
+    
+    <!-- Language Dialog -->
+    <string name="language_dialog_title">Wybierz język</string>
+    
+    <!-- Settings Language Section -->
+    <string name="settings_language_title">Język</string>
+    <string name="settings_language_subtitle">Wybierz preferowany język aplikacji</string>
+    <string name="settings_language_current">Aktualny język</string>
+    
+    <!-- Progress Indicator -->
+    <string name="welcome_progress_title">Postęp konfiguracji</string>
+    <string name="welcome_progress_step">Krok %1$d z %2$d: %3$s</string>
+    <string name="welcome_progress_introduction">Wprowadzenie</string>
+    <string name="welcome_progress_privacy">Prywatność</string>
+    <string name="welcome_progress_backup_folder">Folder kopii zapasowej</string>
+    <string name="welcome_progress_overlay">Nakładka</string>
+    <string name="welcome_progress_battery">Bateria</string>
+    <string name="welcome_progress_backup_check">Kopia zapasowa</string>
+    
+    <!-- App Settings Screen - Polish (natural and user-friendly) -->
+    <!-- Main sections -->
+    <string name="settings_title">Ustawienia</string>
+    <string name="settings_go_back">Wróć</string>
+    
+    <!-- Appearance section -->
+    <string name="settings_appearance_title">Wygląd</string>
+    <string name="settings_appearance_subtitle">Dostosuj motyw aplikacji i fiszek do swoich preferencji</string>
+    <string name="settings_appearance_app_theme">Motyw aplikacji</string>
+    <string name="settings_appearance_flashcard_theme">Motyw fiszek</string>
+    <string name="settings_appearance_flashcard_description">Wybierz motyw dla unoszących się fiszek (niezależny od motywu aplikacji)</string>
+    
+    <!-- Theme descriptions - natural Polish phrasing -->
+    <string name="theme_light_description">Zawsze używaj jasnego motywu</string>
+    <string name="theme_dark_description">Zawsze używaj ciemnego motywu</string>
+    <string name="theme_system_description">Zgodnie z ustawieniami urządzenia</string>
+    <string name="flashcard_theme_default_description">Bieżący wygląd z ciemnym tłem</string>
+    <string name="flashcard_theme_light_description">Jasne tło dla lepszej widoczności</string>
+    <string name="flashcard_theme_dark_description">Ulepszony tryb ciemny z głębszymi kolorami</string>
+    
+    <!-- Theme enum display names - Polish -->
+    <string name="theme_light_name">Jasny</string>
+    <string name="theme_dark_name">Ciemny</string>
+    <string name="theme_system_name">Jak urządzenie</string>
+    <string name="flashcard_theme_default_name">Domyślny</string>
+    <string name="flashcard_theme_light_name">Jasny</string>
+    <string name="flashcard_theme_dark_name">Ciemny</string>
+    
+    <!-- Permissions section -->
+    <string name="settings_permissions_title">Uprawnienia</string>
+    <string name="settings_permissions_subtitle">Zarządzaj uprawnieniami i optymalizacją aplikacji</string>
+    
+    <!-- Support section - encouraging tone -->
+    <string name="settings_support_title">Wsparcie</string>
+    <string name="settings_support_subtitle">Pomóż ulepszyć tę aplikację</string>
+    <string name="settings_support_development_title">Wesprzyj rozwój</string>
+    <string name="settings_support_development_subtitle">Pomóż utrzymać aplikację darmową i stale się rozwijającą</string>
+    <string name="settings_support_contact_title">Skontaktuj się z twórcą</string>
+    <string name="settings_support_contact_subtitle">Napisz w sprawie wsparcia lub opinii</string>
+    <string name="settings_support_rate_title">Oceń aplikację</string>
+    <string name="settings_support_rate_subtitle">Pomóż innym odkryć tę aplikację</string>
+    
+    <!-- About section - professional but friendly -->
+    <string name="settings_about_title">O aplikacji</string>
+    <string name="settings_about_subtitle">Informacje o aplikacji</string>
+    <string name="settings_about_app_title">FloFla Cards</string>
+    <string name="settings_about_app_subtitle">Inteligentny i pasywny system nauki z fiszkami</string>
+    <string name="settings_about_creator_title">Twórca</string>
+    <string name="settings_about_creator_subtitle">FloFla Dev</string>
+    <string name="settings_about_version_title">Wersja</string>
+    
+    <!-- Home Screen - Polish (welcoming and inviting) -->
+    <string name="home_header_title">FloFla Cards</string>
+    <string name="home_header_subtitle">Wiedza płynie naturalnie z unoszącymi się kartami</string>
+    <string name="home_cards_title">Karty</string>
+    <string name="home_cards_subtitle"></string>
+    <string name="home_cards_description">Przejdź do zarządzania fiszkami</string>
+    <string name="home_statistics_title">Statystyki</string>
+    <string name="home_statistics_subtitle"></string>
+    <string name="home_statistics_description">Przejdź do statystyk nauki</string>
+    <string name="home_settings_title">Ustawienia</string>
+    <string name="home_settings_description">Przejdź do ustawień aplikacji</string>
+    
+    <!-- Status Dashboard - clear and informative Polish -->
+    <string name="status_learning_active">Nauka aktywna</string>
+    <string name="status_learning_inactive">Nauka wstrzymana</string>
+    <string name="status_active_cards">Aktywne karty</string>
+    <string name="status_streak_days">Seria dni</string>
+    <string name="status_next_flashcard">Następna fiszka za</string>
+    
+    <!-- Learning Controls - action-oriented Polish -->
+    <string name="learning_start_button">Rozpocznij naukę</string>
+    <string name="learning_stop_button">Zatrzymaj naukę</string>
+    <string name="learning_grant_permission">Przyznaj uprawnienie</string>
+    <string name="learning_no_cards_title">Brak dostępnych kart</string>
+    <string name="learning_no_cards_description">Dodaj fiszki, żeby zacząć się uczyć</string>
+    <string name="learning_no_cards_button">Dodaj karty</string>
+    
+    <!-- Interval Selection Dialog - user-friendly Polish -->
+    <string name="interval_dialog_title">Wybierz interwał nauki</string>
+    <string name="interval_dialog_description">Jak często mają pojawiać się fiszki:</string>
+    <string name="interval_dialog_confirm">Rozpocznij naukę</string>
+    <string name="interval_dialog_cancel">Anuluj</string>
+    <string name="interval_minutes">%1$d minut</string>
+    
+    <!-- Flashcard Management Screen - encouraging Polish -->
+    <string name="flashcard_management_loading">Ładowanie fiszek...</string>
+    <string name="flashcard_management_empty_title">Jeszcze nie ma fiszek</string>
+    <string name="flashcard_management_empty_description">Stwórz pierwszą fiszkę i zacznij się uczyć!</string>
+    <string name="flashcard_management_empty_button">Stwórz pierwszą fiszkę</string>
+    <string name="flashcard_management_add_button">Dodaj fiszkę</string>
+    <string name="flashcard_management_add_description">Dodaj fiszkę</string>
+    <string name="flashcard_management_enable_all">Aktywuj wszystkie</string>
+    <string name="flashcard_management_disable_all">Wyłącz wszystkie</string>
+    
+    <!-- Add/Edit Flashcard Screen - clear Polish instructions -->
+    <string name="add_flashcard_title">Dodaj fiszkę</string>
+    <string name="edit_flashcard_title">Edytuj fiszkę</string>
+    <string name="flashcard_question_label">Pytanie</string>
+    <string name="flashcard_question_placeholder">Wpisz swoje pytanie...</string>
+    <string name="flashcard_answer_label">Odpowiedź</string>
+    <string name="flashcard_answer_placeholder">Wpisz odpowiedź...</string>
+    <string name="flashcard_save_button">Zapisz</string>
+    <string name="flashcard_back_button">Wróć</string>
+    <string name="flashcard_unsaved_changes_title">Niezapisane zmiany</string>
+    <string name="flashcard_unsaved_changes_message">Masz niezapisane zmiany. Co chcesz zrobić?</string>
+    <string name="flashcard_save_changes">Zapisz</string>
+    <string name="flashcard_discard_changes">Odrzuć</string>
+    
+    <!-- Delete Confirmation Dialogs - polite but clear Polish -->
+    <string name="delete_flashcard_title">Usuń fiszkę</string>
+    <string name="delete_flashcard_message">Czy na pewno chcesz usunąć tę fiszkę?\n\n"%1$s"</string>
+    <string name="delete_flashcard_confirm">Usuń</string>
+    <string name="delete_flashcard_cancel">Anuluj</string>
+    
+    <string name="delete_category_title">Usuń kategorię</string>
+    <string name="delete_category_message_with_cards">Czy na pewno chcesz usunąć kategorię "%1$s"?\n\nSpowoduje to trwałe usunięcie wszystkich %2$d fiszek w tej kategorii.</string>
+    <string name="delete_category_message_empty">Czy na pewno chcesz usunąć kategorię "%1$s"?</string>
+    <string name="delete_category_confirm">Usuń</string>
+    <string name="delete_category_cancel">Anuluj</string>
+    
+    <!-- General Dialog Buttons - consistent Polish -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Anuluj</string>
+    <string name="dialog_confirm">Potwierdź</string>
+    
+    <!-- Flashcard Dialog - specific Polish terms -->
+    <string name="add_flashcard_dialog_title">Nowa fiszka</string>
+    <string name="add_flashcard_dialog_confirm">Dodaj fiszkę</string>
+    <string name="edit_flashcard_dialog_title">Edytuj fiszkę</string>
+    <string name="edit_flashcard_dialog_confirm">Zapisz zmiany</string>
+    
+    <!-- Statistics Screen - informative Polish -->
+    <string name="statistics_title">Statystyki</string>
+    <string name="statistics_back">Wróć</string>
+    <string name="statistics_reset_all">Resetuj statystyki</string>
+    <string name="statistics_loading">Ładowanie statystyk...</string>
+    <string name="statistics_no_data">Jeszcze brak dostępnych statystyk</string>
+    <string name="statistics_start_learning">Zacznij się uczyć, żeby zobaczyć swój postęp!</string>
+    
+    <!-- Statistics Cards - natural Polish metric names -->
+    <string name="stats_total_reviews">Łączne powtórki</string>
+    <string name="stats_correct_answers">Poprawne odpowiedzi</string>
+    <string name="stats_accuracy_rate">Skuteczność</string>
+    <string name="stats_current_streak">Obecna seria</string>
+    <string name="stats_highest_streak">Najlepsza seria</string>
+    <string name="stats_total_flashcards">Opanowane</string>
+    <string name="stats_categories_count">Kategorie</string>
+    <string name="stats_average_difficulty">Śred. trudność</string>
+    <string name="stats_days_suffix">dni</string>
+    <string name="stats_cards_suffix">%1$d kart</string>
+    <string name="stats_reviews_suffix">powtórek</string>
+    <string name="stats_percent_suffix">%</string>
+    
+    <!-- Statistics Reset Dialogs - careful Polish phrasing -->
+    <string name="reset_all_stats_title">Resetuj wszystkie statystyki</string>
+    <string name="reset_all_stats_description">To spowoduje trwałe zresetowanie:</string>
+    <string name="reset_all_stats_flashcards">• Całego postępu fiszek (%1$d kart)</string>
+    <string name="reset_all_stats_current_streak">• Obecnej serii: %1$d dni</string>
+    <string name="reset_all_stats_highest_streak">• Najlepszej serii: %1$d dni</string>
+    <string name="reset_all_stats_history">• Historii powtórek i wyników trudności</string>
+    <string name="reset_all_stats_warning">Ta czynność nie może zostać cofnięta.</string>
+    <string name="reset_all_stats_confirm">Resetuj wszystkie</string>
+    <string name="reset_all_stats_cancel">Anuluj</string>
+    
+    <string name="reset_flashcard_stats_title">Resetuj statystyki fiszki</string>
+    <string name="reset_flashcard_stats_description">Czy na pewno chcesz zresetować statystyki dla tej karty:</string>
+    <string name="reset_flashcard_stats_details">To zresetuje: liczniki poprawnych/niepoprawnych/trudnych, współczynnik łatwości, liczbę powtórek i datę ostatniej powtórki.</string>
+    <string name="reset_flashcard_stats_warning">Ta czynność nie może zostać cofnięta.</string>
+    <string name="reset_flashcard_stats_confirm">Resetuj</string>
+    <string name="reset_flashcard_stats_cancel">Anuluj</string>
+    
+    <string name="reset_category_stats_title">Resetuj statystyki kategorii</string>
+    <string name="reset_category_stats_description">Czy na pewno chcesz zresetować wszystkie statystyki dla kategorii:</string>
+    <string name="reset_category_stats_details">To zresetuje statystyki dla wszystkich %1$d fiszek w tej kategorii.</string>
+    <string name="reset_category_stats_warning">Ta czynność nie może zostać cofnięta.</string>
+    <string name="reset_category_stats_confirm">Resetuj kategorię</string>
+    <string name="reset_category_stats_cancel">Anuluj</string>
+    
+    <!-- Status Badge - concise Polish status terms -->
+    <string name="status_active">AKTYWNA</string>
+    <string name="status_inactive">NIEAKTYWNA</string>
+    
+    <!-- Learning Controls Additional Strings - action-oriented Polish -->
+    <string name="learning_stop_button_caps">ZATRZYMAJ NAUKĘ</string>
+    <string name="learning_no_cards_hint">Najpierw dodaj fiszki w sekcji \'Karty\'</string>
+    <string name="learning_permission_required_button">PRZYZNAJ UPRAWNIENIE</string>
+    <string name="learning_start_button_caps">ROZPOCZNIJ NAUKĘ</string>
+    <string name="learning_overlay_permission_warning">Uprawnienie nakładki wymagane dla unoszących się fiszek!</string>
+    
+    <!-- Status Dashboard Additional Strings - clear Polish -->
+    <string name="status_learning_title">Status nauki</string>
+    <string name="status_service_label">Usługa</string>
+    <string name="status_cards_suffix_text">kart</string>
+    <string name="status_days_text">dni</string>
+    
+    <!-- Shared Component Strings - natural Polish -->
+    <string name="shared_back">Wróć</string>
+    <string name="shared_cancel">Anuluj</string>
+    <string name="shared_enable_all">Aktywuj wszystkie</string>
+    <string name="shared_disable_all">Wyłącz wszystkie</string>
+    <string name="shared_total">Łącznie</string>
+    <string name="shared_active">Aktywne</string>
+    <string name="shared_inactive">Nieaktywne</string>
+    <string name="shared_enable_all_items">Aktywuj wszystkie elementy</string>
+    <string name="shared_disable_all_items">Wyłącz wszystkie elementy</string>
+    <string name="bulk_action_active_count">%1$d aktywnych z %2$d</string>
+    
+    <!-- Statistics Component Strings - Polish -->
+    <string name="stats_mastered_count">%1$d/%2$d opanowanych</string>
+    <string name="stats_average_short">%1$d%% Ø</string>
+    <string name="stats_reset_category_description">Resetuj statystyki kategorii</string>
+    <string name="stats_reset_flashcard_description">Resetuj statystyki fiszki</string>
+    <string name="stats_expand_description">Rozwiń</string>
+    <string name="stats_collapse_description">Zwiń</string>
+    
+    <!-- Settings Screen Strings - natural Polish -->
+    <string name="settings_manage_categories_title">Zarządzaj kategoriami</string>
+    <string name="settings_add_category">Dodaj kategorię</string>
+    <string name="settings_manage_flashcards">Zarządzaj fiszkami</string>
+    <string name="settings_loading_categories">Ładowanie kategorii...</string>
+    <string name="settings_no_categories_title">Jeszcze nie ma kategorii</string>
+    <string name="settings_no_categories_description">Stwórz pierwszą kategorię, żeby uporządkować swoje fiszki!</string>
+    <string name="settings_create_first_category">Stwórz pierwszą kategorię</string>
+    <string name="settings_add_new_category">Nowa kategoria</string>
+    <string name="settings_category_name">Nazwa kategorii</string>
+    <string name="settings_edit_category">Edytuj kategorię</string>
+    <string name="settings_preferences">Preferencje</string>
+    
+    <!-- Main Screen Next Flashcard - Polish -->
+    <string name="main_next_flashcard_in">Następna fiszka za %1$d s</string>
+    <string name="main_preparing_next">Przygotowuję następną fiszkę...</string>
+    
+    <!-- Demo Flashcard Content - Polish -->
+    <string name="demo_welcome_question">👋 Witaj przy swojej pierwszej fiszce!\n\nTak działają fiszki. Dotknij przycisk \'Pokaż odpowiedź\' poniżej, żeby zobaczyć odpowiedź i opcje oceny.</string>
+    <string name="demo_welcome_answer">🎉 Świetna robota!\n\nTeraz widzisz odpowiedź i przyciski oceny poniżej:\n\n❌ Nie wiem - dla trudnych kart\n❓ Częściowo - gdy nie jesteś pewien\n✅ Wiem dobrze - gdy miałeś rację!\n\n💡 Wskazówka: Dotknij ikonę ⚙️ koła zębatego powyżej, żeby przesunąć, zmienić rozmiar lub przezroczystość tej fiszki!\n\nJeśli zamkniesz fiszkę (X) pomijasz ją.\n\nMożesz też zmienić motyw fiszek w ustawieniach. 🎉</string>
+    
+    <!-- Empty State Flashcard - Polish -->
+    <string name="empty_state_no_cards_title">Brak dostępnych kart</string>
+    <string name="empty_state_no_cards_message">Wszystkie twoje fiszki są obecnie wyłączone.\n\nAby kontynuować naukę:\n• Aktywuj niektóre fiszki w swoich kategoriach\n• Lub dodaj nowe fiszki do nauki</string>
+    
+    <!-- Flashcard Show Answer Button - Polish -->
+    <string name="flashcard_show_answer">Pokaż odpowiedź</string>
+    
+    <!-- Interaction Mode / Flashcard Settings - Polish -->
+    <string name="interaction_mode_title">⚙️ Tryb interakcji</string>
+    
+    <!-- Interaction Mode Names - Polish -->
+    <string name="interaction_mode_learning">Tryb nauki</string>
+    <string name="interaction_mode_drag">Przeciąganie</string>
+    <string name="interaction_mode_resize">Zmiana rozmiaru</string>
+    <string name="interaction_mode_opacity">Przezroczystość</string>
+    
+    <!-- Interaction Mode Descriptions - Polish -->
+    <string name="interaction_mode_learning_description">Standardowa obsługa fiszek</string>
+    <string name="interaction_mode_drag_description">Zmień pozycję fiszki</string>
+    <string name="interaction_mode_resize_description">Dostosuj rozmiar fiszki</string>
+    <string name="interaction_mode_opacity_description">Steruj przezroczystością</string>
+    
+    <!-- Interaction Mode Instructions - Polish -->
+    <string name="interaction_mode_learning_instruction">Standardowy tryb nauki – dotknij kart, żeby się uczyć</string>
+    <string name="interaction_mode_drag_instruction">Tryb przeciągania – przesuń fiszkę po ekranie</string>
+    <string name="interaction_mode_resize_instruction">Tryb zmiany rozmiaru – dostosuj rozmiar fiszki</string>
+    <string name="interaction_mode_opacity_instruction">Tryb przezroczystości – kontroluj przezroczystość (min. 10%)</string>
+    
+    <!-- Opacity Control Strings - Polish -->
+    <string name="opacity_control_label">👁️ Przezroczystość</string>
+    <string name="opacity_control_minimum">Minimum (10%)</string>
+    <string name="opacity_control_maximum">Maksimum (100%)</string>
+    <string name="opacity_control_description">Ustaw przezroczystość fiszki. Minimum 10%% zapewnia widoczność.</string>
+    
+    <!-- Search Functionality - Polish -->
+    <string name="search_categories">Wyszukaj kategorie...</string>
+    <string name="search_flashcards">Wyszukaj fiszki...</string>
+    <string name="search_statistics">Wyszukaj...</string>
+    <string name="search_no_results">Nie znaleziono wyników</string>
+    <string name="search_no_results_description">Spróbuj innego wyszukiwania lub wyczyść wyszukiwanie, aby zobaczyć wszystkie elementy</string>
+    <string name="search_clear">Wyczyść wyszukiwanie</string>
+</resources>

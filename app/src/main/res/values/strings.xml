@@ -1,0 +1,373 @@
+<resources>
+    <string name="app_name">FloFla Cards</string>
+    
+    <!-- Welcome Flow Strings -->
+    <!-- Introduction Step -->
+    <string name="welcome_intro_title">Ready to Learn Smarter?</string>
+    <string name="welcome_intro_description">Floating flashcards that appear over any app, making every moment count.</string>
+    <string name="welcome_intro_benefit">✨ Learn while texting, browsing, or gaming</string>
+    <string name="welcome_intro_button">Show Me How!</string>
+    
+    <!-- Privacy Step -->
+    <string name="welcome_privacy_title">Your Data, Your Control 🔒</string>
+    <string name="welcome_privacy_description">Everything stays on your device. No tracking, no cloud, no worries.</string>
+    <string name="welcome_privacy_flow">📱💾🔒 Local → Secure → Private</string>
+    <string name="welcome_privacy_button">Got It!</string>
+    
+    <!-- Backup Folder Step -->
+    <string name="welcome_backup_title">Backup Folder 📁</string>
+    <string name="welcome_backup_description">Select a folder where your backup files will be stored. This ensures your data persists even if you uninstall the app.</string>
+    <string name="welcome_backup_benefits_title">Key Benefits:</string>
+    <string name="welcome_backup_benefit_1">💾 Automatic backup creation</string>
+    <string name="welcome_backup_benefit_2">🔄 Data survives app reinstall</string>
+    <string name="welcome_backup_benefit_3">📂 User-controlled storage location</string>
+    <string name="welcome_backup_benefit_4">🔒 Privacy-focused (no cloud)</string>
+    <string name="welcome_backup_granted">Backup folder selected! ✅</string>
+    <string name="welcome_backup_required">Backup folder required 📁</string>
+    <string name="welcome_backup_button_continue">Continue</string>
+    <string name="welcome_backup_button_select">Select Backup Folder</string>
+    
+    <!-- Overlay Permission Step -->
+    <string name="welcome_overlay_title">Overlay Permission 📱</string>
+    <string name="welcome_overlay_description">This permission allows flashcards to appear on top of other apps for seamless learning.</string>
+    <string name="welcome_overlay_granted">Overlay permission granted! ✅</string>
+    <string name="welcome_overlay_required">Choose my app after clicking the button below 📱</string>
+    <string name="welcome_overlay_button_continue">Continue</string>
+    <string name="welcome_overlay_button_grant">Grant Permission</string>
+    
+    <!-- Battery Optimization Step -->
+    <string name="welcome_battery_title">Battery Optimization ⚡</string>
+    <string name="welcome_battery_description">For the best learning experience, please disable battery optimization to prevent the app from being killed in the background.</string>
+    <string name="welcome_battery_granted">Battery optimization disabled! ✅</string>
+    <string name="welcome_battery_enabled">Battery optimization enabled ⚡</string>
+    <string name="welcome_battery_button_continue">Continue</string>
+    <string name="welcome_battery_button_disable">Disable Optimization</string>
+    <string name="welcome_battery_button_skip">Skip</string>
+    
+    <!-- Backup Check Step -->
+    <string name="welcome_backup_check_found_title">Backup Found 💾</string>
+    <string name="welcome_backup_check_fresh_title">Starting Fresh 🆕</string>
+    <string name="welcome_backup_check_found_description">We found a previous backup of your data!</string>
+    <string name="welcome_backup_check_fresh_description">No backup found. You can start fresh with a clean slate!</string>
+    <string name="welcome_backup_check_details_title">Backup Details:</string>
+    <string name="welcome_backup_check_created">📅 Created: %1$s</string>
+    <string name="welcome_backup_check_categories">📚 Categories: %1$d</string>
+    <string name="welcome_backup_check_flashcards">🗂️ Flashcards: %1$d</string>
+    <string name="welcome_backup_check_question">Would you like to restore your previous data?</string>
+    <string name="welcome_backup_check_button_restore">Restore Backup</string>
+    <string name="welcome_backup_check_button_fresh">Start Fresh</string>
+    
+    <!-- Completed Step -->
+    <string name="welcome_completed_title">All Set! 🎉</string>
+    <string name="welcome_completed_description">Congratulations! Your app is now ready for an amazing learning experience.</string>
+    <string name="welcome_completed_ready_title">You\'re ready to:</string>
+    <string name="welcome_completed_feature_1">📚 Create your first flashcard category</string>
+    <string name="welcome_completed_feature_2">🎯 Start learning with floating cards</string>
+    <string name="welcome_completed_feature_3">📊 Track your learning progress</string>
+    <string name="welcome_completed_feature_4">⚡ Customize your learning experience</string>
+    <string name="welcome_completed_happy_learning">Happy learning! 🚀</string>
+    <string name="welcome_completed_button">Enter App</string>
+    
+    <!-- Language Dialog -->
+    <string name="language_dialog_title">Choose Language</string>
+    
+    <!-- Settings Language Section -->
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_subtitle">Choose your preferred app language</string>
+    <string name="settings_language_current">Current language</string>
+    
+    <!-- Progress Indicator -->
+    <string name="welcome_progress_title">Setup Progress</string>
+    <string name="welcome_progress_step">Step %1$d of %2$d: %3$s</string>
+    <string name="welcome_progress_introduction">Introduction</string>
+    <string name="welcome_progress_privacy">Privacy</string>
+    <string name="welcome_progress_backup_folder">Backup Folder</string>
+    <string name="welcome_progress_overlay">Overlay</string>
+    <string name="welcome_progress_battery">Battery</string>
+    <string name="welcome_progress_backup_check">Backup</string>
+    
+    <!-- App Settings Screen -->
+    <!-- Main sections -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_go_back">Go back</string>
+    
+    <!-- Appearance section -->
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_appearance_subtitle">Customize your app and flashcard themes</string>
+    <string name="settings_appearance_app_theme">App Theme</string>
+    <string name="settings_appearance_flashcard_theme">Flashcard Theme</string>
+    <string name="settings_appearance_flashcard_description">Choose theme for flashcard overlay (independent from app theme)</string>
+    
+    <!-- Theme descriptions -->
+    <string name="theme_light_description">Always use light theme</string>
+    <string name="theme_dark_description">Always use dark theme</string>
+    <string name="theme_system_description">Follow device setting</string>
+    <string name="flashcard_theme_default_description">Current design with dark background</string>
+    <string name="flashcard_theme_light_description">Light background for better visibility</string>
+    <string name="flashcard_theme_dark_description">Enhanced dark mode with deeper colors</string>
+    
+    <!-- Theme enum display names -->
+    <string name="theme_light_name">Light</string>
+    <string name="theme_dark_name">Dark</string>
+    <string name="theme_system_name">System Default</string>
+    <string name="flashcard_theme_default_name">Default</string>
+    <string name="flashcard_theme_light_name">Light</string>
+    <string name="flashcard_theme_dark_name">Dark</string>
+    
+    <!-- Permissions section -->
+    <string name="settings_permissions_title">Permissions</string>
+    <string name="settings_permissions_subtitle">Manage app permissions and optimization</string>
+    
+    <!-- Support section -->
+    <string name="settings_support_title">Support</string>
+    <string name="settings_support_subtitle">Help improve this app</string>
+    <string name="settings_support_development_title">Support Development</string>
+    <string name="settings_support_development_subtitle">Help keep this app free and continuously improving</string>
+    <string name="settings_support_contact_title">Contact Developer</string>
+    <string name="settings_support_contact_subtitle">Get in touch for support or feedback</string>
+    <string name="settings_support_rate_title">Rate My App</string>
+    <string name="settings_support_rate_subtitle">Help others discover this app</string>
+    
+    <!-- About section -->
+    <string name="settings_about_title">About</string>
+    <string name="settings_about_subtitle">App information</string>
+    <string name="settings_about_app_title">FloFla Cards</string>
+    <string name="settings_about_app_subtitle">Smart and passive flashcard learning system</string>
+    <string name="settings_about_creator_title">Creator</string>
+    <string name="settings_about_creator_subtitle">FloFla Dev</string>
+    <string name="settings_about_version_title">Version</string>
+    
+    <!-- Home Screen -->
+    <string name="home_header_title">FloFla Cards</string>
+    <string name="home_header_subtitle">Knowledge flows passively with overlay cards</string>
+    <string name="home_cards_title">Cards</string>
+    <string name="home_cards_subtitle"></string>
+    <string name="home_cards_description">Navigate to flashcard management screen</string>
+    <string name="home_statistics_title">Statistics</string>
+    <string name="home_statistics_subtitle"></string>
+    <string name="home_statistics_description">Navigate to learning statistics screen</string>
+    <string name="home_settings_title">Settings</string>
+    <string name="home_settings_description">Navigate to app settings screen</string>
+    
+    <!-- Status Dashboard -->
+    <string name="status_learning_active">Learning Active</string>
+    <string name="status_learning_inactive">Learning Inactive</string>
+    <string name="status_active_cards">Active Cards</string>
+    <string name="status_streak_days">Day Streak</string>
+    <string name="status_next_flashcard">Next flashcard in</string>
+    
+    <!-- Learning Controls -->
+    <string name="learning_start_button">Start Learning</string>
+    <string name="learning_stop_button">Stop Learning</string>
+    <string name="learning_grant_permission">Grant Permission</string>
+    <string name="learning_no_cards_title">No cards available</string>
+    <string name="learning_no_cards_description">Add flashcards to start learning</string>
+    <string name="learning_no_cards_button">Add Cards</string>
+    
+    <!-- Interval Selection Dialog -->
+    <string name="interval_dialog_title">Select Learning Interval</string>
+    <string name="interval_dialog_description">Choose how often flashcards appear:</string>
+    <string name="interval_dialog_confirm">Start Learning</string>
+    <string name="interval_dialog_cancel">Cancel</string>
+    <string name="interval_minutes">%1$d minutes</string>
+    
+    <!-- Flashcard Management Screen -->
+    <string name="flashcard_management_loading">Loading flashcards...</string>
+    <string name="flashcard_management_empty_title">No flashcards yet</string>
+    <string name="flashcard_management_empty_description">Create your first flashcard to start learning!</string>
+    <string name="flashcard_management_empty_button">Create First Flashcard</string>
+    <string name="flashcard_management_add_button">Add Flashcard</string>
+    <string name="flashcard_management_add_description">Add Flashcard</string>
+    <string name="flashcard_management_enable_all">Enable All</string>
+    <string name="flashcard_management_disable_all">Disable All</string>
+    
+    <!-- Add/Edit Flashcard Screen -->
+    <string name="add_flashcard_title">Add Flashcard</string>
+    <string name="edit_flashcard_title">Edit Flashcard</string>
+    <string name="flashcard_question_label">Question</string>
+    <string name="flashcard_question_placeholder">Enter your question...</string>
+    <string name="flashcard_answer_label">Answer</string>
+    <string name="flashcard_answer_placeholder">Enter your answer...</string>
+    <string name="flashcard_save_button">Save</string>
+    <string name="flashcard_back_button">Back</string>
+    <string name="flashcard_unsaved_changes_title">Unsaved Changes</string>
+    <string name="flashcard_unsaved_changes_message">You have unsaved changes. What would you like to do?</string>
+    <string name="flashcard_save_changes">Save</string>
+    <string name="flashcard_discard_changes">Discard</string>
+    
+    <!-- Image handling -->
+    <string name="add_image">Add Image</string>
+    <string name="add_image_optional">Add Image (optional)</string>
+    <string name="remove_image">Remove Image</string>
+    <string name="flashcard_image">Flashcard Image</string>
+    
+    <!-- Delete Confirmation Dialogs -->
+    <string name="delete_flashcard_title">Delete Flashcard</string>
+    <string name="delete_flashcard_message">Are you sure you want to delete this flashcard?\n\n\"%1$s\"</string>
+    <string name="delete_flashcard_confirm">Delete</string>
+    <string name="delete_flashcard_cancel">Cancel</string>
+    
+    <string name="delete_category_title">Delete Category</string>
+    <string name="delete_category_message_with_cards">Are you sure you want to delete the category \"%1$s\"?\n\nThis will permanently delete all %2$d flashcard(s) in this category.</string>
+    <string name="delete_category_message_empty">Are you sure you want to delete the category \"%1$s\"?</string>
+    <string name="delete_category_confirm">Delete</string>
+    <string name="delete_category_cancel">Cancel</string>
+    
+    <!-- General Dialog Buttons -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Cancel</string>
+    <string name="dialog_confirm">Confirm</string>
+    
+    <!-- Flashcard Dialog -->
+    <string name="add_flashcard_dialog_title">Add New Flashcard</string>
+    <string name="add_flashcard_dialog_confirm">Add Flashcard</string>
+    <string name="edit_flashcard_dialog_title">Edit Flashcard</string>
+    <string name="edit_flashcard_dialog_confirm">Save Changes</string>
+    
+    <!-- Statistics Screen -->
+    <string name="statistics_title">Statistics</string>
+    <string name="statistics_back">Back</string>
+    <string name="statistics_reset_all">Reset Statistics</string>
+    <string name="statistics_loading">Loading statistics...</string>
+    <string name="statistics_no_data">No statistics available yet</string>
+    <string name="statistics_start_learning">Start learning to see your progress!</string>
+    
+    <!-- Statistics Cards -->
+    <string name="stats_total_reviews">Total Reviews</string>
+    <string name="stats_correct_answers">Correct Answers</string>
+    <string name="stats_accuracy_rate">Accuracy Rate</string>
+    <string name="stats_current_streak">Current Streak</string>
+    <string name="stats_highest_streak">Highest Streak</string>
+    <string name="stats_total_flashcards">Mastered</string>
+    <string name="stats_categories_count">Categories</string>
+    <string name="stats_average_difficulty">Avg. Difficulty</string>
+    <string name="stats_days_suffix">days</string>
+    <string name="stats_cards_suffix">%1$d cards</string>
+    <string name="stats_reviews_suffix">reviews</string>
+    <string name="stats_percent_suffix">%</string>
+    
+    <!-- Statistics Reset Dialogs -->
+    <string name="reset_all_stats_title">Reset All Statistics</string>
+    <string name="reset_all_stats_description">This will permanently reset:</string>
+    <string name="reset_all_stats_flashcards">• All flashcard progress (%1$d cards)</string>
+    <string name="reset_all_stats_current_streak">• Current streak: %1$d days</string>
+    <string name="reset_all_stats_highest_streak">• Highest streak: %1$d days</string>
+    <string name="reset_all_stats_history">• Review history and difficulty scores</string>
+    <string name="reset_all_stats_warning">This action cannot be undone.</string>
+    <string name="reset_all_stats_confirm">Reset All</string>
+    <string name="reset_all_stats_cancel">Cancel</string>
+    
+    <string name="reset_flashcard_stats_title">Reset Flashcard Statistics</string>
+    <string name="reset_flashcard_stats_description">Are you sure you want to reset statistics for:</string>
+    <string name="reset_flashcard_stats_details">This will reset: correct/incorrect/hard counts, easiness factor, review count, and last review date.</string>
+    <string name="reset_flashcard_stats_warning">This action cannot be undone.</string>
+    <string name="reset_flashcard_stats_confirm">Reset</string>
+    <string name="reset_flashcard_stats_cancel">Cancel</string>
+    
+    <string name="reset_category_stats_title">Reset Category Statistics</string>
+    <string name="reset_category_stats_description">Are you sure you want to reset all statistics for category:</string>
+    <string name="reset_category_stats_details">This will reset statistics for all %1$d flashcards in this category.</string>
+    <string name="reset_category_stats_warning">This action cannot be undone.</string>
+    <string name="reset_category_stats_confirm">Reset Category</string>
+    <string name="reset_category_stats_cancel">Cancel</string>
+    
+    <!-- Status Badge -->
+    <string name="status_active">ACTIVE</string>
+    <string name="status_inactive">INACTIVE</string>
+    
+    <!-- Learning Controls Additional Strings -->
+    <string name="learning_stop_button_caps">STOP LEARNING</string>
+    <string name="learning_no_cards_hint">First, add flashcards in \'Cards\' section</string>
+    <string name="learning_permission_required_button">GRANT PERMISSION TO START</string>
+    <string name="learning_start_button_caps">START LEARNING</string>
+    <string name="learning_overlay_permission_warning">Overlay permission required for floating flashcards!</string>
+    
+    <!-- Status Dashboard Additional Strings -->
+    <string name="status_learning_title">Learning Status</string>
+    <string name="status_service_label">Service</string>
+    <string name="status_cards_suffix_text">cards</string>
+    <string name="status_days_text">days</string>
+    
+    <!-- Shared Component Strings -->
+    <string name="shared_back">Back</string>
+    <string name="shared_cancel">Cancel</string>
+    <string name="shared_enable_all">Enable All</string>
+    <string name="shared_disable_all">Disable All</string>
+    <string name="shared_total">Total</string>
+    <string name="shared_active">Active</string>
+    <string name="shared_inactive">Inactive</string>
+    <string name="shared_enable_all_items">Enable all items</string>
+    <string name="shared_disable_all_items">Disable all items</string>
+    <string name="bulk_action_active_count">%1$d active of %2$d</string>
+    
+    <!-- Statistics Component Strings -->
+    <string name="stats_mastered_count">%1$d/%2$d mastered</string>
+    <string name="stats_average_short">%1$d%% Ø</string>
+    <string name="stats_reset_category_description">Reset category statistics</string>
+    <string name="stats_reset_flashcard_description">Reset flashcard statistics</string>
+    <string name="stats_expand_description">Expand</string>
+    <string name="stats_collapse_description">Collapse</string>
+    
+    <!-- Settings Screen Strings -->
+    <string name="settings_manage_categories_title">Manage Categories</string>
+    <string name="settings_add_category">Add Category</string>
+    <string name="settings_manage_flashcards">Manage Flashcards</string>
+    <string name="settings_loading_categories">Loading categories...</string>
+    <string name="settings_no_categories_title">No categories yet</string>
+    <string name="settings_no_categories_description">Create your first category to organize your flashcards!</string>
+    <string name="settings_create_first_category">Create First Category</string>
+    <string name="settings_add_new_category">Add New Category</string>
+    <string name="settings_category_name">Category Name</string>
+    <string name="settings_edit_category">Edit Category</string>
+    <string name="settings_preferences">Preferences</string>
+    
+    <!-- Main Screen Next Flashcard -->
+    <string name="main_next_flashcard_in">Next flashcard in %1$ds</string>
+    <string name="main_preparing_next">Preparing next flashcard...</string>
+    
+    <!-- Demo Flashcard Content -->
+    <string name="demo_welcome_question">👋 Welcome to your first flashcard!\n\nThis is how flashcards work. Tap the \'Show Answer\' button below to reveal the answer and rating options.</string>
+    <string name="demo_welcome_answer">🎉 Great job!\n\nNow you can see the answer and rating buttons below:\n\n❌ Don\'t know - for difficult cards\n❓ Partially know - when you\'re unsure\n✅ Know well - when you got it right!\n\n💡 Tip: Tap the ⚙️ gear icon above to move, resize, or adjust opacity of this flashcard!\n\nIf you close a flashcard (X) you are skipping the card.\n\nAlso, you can change the flashcard theme in the settings. 🎉</string>
+    
+    <!-- Empty State Flashcard -->
+    <string name="empty_state_no_cards_title">No Cards Available</string>
+    <string name="empty_state_no_cards_message">All your flashcards are currently disabled.\n\nTo continue learning:\n• Enable some flashcards in your categories\n• Or add new flashcards to study</string>
+    
+    <!-- Flashcard Show Answer Button -->
+    <string name="flashcard_show_answer">Show Answer</string>
+    
+    <!-- Interaction Mode / Flashcard Settings -->
+    <string name="interaction_mode_title">⚙️ Interaction Mode</string>
+    
+    <!-- Interaction Mode Names -->
+    <string name="interaction_mode_learning">Learning Mode</string>
+    <string name="interaction_mode_drag">Drag Mode</string>
+    <string name="interaction_mode_resize">Resize Mode</string>
+    <string name="interaction_mode_opacity">Opacity Mode</string>
+    
+    <!-- Interaction Mode Descriptions -->
+    <string name="interaction_mode_learning_description">Default flashcard learning</string>
+    <string name="interaction_mode_drag_description">Move flashcard position</string>
+    <string name="interaction_mode_resize_description">Adjust flashcard size</string>
+    <string name="interaction_mode_opacity_description">Control transparency</string>
+    
+    <!-- Interaction Mode Instructions -->
+    <string name="interaction_mode_learning_instruction">Default learning mode – tap cards to study</string>
+    <string name="interaction_mode_drag_instruction">Drag mode – move flashcard around screen</string>
+    <string name="interaction_mode_resize_instruction">Resize mode – adjust flashcard size</string>
+    <string name="interaction_mode_opacity_instruction">Opacity mode – control transparency (min 10%)</string>
+    
+    <!-- Opacity Control Strings -->
+    <string name="opacity_control_label">👁️ Opacity</string>
+    <string name="opacity_control_minimum">Minimum (10%)</string>
+    <string name="opacity_control_maximum">Maximum (100%)</string>
+    <string name="opacity_control_description">Control flashcard transparency. Minimum 10%% ensures visibility.</string>
+    
+    <!-- Search Functionality -->
+    <string name="search_categories">Search categories...</string>
+    <string name="search_flashcards">Search flashcards...</string>
+    <string name="search_statistics">Search...</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_no_results_description">Try a different search term or clear the search to see all items</string>
+    <string name="search_clear">Clear Search</string>
+</resources>

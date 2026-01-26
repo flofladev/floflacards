@@ -1,0 +1,367 @@
+<resources>
+    <string name="app_name">FloFla Cards</string>
+    
+    <!-- Welcome Flow Strings - German (meaning-first, not literal) -->
+    <!-- Introduction Step -->
+    <string name="welcome_intro_title">Bereit, schlauer zu lernen – ganz nebenbei?</string>
+    <string name="welcome_intro_description">Lernkarten, die über jeder App schweben – so nutzt du jede Minute.</string>
+    <string name="welcome_intro_benefit">✨ Lernen beim Chatten, Surfen oder Spielen</string>
+    <string name="welcome_intro_button">Zeig mir, wie!</string>
+    
+    <!-- Privacy Step -->
+    <string name="welcome_privacy_title">Deine Daten. Deine Kontrolle. 🔒</string>
+    <string name="welcome_privacy_description">Alles bleibt auf deinem Gerät. Kein Tracking, keine Cloud, kein Stress.</string>
+    <string name="welcome_privacy_flow">📱💾🔒 Lokal → Sicher → Privat</string>
+    <string name="welcome_privacy_button">Alles klar!</string>
+    
+    <!-- Backup Folder Step -->
+    <string name="welcome_backup_title">Backup-Ordner 📁</string>
+    <string name="welcome_backup_description">Wähle einen Ordner für deine Backup-Dateien. So bleiben deine Daten auch bei einer Neuinstallation erhalten.</string>
+    <string name="welcome_backup_benefits_title">Die Vorteile:</string>
+    <string name="welcome_backup_benefit_1">💾 Automatische Backup-Erstellung</string>
+    <string name="welcome_backup_benefit_2">🔄 Daten überleben App-Neuinstallation</string>
+    <string name="welcome_backup_benefit_3">📂 Du bestimmst den Speicherort</string>
+    <string name="welcome_backup_benefit_4">🔒 Datenschutz-freundlich (keine Cloud)</string>
+    <string name="welcome_backup_granted">Backup-Ordner ausgewählt! ✅</string>
+    <string name="welcome_backup_required">Backup-Ordner erforderlich 📁</string>
+    <string name="welcome_backup_button_continue">Weiter</string>
+    <string name="welcome_backup_button_select">Backup-Ordner auswählen</string>
+    
+    <!-- Overlay Permission Step -->
+    <string name="welcome_overlay_title">Overlay-Berechtigung 📱</string>
+    <string name="welcome_overlay_description">Diese Berechtigung ermöglicht es, dass Lernkarten über anderen Apps erscheinen – für nahtloses Lernen.</string>
+    <string name="welcome_overlay_granted">Overlay-Berechtigung erteilt! ✅</string>
+    <string name="welcome_overlay_required">Wähle meine App, nachdem du auf den Button unten geklickt hast 📱</string>
+    <string name="welcome_overlay_button_continue">Weiter</string>
+    <string name="welcome_overlay_button_grant">Berechtigung erteilen</string>
+    
+    <!-- Battery Optimization Step -->
+    <string name="welcome_battery_title">Akku-Optimierung ⚡</string>
+    <string name="welcome_battery_description">Für die beste Lernerfahrung deaktiviere bitte die Akku-Optimierung, damit die App im Hintergrund aktiv bleiben kann.</string>
+    <string name="welcome_battery_granted">Akku-Optimierung deaktiviert! ✅</string>
+    <string name="welcome_battery_enabled">Akku-Optimierung aktiviert ⚡</string>
+    <string name="welcome_battery_button_continue">Weiter</string>
+    <string name="welcome_battery_button_disable">Optimierung deaktivieren</string>
+    <string name="welcome_battery_button_skip">Überspringen</string>
+    
+    <!-- Backup Check Step -->
+    <string name="welcome_backup_check_found_title">Backup gefunden 💾</string>
+    <string name="welcome_backup_check_fresh_title">Frischer Start 🆕</string>
+    <string name="welcome_backup_check_found_description">Wir haben ein früheres Backup deiner Daten gefunden!</string>
+    <string name="welcome_backup_check_fresh_description">Kein Backup gefunden. Du kannst mit einem sauberen Blatt beginnen!</string>
+    <string name="welcome_backup_check_details_title">Backup-Details:</string>
+    <string name="welcome_backup_check_created">📅 Erstellt: %1$s</string>
+    <string name="welcome_backup_check_categories">📚 Kategorien: %1$d</string>
+    <string name="welcome_backup_check_flashcards">🗂️ Lernkarten: %1$d</string>
+    <string name="welcome_backup_check_question">Möchtest du deine früheren Daten wiederherstellen?</string>
+    <string name="welcome_backup_check_button_restore">Backup wiederherstellen</string>
+    <string name="welcome_backup_check_button_fresh">Neu beginnen</string>
+    
+    <!-- Completed Step -->
+    <string name="welcome_completed_title">Geschafft! 🎉</string>
+    <string name="welcome_completed_description">Glückwunsch! Deine App ist jetzt bereit für ein fantastisches Lernerlebnis.</string>
+    <string name="welcome_completed_ready_title">Du kannst jetzt:</string>
+    <string name="welcome_completed_feature_1">📚 Deine erste Lernkarten-Kategorie erstellen</string>
+    <string name="welcome_completed_feature_2">🎯 Mit schwebenden Karten lernen</string>
+    <string name="welcome_completed_feature_3">📊 Deinen Lernfortschritt verfolgen</string>
+    <string name="welcome_completed_feature_4">⚡ Dein Lernerlebnis anpassen</string>
+    <string name="welcome_completed_happy_learning">Viel Spaß beim Lernen! 🚀</string>
+    <string name="welcome_completed_button">App betreten</string>
+    
+    <!-- Language Dialog -->
+    <string name="language_dialog_title">Sprache wählen</string>
+    
+    <!-- Settings Language Section -->
+    <string name="settings_language_title">Sprache</string>
+    <string name="settings_language_subtitle">Wählen Sie Ihre bevorzugte App-Sprache</string>
+    <string name="settings_language_current">Aktuelle Sprache</string>
+    
+    <!-- Progress Indicator -->
+    <string name="welcome_progress_title">Setup-Fortschritt</string>
+    <string name="welcome_progress_step">Schritt %1$d von %2$d: %3$s</string>
+    <string name="welcome_progress_introduction">Einführung</string>
+    <string name="welcome_progress_privacy">Datenschutz</string>
+    <string name="welcome_progress_backup_folder">Backup-Ordner</string>
+    <string name="welcome_progress_overlay">Overlay</string>
+    <string name="welcome_progress_battery">Akku</string>
+    <string name="welcome_progress_backup_check">Backup</string>
+    
+    <!-- App Settings Screen - German (meaning-focused translations) -->
+    <!-- Main sections -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_go_back">Zurück</string>
+    
+    <!-- Appearance section -->
+    <string name="settings_appearance_title">Darstellung</string>
+    <string name="settings_appearance_subtitle">Passe App- und Lernkarten-Design an deine Wünsche an</string>
+    <string name="settings_appearance_app_theme">App-Design</string>
+    <string name="settings_appearance_flashcard_theme">Lernkarten-Design</string>
+    <string name="settings_appearance_flashcard_description">Wähle das Design für schwebende Lernkarten (unabhängig vom App-Design)</string>
+    
+    <!-- Theme descriptions - natural German phrasing -->
+    <string name="theme_light_description">Immer helles Design verwenden</string>
+    <string name="theme_dark_description">Immer dunkles Design verwenden</string>
+    <string name="theme_system_description">Geräte-Einstellung folgen</string>
+    <string name="flashcard_theme_default_description">Aktuelles Design mit dunklem Hintergrund</string>
+    <string name="flashcard_theme_light_description">Heller Hintergrund für bessere Lesbarkeit</string>
+    <string name="flashcard_theme_dark_description">Verbesserter Dunkelmodus mit tieferen Farben</string>
+    
+    <!-- Theme enum display names - German -->
+    <string name="theme_light_name">Hell</string>
+    <string name="theme_dark_name">Dunkel</string>
+    <string name="theme_system_name">Wie Gerät</string>
+    <string name="flashcard_theme_default_name">Standard</string>
+    <string name="flashcard_theme_light_name">Hell</string>
+    <string name="flashcard_theme_dark_name">Dunkel</string>
+    
+    <!-- Permissions section -->
+    <string name="settings_permissions_title">Berechtigungen</string>
+    <string name="settings_permissions_subtitle">App-Berechtigungen und -Optimierungen verwalten</string>
+    
+    <!-- Support section - friendly and encouraging tone -->
+    <string name="settings_support_title">Unterstützung</string>
+    <string name="settings_support_subtitle">Hilf mit, diese App zu verbessern</string>
+    <string name="settings_support_development_title">Entwicklung unterstützen</string>
+    <string name="settings_support_development_subtitle">Hilf dabei, die App kostenlos und stetig besser zu machen</string>
+    <string name="settings_support_contact_title">Entwickler kontaktieren</string>
+    <string name="settings_support_contact_subtitle">Melde dich bei Fragen oder für Feedback</string>
+    <string name="settings_support_rate_title">App bewerten</string>
+    <string name="settings_support_rate_subtitle">Hilf anderen, diese App zu entdecken</string>
+    
+    <!-- About section - professional but warm -->
+    <string name="settings_about_title">Über die App</string>
+    <string name="settings_about_subtitle">App-Informationen</string>
+    <string name="settings_about_app_title">FloFla Cards</string>
+    <string name="settings_about_app_subtitle">Intelligentes und passives Lernkarten-System</string>
+    <string name="settings_about_creator_title">Entwickler</string>
+    <string name="settings_about_creator_subtitle">FloFla Dev</string>
+    <string name="settings_about_version_title">Version</string>
+    
+    <!-- Home Screen - German (natural and inviting) -->
+    <string name="home_header_title">FloFla Cards</string>
+    <string name="home_header_subtitle">Wissen fließt nebenbei mit schwebenden Karten</string>
+    <string name="home_cards_title">Karten</string>
+    <string name="home_cards_subtitle"></string>
+    <string name="home_cards_description">Zur Lernkarten-Verwaltung wechseln</string>
+    <string name="home_statistics_title">Statistiken</string>
+    <string name="home_statistics_subtitle"></string>
+    <string name="home_statistics_description">Lern-Statistiken anzeigen</string>
+    <string name="home_settings_title">Einstellungen</string>
+    <string name="home_settings_description">App-Einstellungen öffnen</string>
+    
+    <!-- Status Dashboard - clear and informative German -->
+    <string name="status_learning_active">Lernen aktiv</string>
+    <string name="status_learning_inactive">Lernen pausiert</string>
+    <string name="status_active_cards">Aktive Karten</string>
+    <string name="status_streak_days">Tage-Serie</string>
+    <string name="status_next_flashcard">Nächste Lernkarte in</string>
+    
+    <!-- Learning Controls - action-oriented German -->
+    <string name="learning_start_button">Lernen starten</string>
+    <string name="learning_stop_button">Lernen stoppen</string>
+    <string name="learning_grant_permission">Berechtigung erteilen</string>
+    <string name="learning_no_cards_title">Keine Karten verfügbar</string>
+    <string name="learning_no_cards_description">Füge Lernkarten hinzu, um zu beginnen</string>
+    <string name="learning_no_cards_button">Karten hinzufügen</string>
+    
+    <!-- Interval Selection Dialog - user-friendly German -->
+    <string name="interval_dialog_title">Lern-Intervall wählen</string>
+    <string name="interval_dialog_description">Wie oft sollen Lernkarten erscheinen:</string>
+    <string name="interval_dialog_confirm">Lernen starten</string>
+    <string name="interval_dialog_cancel">Abbrechen</string>
+    <string name="interval_minutes">%1$d Minuten</string>
+    
+    <!-- Flashcard Management Screen - encouraging German -->
+    <string name="flashcard_management_loading">Lernkarten werden geladen...</string>
+    <string name="flashcard_management_empty_title">Noch keine Lernkarten</string>
+    <string name="flashcard_management_empty_description">Erstelle deine erste Lernkarte und beginne zu lernen!</string>
+    <string name="flashcard_management_empty_button">Erste Lernkarte erstellen</string>
+    <string name="flashcard_management_add_button">Lernkarte hinzufügen</string>
+    <string name="flashcard_management_add_description">Lernkarte hinzufügen</string>
+    <string name="flashcard_management_enable_all">Alle aktivieren</string>
+    <string name="flashcard_management_disable_all">Alle deaktivieren</string>
+    
+    <!-- Add/Edit Flashcard Screen - clear German instructions -->
+    <string name="add_flashcard_title">Lernkarte hinzufügen</string>
+    <string name="edit_flashcard_title">Lernkarte bearbeiten</string>
+    <string name="flashcard_question_label">Frage</string>
+    <string name="flashcard_question_placeholder">Gib deine Frage ein...</string>
+    <string name="flashcard_answer_label">Antwort</string>
+    <string name="flashcard_answer_placeholder">Gib deine Antwort ein...</string>
+    <string name="flashcard_save_button">Speichern</string>
+    <string name="flashcard_back_button">Zurück</string>
+    <string name="flashcard_unsaved_changes_title">Nicht gespeicherte Änderungen</string>
+    <string name="flashcard_unsaved_changes_message">Du hast nicht gespeicherte Änderungen. Was möchtest du tun?</string>
+    <string name="flashcard_save_changes">Speichern</string>
+    <string name="flashcard_discard_changes">Verwerfen</string>
+    
+    <!-- Delete Confirmation Dialogs - polite but clear German -->
+    <string name="delete_flashcard_title">Lernkarte löschen</string>
+    <string name="delete_flashcard_message">Möchtest du diese Lernkarte wirklich löschen?\n\n\"%1$s\"</string>
+    <string name="delete_flashcard_confirm">Löschen</string>
+    <string name="delete_flashcard_cancel">Abbrechen</string>
+    
+    <string name="delete_category_title">Kategorie löschen</string>
+    <string name="delete_category_message_with_cards">Möchtest du die Kategorie \"%1$s\" wirklich löschen?\n\nDadurch werden auch alle %2$d Lernkarte(n) in dieser Kategorie dauerhaft gelöscht.</string>
+    <string name="delete_category_message_empty">Möchtest du die Kategorie \"%1$s\" wirklich löschen?</string>
+    <string name="delete_category_confirm">Löschen</string>
+    <string name="delete_category_cancel">Abbrechen</string>
+    
+    <!-- General Dialog Buttons - consistent German -->
+    <string name="dialog_ok">OK</string>
+    <string name="dialog_cancel">Abbrechen</string>
+    <string name="dialog_confirm">Bestätigen</string>
+    
+    <!-- Flashcard Dialog - specific German terms -->
+    <string name="add_flashcard_dialog_title">Neue Lernkarte</string>
+    <string name="add_flashcard_dialog_confirm">Lernkarte hinzufügen</string>
+    <string name="edit_flashcard_dialog_title">Lernkarte bearbeiten</string>
+    <string name="edit_flashcard_dialog_confirm">Änderungen speichern</string>
+    
+    <!-- Statistics Screen - informative German -->
+    <string name="statistics_title">Statistiken</string>
+    <string name="statistics_back">Zurück</string>
+    <string name="statistics_reset_all">Statistiken zurücksetzen</string>
+    <string name="statistics_loading">Statistiken werden geladen...</string>
+    <string name="statistics_no_data">Noch keine Statistiken verfügbar</string>
+    <string name="statistics_start_learning">Beginne zu lernen, um deinen Fortschritt zu sehen!</string>
+    
+    <!-- Statistics Cards - natural German metric names -->
+    <string name="stats_total_reviews">Wiederholungen gesamt</string>
+    <string name="stats_correct_answers">Richtige Antworten</string>
+    <string name="stats_accuracy_rate">Erfolgsquote</string>
+    <string name="stats_current_streak">Aktuelle Serie</string>
+    <string name="stats_highest_streak">Beste Serie</string>
+    <string name="stats_total_flashcards">Gemeistert</string>
+    <string name="stats_categories_count">Kategorien</string>
+    <string name="stats_average_difficulty">Ø Schwierigkeit</string>
+    <string name="stats_days_suffix">Tage</string>
+    <string name="stats_cards_suffix">%1$d Karten</string>
+    <string name="stats_reviews_suffix">Wiederholungen</string>
+    <string name="stats_percent_suffix">%</string>
+    
+    <!-- Statistics Reset Dialogs - careful German phrasing -->
+    <string name="reset_all_stats_title">Alle Statistiken zurücksetzen</string>
+    <string name="reset_all_stats_description">Dies wird dauerhaft zurücksetzen:</string>
+    <string name="reset_all_stats_flashcards">• Allen Lernkarten-Fortschritt (%1$d Karten)</string>
+    <string name="reset_all_stats_current_streak">• Aktuelle Serie: %1$d Tage</string>
+    <string name="reset_all_stats_highest_streak">• Beste Serie: %1$d Tage</string>
+    <string name="reset_all_stats_history">• Wiederholungshistorie und Schwierigkeitsgrad</string>
+    <string name="reset_all_stats_warning">Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="reset_all_stats_confirm">Alle zurücksetzen</string>
+    <string name="reset_all_stats_cancel">Abbrechen</string>
+    
+    <string name="reset_flashcard_stats_title">Lernkarten-Statistiken zurücksetzen</string>
+    <string name="reset_flashcard_stats_description">Möchtest du die Statistiken für diese Karte zurücksetzen:</string>
+    <string name="reset_flashcard_stats_details">Dies setzt zurück: Richtig/Falsch/Schwer-Zähler, Einfachheitsfaktor, Wiederholungsanzahl und letztes Wiederholungsdatum.</string>
+    <string name="reset_flashcard_stats_warning">Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="reset_flashcard_stats_confirm">Zurücksetzen</string>
+    <string name="reset_flashcard_stats_cancel">Abbrechen</string>
+    
+    <string name="reset_category_stats_title">Kategorie-Statistiken zurücksetzen</string>
+    <string name="reset_category_stats_description">Möchtest du alle Statistiken für diese Kategorie zurücksetzen:</string>
+    <string name="reset_category_stats_details">Dies setzt die Statistiken für alle %1$d Lernkarten in dieser Kategorie zurück.</string>
+    <string name="reset_category_stats_warning">Diese Aktion kann nicht rückgängig gemacht werden.</string>
+    <string name="reset_category_stats_confirm">Kategorie zurücksetzen</string>
+    <string name="reset_category_stats_cancel">Abbrechen</string>
+    
+    <!-- Status Badge - concise German status terms -->
+    <string name="status_active">AKTIV</string>
+    <string name="status_inactive">INAKTIV</string>
+    
+    <!-- Learning Controls Additional Strings - action-oriented German -->
+    <string name="learning_stop_button_caps">LERNEN BEENDEN</string>
+    <string name="learning_no_cards_hint">Erstelle zuerst Lernkarten im \'Karten\'-Bereich</string>
+    <string name="learning_permission_required_button">BERECHTIGUNG ERTEILEN</string>
+    <string name="learning_start_button_caps">LERNEN STARTEN</string>
+    <string name="learning_overlay_permission_warning">Overlay-Berechtigung für schwebende Lernkarten erforderlich!</string>
+    
+    <!-- Status Dashboard Additional Strings - clear German -->
+    <string name="status_learning_title">Lern-Status</string>
+    <string name="status_service_label">Dienst</string>
+    <string name="status_cards_suffix_text">Karten</string>
+    <string name="status_days_text">Tage</string>
+    
+    <!-- Shared Component Strings - natural German -->
+    <string name="shared_back">Zurück</string>
+    <string name="shared_cancel">Abbrechen</string>
+    <string name="shared_enable_all">Alle aktivieren</string>
+    <string name="shared_disable_all">Alle deaktivieren</string>
+    <string name="shared_total">Gesamt</string>
+    <string name="shared_active">Aktiv</string>
+    <string name="shared_inactive">Inaktiv</string>
+    <string name="shared_enable_all_items">Alle Elemente aktivieren</string>
+    <string name="shared_disable_all_items">Alle Elemente deaktivieren</string>
+    <string name="bulk_action_active_count">%1$d aktiv von %2$d</string>
+    
+    <!-- Statistics Component Strings - German -->
+    <string name="stats_mastered_count">%1$d/%2$d gemeistert</string>
+    <string name="stats_average_short">%1$d%% Ø</string>
+    <string name="stats_reset_category_description">Kategorie-Statistiken zurücksetzen</string>
+    <string name="stats_reset_flashcard_description">Lernkarten-Statistiken zurücksetzen</string>
+    <string name="stats_expand_description">Ausklappen</string>
+    <string name="stats_collapse_description">Einklappen</string>
+    
+    <!-- Settings Screen Strings - natural German -->
+    <string name="settings_manage_categories_title">Kategorien verwalten</string>
+    <string name="settings_add_category">Kategorie hinzufügen</string>
+    <string name="settings_manage_flashcards">Lernkarten verwalten</string>
+    <string name="settings_loading_categories">Kategorien werden geladen...</string>
+    <string name="settings_no_categories_title">Noch keine Kategorien</string>
+    <string name="settings_no_categories_description">Erstelle deine erste Kategorie, um deine Lernkarten zu organisieren!</string>
+    <string name="settings_create_first_category">Erste Kategorie erstellen</string>
+    <string name="settings_add_new_category">Neue Kategorie</string>
+    <string name="settings_category_name">Kategorie-Name</string>
+    <string name="settings_edit_category">Kategorie bearbeiten</string>
+    <string name="settings_preferences">Einstellungen</string>
+    
+    <!-- Main Screen Next Flashcard - German -->
+    <string name="main_next_flashcard_in">Nächste Lernkarte in %1$d s</string>
+    <string name="main_preparing_next">Bereite nächste Lernkarte vor...</string>
+    
+    <!-- Demo Flashcard Content - German -->
+    <string name="demo_welcome_question">👋 Willkommen zu deiner ersten Lernkarte!\n\nSo funktionieren Lernkarten. Tippe auf den \'Antwort zeigen\'-Button unten, um die Antwort und Bewertungsoptionen zu sehen.</string>
+    <string name="demo_welcome_answer">🎉 Toll gemacht!\n\nNun siehst du die Antwort und Bewertungsbuttons unten:\n\n❌ Weiß nicht - für schwierige Karten\n❓ Teilweise - wenn du unsicher bist\n✅ Weiß gut - wenn es richtig war!\n\n💡 Tipp: Tippe auf das ⚙️ Zahnrad-Symbol oben, um diese Lernkarte zu bewegen, zu vergrößern oder die Transparenz anzupassen!\n\nWenn du eine Lernkarte schließt (X) überspringst du sie.\n\nDu kannst auch das Lernkarten-Design in den Einstellungen ändern. 🎉</string>
+    
+    <!-- Empty State Flashcard - German -->
+    <string name="empty_state_no_cards_title">Keine Karten verfügbar</string>
+    <string name="empty_state_no_cards_message">Alle deine Lernkarten sind derzeit deaktiviert.\n\nUm weiterzulernen:\n• Aktiviere einige Lernkarten in deinen Kategorien\n• Oder füge neue Lernkarten hinzu</string>
+    
+    <!-- Flashcard Show Answer Button - German -->
+    <string name="flashcard_show_answer">Antwort zeigen</string>
+    
+    <!-- Interaction Mode / Flashcard Settings - German -->
+    <string name="interaction_mode_title">⚙️ Interaktionsmodus</string>
+    
+    <!-- Interaction Mode Names - German -->
+    <string name="interaction_mode_learning">Lernmodus</string>
+    <string name="interaction_mode_drag">Verschieben</string>
+    <string name="interaction_mode_resize">Größe ändern</string>
+    <string name="interaction_mode_opacity">Transparenz</string>
+    
+    <!-- Interaction Mode Descriptions - German -->
+    <string name="interaction_mode_learning_description">Standard-Lernkarten-Bedienung</string>
+    <string name="interaction_mode_drag_description">Lernkarten-Position verschieben</string>
+    <string name="interaction_mode_resize_description">Lernkarten-Größe anpassen</string>
+    <string name="interaction_mode_opacity_description">Transparenz steuern</string>
+    
+    <!-- Interaction Mode Instructions - German -->
+    <string name="interaction_mode_learning_instruction">Standard-Lernmodus – tippe auf Karten zum Lernen</string>
+    <string name="interaction_mode_drag_instruction">Verschiebe-Modus – bewege die Lernkarte auf dem Bildschirm</string>
+    <string name="interaction_mode_resize_instruction">Größen-Modus – passe die Lernkarten-Größe an</string>
+    <string name="interaction_mode_opacity_instruction">Transparenz-Modus – steuere Durchsichtigkeit (mind. 10%)</string>
+    
+    <!-- Opacity Control Strings - German -->
+    <string name="opacity_control_label">👁️ Transparenz</string>
+    <string name="opacity_control_minimum">Minimum (10%)</string>
+    <string name="opacity_control_maximum">Maximum (100%)</string>
+    <string name="opacity_control_description">Stelle die Lernkarten-Transparenz ein. Minimum 10%% sichert Sichtbarkeit.</string>
+    
+    <!-- Search Functionality - German -->
+    <string name="search_categories">Kategorien suchen...</string>
+    <string name="search_flashcards">Lernkarten suchen...</string>
+    <string name="search_statistics">Suchen...</string>
+    <string name="search_no_results">Keine Ergebnisse gefunden</string>
+    <string name="search_no_results_description">Versuche einen anderen Suchbegriff oder lösche die Suche, um alle Elemente zu sehen</string>
+    <string name="search_clear">Suche löschen</string>
+</resources>

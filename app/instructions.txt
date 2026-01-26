@@ -1,0 +1,196 @@
+Doskonale. To świetne podejście – zacząć od solidnego MVP (Minimum Viable Product). Twoje przemyślenia są bardzo trafne. Zgadzam się w 100%, że statystyki i import/eksport można pominąć na start, a skupić się na absolutnym rdzeniu aplikacji.
+Poniżej przygotowałem bardzo szczegółowy, profesjonalny prompt, który możesz przekazać agentowi AI. Jest napisany tak, jakby product manager lub architekt oprogramowania zlecał zadanie doświadczonemu programiście.
+(Poziom: Senior Android Developer)
+Wprowadzenie:
+Jesteś doświadczonym, seniorskim deweloperem Androida. Twoim zadaniem jest stworzenie architektury i implementacja MVP (Minimum Viable Product) aplikacji "Floating Learning". Głównym celem jest dostarczenie funkcjonalnego, stabilnego i gotowego do rozbudowy prototypu. Priorytetem jest jakość kodu, solidna architektura i niezawodność działania kluczowych funkcji. Estetyka UI jest drugorzędna – skup się na logice i strukturze.
+
+App Concept:
+The application helps users learn by displaying "floating" flashcards over other applications at regular, user-defined intervals. The learning process is based on the Spaced Repetition System (SRS) method, but it's frequency-based rather than time-based, as flashcards should appear at intervals set by the user. Less known flashcards should appear more frequently, while better known ones appear less frequently.
+
+CLARIFICATIONS:
+- The entire app should be developed in English (UI, code, variables, comments)
+- Timer Mechanics: User sets ONE interval (e.g., 5 minutes) → countdown runs → at 0 seconds, show next flashcard from queue → timer PAUSES during user interaction → after user answers, timer RESTARTS for another full interval cycle
+- Queue System: All enabled flashcards from ALL categories compete in ONE unified queue managed by algorithmic SRS logic (not hardcoded positions)
+- SRS Algorithm: Should be flexible and algorithmic (e.g., using ease factors, intervals) rather than hardcoded "next card" or "3rd card" positions
+- Overlay Position: Centered by default, potentially draggable if implementation complexity allows
+
+I. Zakres Funkcjonalny MVP (Co budujemy)
+Funkcje Konieczne w MVP:
+Zarządzanie Kategoriami:
+Tworzenie nowej kategorii (tylko nazwa).
+Edycja nazwy istniejącej kategorii.
+Usuwanie kategorii (wraz ze wszystkimi fiszkami w niej zawartymi, po potwierdzeniu).
+Lista wszystkich kategorii.
+
+Zarządzanie Fiszkami w ramach Kategorii:
+Tworzenie nowej fiszki (pytanie, odpowiedź) wewnątrz wybranej kategorii.
+Edycja pytania i odpowiedzi istniejącej fiszki.
+Usuwanie pojedynczej fiszki.
+Możliwość włączania/wyłączania całej kategorii LUB indywidualnej fiszki z cyklu nauki (checkbox).
+
+Mechanizm Nauki (Rdzeń Aplikacji):
+Ustawienie Interwału: Użytkownik może wybrać z predefiniowanej listy (np. 1, 5, 10, 15, 30 minut), co ile ma sie pojawiac fiszka.
+Logika SRS: Zaimplementuj prosty, ale skuteczny algorytm SRS. Każda fiszka w bazie danych musi przechowywać swój stan nauki (np. jak czesto ma byc pokazywana, współczynnik trudności).
+
+Pływająca Fiszka:
+Gdy nadejdzie czas (po uplywie interwalu, countdown ma byc widoczny na ekranie glownym (zobacz zrzuty ekranu jako inspiracje)), aplikacja wyświetla pływające okno (overlay) nad aktualnie używaną aplikacją.
+Okno początkowo pokazuje tylko pytanie z fiszki.
+Po dotknięciu okna, odsłania się odpowiedź.
+Po odsłonięciu odpowiedzi, pojawiają się trzy przyciski samooceny:
+Źle (czerwony X): funkcja na przyklad : Następna powtórka bardzo szybko (np. nastepna lub kolejna na stosie).
+Trudno (żółty ?): Lekko wydłuża powtorke (np. po 2/3 fiszkach).
+Dobrze (zielony +): Znacząco wydłuża powtorke (np. po 5/6 lub wiecej fiszkach).
+
+Włączanie/Wyłączanie Usługi: Prosty przełącznik na ekranie głównym do uruchamiania i zatrzymywania całego mechanizmu ktory musi dzialac 24/7 nawek jak aplikacja zostanie zamknieta jezeli usluga jest wlaczona.
+
+Funkcje Celowo Pominięte w MVP:
+Statystyki i śledzenie postępów.
+Import/Eksport fiszek.
+Zaawansowane opcje interwału (np. pory dnia).
+Logowanie użytkownika i synchronizacja w chmurze.
+Wyszukiwanie fiszek.
+
+II. Wymagania Techniczne i Architektoniczne
+1. Stos Technologiczny:
+Język: Kotlin – jako oficjalny, nowoczesny język dla Androida. Wykorzystaj jego funkcje, takie jak coroutines, flow i sealed classes.
+Architektura: MVVM (Model-View-ViewModel) z elementami Clean Architecture. Zachowaj ścisły podział na warstwy (UI, ViewModel, Domain/UseCases, Repository, Data Source).
+UI: Jetpack Compose – dla nowoczesnego, deklaratywnego i wydajnego budowania interfejsu.
+Asynchroniczność: Kotlin Coroutines & Flow – do zarządzania operacjami w tle, komunikacją z bazą danych i aktualizacją UI.
+Baza Danych: Room – jako warstwa abstrakcji nad SQLite. Zapewnia bezpieczeństwo typów i weryfikację zapytań w czasie kompilacji.
+Zadania w Tle: WorkManager – do niezawodnego planowania cyklu sprawdzania fiszek. Jest to kluczowe, ponieważ WorkManager przetrwa restarty urządzenia i uwzględnia optymalizacje baterii (Doze mode) (dodaj funkcje o informacji na wylaczenie optymalizacji baterii i przekieruj go). Nie używaj Timer, Handler ani prostego Service, które mogą być łatwo zabite przez system.
+Nawigacja: Compose Navigation – do zarządzania przejściami między ekranami.
+Dependency Injection: Hilt (lub Koin) – do zarządzania zależnościami i ułatwienia testowania. Hilt jest preferowany ze względu na integrację z Jetpack.
+
+2. Zasady Projektowe:
+SOLID: Każdy komponent musi być zgodny z zasadami SOLID.
+Single Responsibility Principle: Każda klasa i funkcja ma mieć jedną, jasno zdefiniowaną odpowiedzialność. Unikaj "God Objects". Pliki powinny być małe i skupione na jednym zadaniu.
+Clean Architecture: Oddziel logikę biznesową (jak działa SRS, co to jest fiszka) od implementacji frameworka Androida. Użyj UseCases/Interactors dla logiki biznesowej.
+State Management: Stan UI musi być zarządzany w ViewModelach i emitowany do UI za pomocą StateFlow. UI powinno być pasywnym obserwatorem stanu.
+
+III. Hierarchia Implementacji (Krok po Kroku)
+Postępuj zgodnie z poniższą kolejnością, aby zapewnić logiczny rozwój projektu.
+Krok 1: Fundamenty - Model Danych i Baza Danych
+Zdefiniuj encje Room: CategoryEntity i FlashcardEntity.
+FlashcardEntity musi zawierać pola: id, categoryId, question, answer, nextReviewTimestamp (kiedy ma być następna powtórka), currentInterval (w dniach/minutach), easeFactor (współczynnik łatwości).
+Stwórz DAO (Data Access Objects) z funkcjami CRUD dla obu encji oraz zapytaniem do pobrania fiszek gotowych do powtórki (WHERE nextReviewTimestamp <= System.currentTimeMillis()).
+Zaimplementuj Repository jako jedyne źródło prawdy (Single Source of Truth), które komunikuje się z DAO.
+
+Krok 2: Ekrany Zarządzania (UI i ViewModel)
+Stwórz ekran do zarządzania kategoriami (lista, dodawanie, edycja, usuwanie).
+Stwórz ekran do zarządzania fiszkami w danej kategorii.
+Połącz te ekrany z odpowiednimi ViewModelami, które używają Repository do operacji na danych. Użyj StateFlow do przesyłania danych do UI.
+
+Krok 3: Logika Biznesowa (Domain Layer - SRS)
+Stwórz UseCase lub klasę serwisową odpowiedzialną za logikę SRS.
+Funkcja ta powinna przyjmować fiszkę i wynik samooceny (Źle/Trudno/Dobrze) i zwracać zaktualizowaną fiszkę
+
+Krok 4: Niezawodny Mechanizm w Tle (WorkManager)
+Stwórz Worker, który będzie uruchamiany cyklicznie.
+Worker ma za zadanie:
+Pobrać z Repository jedną fiszkę gotową do powtórki.
+Jeśli taka fiszka istnieje, uruchomić usługę pływającego okna (krok 5) i przekazać jej dane fiszki.
+Na ekranie głównym zaimplementuj logikę do planowania i anulowania PeriodicWorkRequest za pomocą WorkManager.
+
+Krok 5: Pływająca Fiszka (Overlay Service)
+Stwórz Service, który będzie odpowiedzialny za wyświetlanie pływającego okna.
+Kluczowe: Aplikacja będzie wymagać uprawnienia SYSTEM_ALERT_WINDOW. Poprowadź użytkownika do ekranu ustawień systemowych, aby je przyznał(funckja informacji uzytkownika o tym i przekierowania).
+Użyj WindowManager do dodania widoku (zbudowanego w Compose) na ekran.
+Zarządzaj stanem okna (tylko pytanie -> pytanie i odpowiedź z przyciskami).
+Po kliknięciu przycisku samooceny, Service musi:
+Wywołać logikę SRS (z kroku 3) w celu aktualizacji fiszki.
+Zaktualizować fiszkę w bazie danych poprzez Repository.
+Zamknąć i zniszczyć pływające okno.
+Po zamknieciu plywajacego okienka, leci countdown z interwalem ktory uzytkownik wybral do pojawienia sie kolejnej fiszki.
+
+IV. Pytania, na które Senior Developer Musi Znać Odpowiedź
+Twój kod i architektura powinny domyślnie odpowiadać na te pytania:
+Niezawodność: Jak zapewnisz, że fiszka pojawi się o czasie, nawet jeśli aplikacja jest zamknięta, a telefon jest w trybie Doze? (Odp: Użycie WorkManager).
+Uprawnienia: Jaki jest plan na obsługę uprawnienia SYSTEM_ALERT_WINDOW w sposób przyjazny dla użytkownika? (Odp: Wyjaśnienie, dlaczego jest potrzebne i przekierowanie do ustawień).
+Zarządzanie Stanem: W jaki sposób stan pływającego okna jest odizolowany od reszty aplikacji, aby uniknąć wycieków pamięci? (Odp: Użycie osobnego serwisu, który jest niszczony po zakończeniu zadania).
+Wydajność Bazy Danych: Jak unikniesz wykonywania zapytań do bazy danych w głównym wątku? (Odp: Użycie Coroutines i suspend functions w Room).
+Testowalność: Jak struktura aplikacji (MVVM, DI, Clean Architecture) ułatwia pisanie testów jednostkowych dla logiki SRS i ViewModeli? (Odp: Oddzielenie logiki od frameworka Androida).
+
+Ulepszony Prompt dla Agenta AI (Wersja 2.0)
+
+Wprowadzenie:
+Jesteś doświadczonym, seniorskim deweloperem Androida. Twoim zadaniem jest stworzenie architektury i implementacja MVP (Minimum Viable Product) aplikacji "Floating Learning". Głównym celem jest dostarczenie funkcjonalnego, stabilnego i gotowego do rozbudowy prototypu. Priorytetem jest jakość kodu, solidna architektura i niezawodność działania kluczowych funkcji.
+
+Koncepcja Aplikacji:
+Aplikacja ma pomagać użytkownikom w nauce poprzez wyświetlanie "pływających" fiszek nad innymi aplikacjami w regularnych, zdefiniowanych przez użytkownika interwałach. Proces nauki jest oparty na metodzie powtórek w interwałach (Spaced Repetition System - SRS).
+I. Zakres Funkcjonalny MVP (Co budujemy)
+Funkcje Konieczne w MVP:
+Zarządzanie Kategoriami:
+Tworzenie nowej kategorii (tylko nazwa).
+Edycja nazwy istniejącej kategorii.
+Usuwanie kategorii (wraz z fiszkami, po potwierdzeniu).
+Lista wszystkich kategorii.
+Onboarding: Podczas pierwszego uruchomienia aplikacja powinna automatycznie stworzyć jedną przykładową kategorię (np. "Jak używać aplikacji?") z kilkoma fiszkami wyjaśniającymi podstawowe funkcje.
+Zarządzanie Fiszkami w ramach Kategorii:
+Edycja pytania i odpowiedzi.
+Usuwanie pojedynczej fiszki.
+Możliwość włączania/wyłączania całej kategorii LUB indywidualnej fiszki z cyklu nauki (checkbox).
+Treść fiszek to zwykły tekst (plain text). MVP nie wspiera formatowania (Markdown, HTML).
+Learning Mechanism (App Core):
+Interval Setting: User can choose from a predefined list (e.g., 1, 5, 10, 15, 30 minutes) for how often the flashcard cycle should be triggered. Only one flashcard appears per interval cycle.
+SRS Logic: Simple but algorithmic SRS system. Each flashcard stores its learning state (ease factor, current interval multiplier, next review priority).
+Service Toggle: Switch on main screen. Main screen should clearly communicate status (e.g., 'Active, next flashcard in: X', 'Inactive', 'No active categories to learn').
+
+TIMER BEHAVIOR DETAILS:
+- Timer runs continuously when service is active
+- When timer reaches 0: fetch next flashcard from unified queue, display overlay, PAUSE timer
+- During user interaction with overlay: timer remains paused
+- After user rates flashcard (or closes it): update flashcard's SRS state, close overlay, RESTART timer for full interval
+- Queue Management: Single queue containing all enabled flashcards from all enabled categories, ordered by SRS priority algorithm
+
+Pływająca Fiszka (Overlay):
+Po nadejściu czasu, aplikacja wyświetla pływające okno (overlay).
+Okno początkowo pokazuje tylko pytanie.
+Po dotknięciu okna, odsłania się odpowiedź oraz przyciski oceny.
+Widok musi wspierać przewijanie (scroll), jeśli treść pytania lub odpowiedzi jest dłuższa niż dostępne miejsce.
+Buttons and their actions:
+Wrong (red X): Next review very soon - increases flashcard priority in queue using SRS algorithm (e.g., decreases ease factor, resets interval multiplier).
+Hard (yellow ?): Slightly delays next review - moderate SRS adjustment (e.g., small ease factor decrease, slight interval increase).
+Good (green +): Significantly delays next review - positive SRS adjustment (e.g., increases ease factor and interval multiplier).
+Close (x icon): Closes flashcard without rating. Flashcard returns to queue unchanged. SRS state remains the same.
+
+SRS ALGORITHM NOTES:
+- Use algorithmic approach with ease factors (e.g., starting at 2.5, modified by user ratings)
+- Maintain interval multipliers that affect queue priority
+- Avoid hardcoded positions like "always next" or "always 3rd card"
+- Allow for future algorithm improvements and tuning
+
+Funkcje Celowo Pominięte w MVP:
+Szczegółowe statystyki (np. wykresy postępów, stosunek odpowiedzi Dobrze/Trudno/Źle).
+Import/Eksport fiszek (docelowo w formacie JSON dla przyszłej kompatybilności).
+Inteligentne wykrywanie kontekstu (np. wstrzymywanie fiszek podczas rozmów telefonicznych, gier, wideo).
+Tryb aktywnej nauki (manualne przeglądanie całej talii).
+Zaawansowane opcje interwału, logowanie, synchronizacja, wyszukiwanie.
+
+II. Wymagania Techniczne i Architektoniczne
+(Ta sekcja pozostaje bez zmian, jest doskonała)
+Stos Technologiczny: Kotlin, MVVM/Clean Architecture, Jetpack Compose, Coroutines & Flow, Room, WorkManager, Compose Navigation, Hilt.
+Zasady Projektowe: SOLID, Single Responsibility, Clean Architecture, State Management.
+
+III. Hierarchia Implementacji (Krok po Kroku)
+Krok 1: Fundamenty - Model Danych i Baza Danych
+Zdefiniuj encje Room: CategoryEntity i FlashcardEntity.
+FlashcardEntity musi zawierać pola: id, categoryId, question, answer, nextReviewTimestamp, currentInterval, easeFactor.
+Stwórz DAO z funkcjami CRUD i zapytaniem getDueFlashcard() (pobierającym jedną fiszkę).
+Zaimplementuj Repository.
+
+Krok 2: Ekrany Zarządzania (UI i ViewModel)
+Stwórz ekrany i ViewModel dla zarządzania kategoriami i fiszkami.
+Zaimplementuj logikę do automatycznego tworzenia przykładowej kategorii przy pierwszym uruchomieniu.
+
+Krok 3: Logika Biznesowa (Domain Layer - SRS)
+Stwórz UseCase lub klasę serwisową dla logiki SRS, która na podstawie fiszki i oceny zwraca zaktualizowaną fiszkę.
+
+Krok 4: Niezawodny Mechanizm w Tle (WorkManager)
+Stwórz Worker, który cyklicznie pobiera jedną fiszkę do powtórki i uruchamia usługę pływającego okna.
+Zaimplementuj logikę planowania i anulowania PeriodicWorkRequest na ekranie głównym.
+
+Krok 5: Pływająca Fiszka (Overlay Service)
+Obsługa uprawnienia SYSTEM_ALERT_WINDOW. Przed przekierowaniem do ustawień, wyświetl użytkownikowi krótki, przyjazny dialog wyjaśniający, dlaczego to uprawnienie jest niezbędne do działania kluczowej funkcji aplikacji (wyświetlania fiszek nad innymi aplikacjami).
+Stwórz Service, który używa WindowManager do dodania widoku w Compose.
+Zarządzaj stanem okna i logiką przycisków (w tym nowego przycisku "Zamknij"). Po ocenie lub zamknięciu, serwis musi się zniszczyć.
+Ten zaktualizowany plan jest teraz kompletnym przewodnikiem, który łączy solidną inżynierię oprogramowania z Twoją unikalną wizją produktu. Możesz teraz użyć tego całego tekstu w rozmowie z agentem AI (lub scenariusza podanego przez kolegę, podstawiając ten prompt), a wynik powinien być znacznie bliższy Twoim oczekiwaniom. Powodzenia
