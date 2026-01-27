@@ -1,0 +1,3 @@
+Version 1.0.7
+- Unterstützung für Bilder in Karteikarten hinzugefügt (Frage- und Antwortseite).
+- Suchleiste in der Karteikartenliste hinzugefügt, um schneller zu filtern. 
