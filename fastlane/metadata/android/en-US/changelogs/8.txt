@@ -1,3 +1,1 @@
-Version 1.0.7
-- Added support for images in flashcards (both question and answer sides).
-- Added a search bar to the flashcards list for quick filtering. 
+<p>Version 1.0.7 - Added support for images in flashcards (both questionand answer sides). - Added a search bar to the flashcards list for quickfiltering.</p>
