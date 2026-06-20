@@ -1,0 +1,1 @@
+Version 1.0.13 - Fixed the same flashcard sometimes appearing twice in a row
