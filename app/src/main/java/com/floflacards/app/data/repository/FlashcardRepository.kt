@@ -86,16 +86,32 @@ class FlashcardRepository @Inject constructor(
     suspend fun getNextFlashcardForReview(): FlashcardEntity? = flashcardDao.getNextFlashcardForReview()
     
     /**
+     * Id of the most recently shown flashcard, used to avoid showing the same
+     * card twice in a row. Kept in memory only (this repository is a singleton);
+     * it resets to "none" on process restart, which is fine — any card is an
+     * acceptable choice after a restart.
+     */
+    @Volatile
+    private var lastShownFlashcardId: Long = FlashcardDao.NO_EXCLUDED_CARD
+
+    /**
      * Gets the next available flashcard with guaranteed result.
      * Returns empty state flashcard when no cards are available instead of null.
      * This ensures the timer service never gets stuck and provides clear user feedback.
+     *
+     * Excludes the previously shown card so it is never shown twice in a row,
+     * unless it is the only card available.
      */
     suspend fun getNextAvailableFlashcard(): FlashcardEntity {
-        // Try to get a regular flashcard first
-        val regularFlashcard = flashcardDao.getNextAvailableFlashcard()
-        
-        // If no regular cards available, return empty state flashcard
-        return regularFlashcard ?: com.floflacards.app.domain.util.EmptyStateFlashcard.create()
+        val regularFlashcard = flashcardDao.getNextAvailableFlashcard(excludeId = lastShownFlashcardId)
+
+        return if (regularFlashcard != null) {
+            lastShownFlashcardId = regularFlashcard.id
+            regularFlashcard
+        } else {
+            // No regular cards available — show the empty state.
+            com.floflacards.app.domain.util.EmptyStateFlashcard.create()
+        }
     }
     
     suspend fun getCardWithShortestCooldown(): FlashcardEntity? = flashcardDao.getCardWithShortestCooldown()

@@ -49,47 +49,65 @@ interface FlashcardDao {
     suspend fun getFlashcardById(id: Long): FlashcardEntity?
     
     @Query("""
-        SELECT f.* FROM flashcards f 
-        INNER JOIN categories c ON f.categoryId = c.id 
-        WHERE f.isEnabled = 1 AND c.isEnabled = 1 
+        SELECT f.* FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
         AND f.cooldownUntil <= :currentTime
-        ORDER BY 
+        AND f.id != :excludeId
+        ORDER BY
             (f.cooldownUntil - f.lastReviewedAt) DESC,
             f.easinessFactor ASC,
             CASE WHEN (f.correctCount + f.incorrectCount) = 0 THEN 0.5
-                 ELSE CAST(f.incorrectCount AS REAL) / (f.correctCount + f.incorrectCount) 
+                 ELSE CAST(f.incorrectCount AS REAL) / (f.correctCount + f.incorrectCount)
             END DESC,
             RANDOM()
         LIMIT 1
     """)
-    suspend fun getNextFlashcardForReview(currentTime: Long = System.currentTimeMillis()): FlashcardEntity?
-    
+    suspend fun getNextFlashcardForReview(
+        currentTime: Long = System.currentTimeMillis(),
+        excludeId: Long = NO_EXCLUDED_CARD
+    ): FlashcardEntity?
+
     @Query("""
-        SELECT f.* FROM flashcards f 
-        INNER JOIN categories c ON f.categoryId = c.id 
+        SELECT f.* FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
         WHERE f.isEnabled = 1 AND c.isEnabled = 1
-        ORDER BY 
+        AND f.id != :excludeId
+        ORDER BY
             f.cooldownUntil ASC,
             f.easinessFactor ASC,
             CASE WHEN (f.correctCount + f.incorrectCount) = 0 THEN 0.5
-                 ELSE CAST(f.incorrectCount AS REAL) / (f.correctCount + f.incorrectCount) 
+                 ELSE CAST(f.incorrectCount AS REAL) / (f.correctCount + f.incorrectCount)
             END DESC,
             RANDOM()
         LIMIT 1
     """)
-    suspend fun getCardWithShortestCooldown(): FlashcardEntity?
-    
+    suspend fun getCardWithShortestCooldown(excludeId: Long = NO_EXCLUDED_CARD): FlashcardEntity?
+
     /**
      * Gets the next available flashcard, guaranteeing a result if any cards exist.
-     * First tries to get a card that's ready for review, then falls back to the card
-     * with the shortest remaining cooldown.
+     *
+     * Tries, in order:
+     *  1. A card ready for review that is NOT [excludeId] (the card just shown).
+     *  2. The card closest to being ready that is NOT [excludeId].
+     *  3. As a last resort, [excludeId] itself — reached only when it is the sole
+     *     enabled card (e.g. a single-card deck), so the overlay never goes empty.
+     *
+     * This prevents the same card from being shown twice in a row while still
+     * guaranteeing a result whenever any enabled card exists.
      */
-    suspend fun getNextAvailableFlashcard(currentTime: Long = System.currentTimeMillis()): FlashcardEntity? {
-        // First try to get a card that's ready for review
-        getNextFlashcardForReview(currentTime)?.let { return it }
-        
-        // If no cards are ready, get the one with shortest cooldown
-        return getCardWithShortestCooldown()
+    suspend fun getNextAvailableFlashcard(
+        currentTime: Long = System.currentTimeMillis(),
+        excludeId: Long = NO_EXCLUDED_CARD
+    ): FlashcardEntity? {
+        // 1. A ready card other than the one just shown.
+        getNextFlashcardForReview(currentTime, excludeId)?.let { return it }
+
+        // 2. Otherwise the soonest-to-be-ready card other than the one just shown.
+        getCardWithShortestCooldown(excludeId)?.let { return it }
+
+        // 3. The just-shown card is the only one available: show it rather than nothing.
+        return getCardWithShortestCooldown(NO_EXCLUDED_CARD)
     }
     
     @Query("""
@@ -191,4 +209,13 @@ interface FlashcardDao {
         val question: String,
         val answer: String
     )
+
+    companion object {
+        /**
+         * Sentinel for "exclude no card" in the selection queries. Real flashcards
+         * use auto-generated ids > 0 and system cards use negative ids, so 0 can
+         * never match a stored row.
+         */
+        const val NO_EXCLUDED_CARD = 0L
+    }
 }
