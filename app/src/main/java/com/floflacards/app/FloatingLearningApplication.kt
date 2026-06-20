@@ -20,20 +20,56 @@ package com.floflacards.app
 import android.app.Application
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.work.Configuration
+import com.floflacards.app.data.backup.BackupScheduler
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.data.model.Language
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class FloatingLearningApplication : Application() {
-    
+class FloatingLearningApplication : Application(), Configuration.Provider {
+
     @Inject
     lateinit var settingsManager: SettingsRepository
-    
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+    @Inject
+    lateinit var backupScheduler: BackupScheduler
+
+    // Wires Hilt-injected workers (e.g. BackupWorker) into WorkManager.
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+
     override fun onCreate() {
         super.onCreate()
         initializeLocale()
+        scheduleAutomaticBackups()
+    }
+
+    /**
+     * Sets up the deferred backup system: a daily periodic backup plus a
+     * one-shot backup whenever the app moves to the background (end of a
+     * usage session). Both are dirty-checked, so they no-op when nothing
+     * has changed. Backups are no longer written on every database edit.
+     */
+    private fun scheduleAutomaticBackups() {
+        backupScheduler.schedulePeriodicBackup()
+
+        ProcessLifecycleOwner.get().lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onStop(owner: LifecycleOwner) {
+                // App went to the background — capture the session.
+                backupScheduler.requestBackupNow()
+            }
+        })
     }
     
     /**

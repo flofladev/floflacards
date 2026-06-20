@@ -1,0 +1,1 @@
+Version 1.0.12 - Smarter backups: saved when you close the app instead of on every edit, cutting cloud sync notifications and making restores safer

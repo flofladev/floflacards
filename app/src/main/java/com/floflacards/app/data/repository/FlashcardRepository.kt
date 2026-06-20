@@ -21,7 +21,7 @@ import com.floflacards.app.data.dao.CategoryDao
 import com.floflacards.app.data.dao.FlashcardDao
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
-import com.floflacards.app.domain.usecase.backup.CreateBackupUseCase
+import com.floflacards.app.data.source.BackupPreferences
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,8 +30,20 @@ import javax.inject.Singleton
 class FlashcardRepository @Inject constructor(
     private val categoryDao: CategoryDao,
     private val flashcardDao: FlashcardDao,
-    private val createBackupUseCase: CreateBackupUseCase
+    private val backupPreferences: BackupPreferences
 ) {
+    /**
+     * Marks the dataset as changed since the last backup. This is a cheap
+     * SharedPreferences increment (no file I/O) — the actual backup is performed
+     * later by [com.floflacards.app.data.backup.BackupWorker] on a schedule and
+     * when the app goes to the background. Backups are NOT written synchronously
+     * on every change: SQLite already makes each write durable, and writing the
+     * full backup file on every edit caused excessive sync traffic and corruption
+     * risk for users syncing the backup folder (Syncthing/Nextcloud).
+     */
+    private fun markDataChanged() {
+        backupPreferences.incrementDataVersion()
+    }
     
     // Category operations
     fun getAllCategories(): Flow<List<CategoryEntity>> = categoryDao.getAllCategories()
@@ -42,21 +54,21 @@ class FlashcardRepository @Inject constructor(
     
     suspend fun insertCategory(category: CategoryEntity): Long {
         val result = categoryDao.insertCategory(category)
-        // Create backup after category creation
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after category creation
+        markDataChanged()
         return result
     }
     
     suspend fun updateCategory(category: CategoryEntity) {
         categoryDao.updateCategory(category)
-        // Create backup after category update
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after category update
+        markDataChanged()
     }
     
     suspend fun deleteCategory(category: CategoryEntity) {
         categoryDao.deleteCategory(category)
-        // Create backup after category deletion
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after category deletion
+        markDataChanged()
     }
     
     suspend fun getCategoryCount(): Int = categoryDao.getCategoryCount()
@@ -94,67 +106,67 @@ class FlashcardRepository @Inject constructor(
     
     suspend fun insertFlashcard(flashcard: FlashcardEntity): Long {
         val result = flashcardDao.insertFlashcard(flashcard)
-        // Create backup after flashcard creation
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after flashcard creation
+        markDataChanged()
         return result
     }
     
     suspend fun updateFlashcard(flashcard: FlashcardEntity) {
         flashcardDao.updateFlashcard(flashcard)
-        // Create backup after flashcard update
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after flashcard update
+        markDataChanged()
     }
     
     suspend fun deleteFlashcard(flashcard: FlashcardEntity) {
         flashcardDao.deleteFlashcard(flashcard)
-        // Create backup after flashcard deletion
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after flashcard deletion
+        markDataChanged()
     }
     
     // Statistics reset operations
     suspend fun resetFlashcardStatistics(flashcardId: Long) {
         flashcardDao.resetFlashcardStatistics(flashcardId)
-        // Create backup after statistics reset
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after statistics reset
+        markDataChanged()
     }
     
     suspend fun resetCategoryStatistics(categoryId: Long) {
         flashcardDao.resetCategoryStatistics(categoryId)
-        // Create backup after statistics reset
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after statistics reset
+        markDataChanged()
     }
     
     suspend fun resetAllStatistics() {
         flashcardDao.resetAllStatistics()
-        // Create backup after statistics reset
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after statistics reset
+        markDataChanged()
     }
     
     // Bulk operations for select/deselect all functionality
     suspend fun enableAllCategories() {
         categoryDao.enableAllCategories()
-        // Create backup after bulk category operation
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after bulk category operation
+        markDataChanged()
     }
     
     suspend fun disableAllCategories() {
         categoryDao.disableAllCategories()
-        // Create backup after bulk category operation
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after bulk category operation
+        markDataChanged()
     }
     
     suspend fun getEnabledCategoryCount(): Int = categoryDao.getEnabledCategoryCount()
     
     suspend fun enableAllFlashcardsInCategory(categoryId: Long) {
         flashcardDao.enableAllFlashcardsInCategory(categoryId)
-        // Create backup after bulk flashcard operation
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after bulk flashcard operation
+        markDataChanged()
     }
     
     suspend fun disableAllFlashcardsInCategory(categoryId: Long) {
         flashcardDao.disableAllFlashcardsInCategory(categoryId)
-        // Create backup after bulk flashcard operation
-        createBackupUseCase()
+        // Mark data changed (backup deferred to worker) after bulk flashcard operation
+        markDataChanged()
     }
     
     suspend fun getEnabledFlashcardCountByCategory(categoryId: Long): Int = 

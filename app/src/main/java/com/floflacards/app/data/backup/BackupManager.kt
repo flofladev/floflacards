@@ -20,9 +20,11 @@ package com.floflacards.app.data.backup
 import android.content.Context
 import android.net.Uri
 import androidx.documentfile.provider.DocumentFile
+import androidx.room.withTransaction
 import java.io.File
 import com.floflacards.app.data.dao.CategoryDao
 import com.floflacards.app.data.dao.FlashcardDao
+import com.floflacards.app.data.database.FloatingLearningDatabase
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.source.BackupPreferences
@@ -43,6 +45,7 @@ import javax.inject.Singleton
 @Singleton
 class BackupManager @Inject constructor(
     private val context: Context,
+    private val database: FloatingLearningDatabase,
     private val flashcardDao: FlashcardDao,
     private val categoryDao: CategoryDao,
     private val streakPreferences: StreakPreferences,
@@ -50,6 +53,9 @@ class BackupManager @Inject constructor(
 ) {
     companion object {
         private const val BACKUP_FILENAME = "backup.json"
+        // Temp file used for atomic writes: full content is written here first,
+        // then renamed over backup.json so sync tools never observe a partial file.
+        private const val BACKUP_TMP_FILENAME = "backup.json.tmp"
         private const val IMAGES_FOLDER = "images"
     }
     private val json = Json {
@@ -71,16 +77,61 @@ class BackupManager @Inject constructor(
     }
 
     /**
-     * Gets or creates the backup document using SAF.
+     * Writes the backup JSON atomically into [treeDocument].
+     *
+     * Strategy: write the complete payload to a temp file, delete the previous
+     * backup.json, then rename the temp file into place. On file-based SAF
+     * providers (the kind used by local Syncthing/Nextcloud folders) the rename
+     * is atomic, so a syncing client never observes a partially-written
+     * backup.json. If the provider doesn't support rename, falls back to writing
+     * a fresh backup.json and removing the temp file.
+     *
+     * @return the final document URI string, or null on failure.
      */
-    private fun getOrCreateBackupDocument(): DocumentFile? {
-        val treeUriString = backupPreferences.getSafTreeUri() ?: return null
-        val treeUri = Uri.parse(treeUriString)
-        val treeDocument = DocumentFile.fromTreeUri(context, treeUri) ?: return null
-        
-        // Find existing backup file or create new one
-        return treeDocument.findFile(BACKUP_FILENAME) 
-            ?: treeDocument.createFile("application/json", BACKUP_FILENAME)
+    private fun writeBackupAtomically(treeDocument: DocumentFile, jsonString: String): String? {
+        // Remove any stale temp file so createFile doesn't produce "backup.json.tmp (1)".
+        treeDocument.findFile(BACKUP_TMP_FILENAME)?.delete()
+
+        val tmpDoc = treeDocument.createFile("application/json", BACKUP_TMP_FILENAME) ?: return null
+
+        val wrote = try {
+            context.contentResolver.openOutputStream(tmpDoc.uri, "wt")?.bufferedWriter()?.use { writer ->
+                writer.write(jsonString)
+            } != null
+        } catch (e: Exception) {
+            android.util.Log.e("BackupManager", "Failed writing temp backup", e)
+            false
+        }
+        if (!wrote) {
+            tmpDoc.delete()
+            return null
+        }
+
+        // The complete temp file now exists on disk. Remove the old backup and
+        // promote the temp file to the final name.
+        treeDocument.findFile(BACKUP_FILENAME)?.delete()
+
+        val renamed = try {
+            tmpDoc.renameTo(BACKUP_FILENAME)
+        } catch (e: Exception) {
+            false
+        }
+        if (renamed) {
+            return treeDocument.findFile(BACKUP_FILENAME)?.uri?.toString() ?: tmpDoc.uri.toString()
+        }
+
+        // Fallback: provider doesn't support rename — write a fresh final file.
+        val finalDoc = treeDocument.createFile("application/json", BACKUP_FILENAME) ?: return null
+        val fallbackWrote = try {
+            context.contentResolver.openOutputStream(finalDoc.uri, "wt")?.bufferedWriter()?.use { writer ->
+                writer.write(jsonString)
+            } != null
+        } catch (e: Exception) {
+            android.util.Log.e("BackupManager", "Failed writing final backup (fallback)", e)
+            false
+        }
+        tmpDoc.delete()
+        return if (fallbackWrote) finalDoc.uri.toString() else null
     }
 
     /**
@@ -322,17 +373,14 @@ class BackupManager @Inject constructor(
                 )
             )
 
-            // Write to SAF document
-            val backupDocument = getOrCreateBackupDocument() 
-                ?: return@withContext Result.failure(IllegalStateException("Cannot create backup document"))
-                
+            // Write atomically: full content to a temp file, then rename over
+            // backup.json. This guarantees a syncing client (Syncthing/Nextcloud)
+            // never picks up a half-written backup.json.
             val jsonString = json.encodeToString(backupData)
-            val outputStream = context.contentResolver.openOutputStream(backupDocument.uri, "wt")
-            outputStream?.bufferedWriter()?.use { writer ->
-                writer.write(jsonString)
-            }
+            val finalUri = writeBackupAtomically(treeDocument, jsonString)
+                ?: return@withContext Result.failure(IllegalStateException("Cannot write backup document"))
 
-            Result.success(backupDocument.uri.toString())
+            Result.success(finalUri)
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -360,141 +408,111 @@ class BackupManager @Inject constructor(
                 ?: return@withContext Result.failure(IllegalStateException("Cannot read backup file"))
             val backupData = json.decodeFromString<BackupData>(backupContent)
 
-            // Debug: Log backup data info
-            println("DEBUG: Backup contains ${backupData.categories.size} categories and ${backupData.flashcards.size} flashcards")
-        
-            // REPLACE MODE: Clear all existing data and restore everything from backup
-            println("DEBUG: Using REPLACE mode - clearing all existing data")
-        
-            // Clear all flashcards first (due to foreign key constraints)
-            flashcardDao.deleteAllFlashcards()
-            println("DEBUG: Cleared all existing flashcards")
-        
-            // Clear all categories
-            categoryDao.deleteAllCategories()
-            println("DEBUG: Cleared all existing categories")
-        
-            var categoriesRestored = 0
-            var flashcardsRestored = 0
+            // REPLACE MODE wrapped in a single transaction: either the whole
+            // restore succeeds or the database is left untouched. This fixes the
+            // prior data-loss bug where a crash after clearing — but before
+            // re-inserting — would wipe all of the user's cards.
+            val (categoriesRestored, flashcardsRestored) = database.withTransaction {
+                // Clear flashcards first (foreign key constraints), then categories.
+                flashcardDao.deleteAllFlashcards()
+                categoryDao.deleteAllCategories()
 
-            // Restore all categories from backup
-            println("DEBUG: Restoring ${backupData.categories.size} categories")
-            for (categoryBackup in backupData.categories) {
-                println("DEBUG: Restoring category '${categoryBackup.name}'")
-                val categoryEntity = CategoryEntity(
-                    name = categoryBackup.name,
-                    isEnabled = categoryBackup.isEnabled,
-                    createdAt = categoryBackup.createdAt,
-                    updatedAt = categoryBackup.updatedAt
-                )
-                categoryDao.insertCategory(categoryEntity)
-                categoriesRestored++
-                println("DEBUG: Category '${categoryBackup.name}' restored successfully")
-            }
+                var categoriesCount = 0
+                var flashcardsCount = 0
 
-            // Get all restored categories for flashcard mapping
-            val allCategories = categoryDao.getAllCategoriesForBackup()
-            val categoryNameToIdMap = allCategories.associate { it.name to it.id }
-            println("DEBUG: Category mapping created: $categoryNameToIdMap")
-
-            // Restore all flashcards from backup
-            println("DEBUG: Restoring ${backupData.flashcards.size} flashcards")
-            for (flashcardBackup in backupData.flashcards) {
-                println("DEBUG: Restoring flashcard '${flashcardBackup.question}'")
-            
-                // Find category by name (more reliable than UUID for restore)
-                val categoryName = backupData.categories.find { 
-                    it.uuid == flashcardBackup.categoryUuid 
-                }?.name
-            
-                val categoryId = categoryName?.let { categoryNameToIdMap[it] }
-                println("DEBUG: Mapped flashcard to category ID: $categoryId")
-            
-                if (categoryId != null) {
-                    // Insert flashcard first to get the ID
-                    val flashcardEntity = FlashcardEntity(
-                        categoryId = categoryId,
-                        question = flashcardBackup.question,
-                        answer = flashcardBackup.answer,
-                        questionImagePath = null,  // Will be updated after image restore
-                        answerImagePath = null,     // Will be updated after image restore
-                        isEnabled = flashcardBackup.isEnabled,
-                        correctCount = flashcardBackup.correctCount,
-                        incorrectCount = flashcardBackup.incorrectCount,
-                        hardCount = flashcardBackup.hardCount,
-                        easinessFactor = flashcardBackup.easinessFactor,
-                        reviewCount = flashcardBackup.reviewCount,
-                        lastReviewedAt = flashcardBackup.lastReviewedAt,
-                        cooldownUntil = flashcardBackup.cooldownUntil,
-                        createdAt = flashcardBackup.createdAt,
-                        updatedAt = flashcardBackup.updatedAt
-                    )
-                    val insertedId = flashcardDao.insertFlashcard(flashcardEntity)
-                    
-                    // Restore images from backup folder to internal storage
-                    val restoredQuestionPath = restoreImageFromBackup(
-                        flashcardBackup.questionImagePath, 
-                        treeDocument, 
-                        insertedId, 
-                        isQuestion = true
-                    )
-                    val restoredAnswerPath = restoreImageFromBackup(
-                        flashcardBackup.answerImagePath, 
-                        treeDocument, 
-                        insertedId, 
-                        isQuestion = false
-                    )
-                    
-                    // Update flashcard with restored image paths if any were restored
-                    if (restoredQuestionPath != null || restoredAnswerPath != null) {
-                        val updatedEntity = flashcardEntity.copy(
-                            id = insertedId,
-                            questionImagePath = restoredQuestionPath,
-                            answerImagePath = restoredAnswerPath
+                // Restore all categories from backup
+                for (categoryBackup in backupData.categories) {
+                    categoryDao.insertCategory(
+                        CategoryEntity(
+                            name = categoryBackup.name,
+                            isEnabled = categoryBackup.isEnabled,
+                            createdAt = categoryBackup.createdAt,
+                            updatedAt = categoryBackup.updatedAt
                         )
-                        flashcardDao.updateFlashcard(updatedEntity)
-                    }
-                    
-                    flashcardsRestored++
-                    println("DEBUG: Flashcard '${flashcardBackup.question}' restored successfully")
-                } else {
-                    println("DEBUG: ERROR - Could not find category ID for flashcard '${flashcardBackup.question}'")
+                    )
+                    categoriesCount++
                 }
+
+                // Map restored category names to their new IDs for flashcard linking.
+                val categoryNameToIdMap = categoryDao.getAllCategoriesForBackup()
+                    .associate { it.name to it.id }
+
+                // Restore all flashcards from backup
+                for (flashcardBackup in backupData.flashcards) {
+                    // Find category by name (more reliable than UUID for restore)
+                    val categoryName = backupData.categories.find {
+                        it.uuid == flashcardBackup.categoryUuid
+                    }?.name
+                    val categoryId = categoryName?.let { categoryNameToIdMap[it] }
+
+                    if (categoryId != null) {
+                        // Insert flashcard first to get the ID
+                        val flashcardEntity = FlashcardEntity(
+                            categoryId = categoryId,
+                            question = flashcardBackup.question,
+                            answer = flashcardBackup.answer,
+                            questionImagePath = null,  // Will be updated after image restore
+                            answerImagePath = null,     // Will be updated after image restore
+                            isEnabled = flashcardBackup.isEnabled,
+                            correctCount = flashcardBackup.correctCount,
+                            incorrectCount = flashcardBackup.incorrectCount,
+                            hardCount = flashcardBackup.hardCount,
+                            easinessFactor = flashcardBackup.easinessFactor,
+                            reviewCount = flashcardBackup.reviewCount,
+                            lastReviewedAt = flashcardBackup.lastReviewedAt,
+                            cooldownUntil = flashcardBackup.cooldownUntil,
+                            createdAt = flashcardBackup.createdAt,
+                            updatedAt = flashcardBackup.updatedAt
+                        )
+                        val insertedId = flashcardDao.insertFlashcard(flashcardEntity)
+
+                        // Restore images from backup folder to internal storage
+                        val restoredQuestionPath = restoreImageFromBackup(
+                            flashcardBackup.questionImagePath, treeDocument, insertedId, isQuestion = true
+                        )
+                        val restoredAnswerPath = restoreImageFromBackup(
+                            flashcardBackup.answerImagePath, treeDocument, insertedId, isQuestion = false
+                        )
+
+                        // Update flashcard with restored image paths if any were restored
+                        if (restoredQuestionPath != null || restoredAnswerPath != null) {
+                            flashcardDao.updateFlashcard(
+                                flashcardEntity.copy(
+                                    id = insertedId,
+                                    questionImagePath = restoredQuestionPath,
+                                    answerImagePath = restoredAnswerPath
+                                )
+                            )
+                        }
+                        flashcardsCount++
+                    }
+                }
+
+                Pair(categoriesCount, flashcardsCount)
             }
 
-            // Restore streak data with gap detection logic
+            // Restore streak data after the DB transaction commits. Done outside
+            // the transaction because streak lives in SharedPreferences, which
+            // Room can't roll back — we only touch it once the data is safely in.
             backupData.streakData?.let { streakBackup ->
-                println("DEBUG: Restoring streak data - Current: ${streakBackup.currentStreak}, Highest: ${streakBackup.highestStreak}")
-                
-                // Create StreakData from backup
                 val backupStreakData = StreakData(
                     currentStreak = streakBackup.currentStreak,
                     highestStreak = streakBackup.highestStreak,
                     lastActivityTimestamp = streakBackup.lastActivityTimestamp
                 )
-                
-                // Apply gap detection - use existing logic in StreakData.getCurrentValidStreak()
-                val currentTime = System.currentTimeMillis()
-                val validCurrentStreak = backupStreakData.getCurrentValidStreak(currentTime)
-                
-                // If there's a gap (validCurrentStreak = 0), preserve highest but reset current
+
+                // Apply gap detection: if the streak is stale, preserve highest but reset current.
+                val validCurrentStreak = backupStreakData.getCurrentValidStreak(System.currentTimeMillis())
                 val finalStreakData = if (validCurrentStreak == 0 && streakBackup.currentStreak > 0) {
-                    println("DEBUG: Gap detected - resetting current streak but preserving highest")
                     StreakData(
                         currentStreak = 0,
                         highestStreak = streakBackup.highestStreak,
                         lastActivityTimestamp = streakBackup.lastActivityTimestamp
                     )
                 } else {
-                    println("DEBUG: No gap detected - restoring full streak data")
                     backupStreakData
                 }
-                
-                // Save the processed streak data
                 streakPreferences.saveStreakData(finalStreakData)
-                println("DEBUG: Streak data restored successfully")
-            } ?: run {
-                println("DEBUG: No streak data found in backup (backward compatibility)")
             }
 
             Result.success(

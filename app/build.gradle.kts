@@ -15,8 +15,8 @@ android {
         applicationId = "com.floflacards.app"
         minSdk = 24
         targetSdk = 36
-        versionCode = 12
-        versionName = "1.0.11"
+        versionCode = 13
+        versionName = "1.0.12"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -102,6 +102,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
+    // ProcessLifecycleOwner - detect app foreground/background for backup-on-background
+    implementation("androidx.lifecycle:lifecycle-process:2.9.2")
     
     // Testing
     testImplementation(libs.junit)
