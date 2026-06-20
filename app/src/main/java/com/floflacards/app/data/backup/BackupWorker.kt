@@ -22,6 +22,7 @@ import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.floflacards.app.data.dao.CategoryDao
 import com.floflacards.app.data.source.BackupPreferences
 import com.floflacards.app.domain.usecase.backup.CreateBackupUseCase
 import dagger.assisted.Assisted
@@ -47,7 +48,8 @@ class BackupWorker @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val createBackupUseCase: CreateBackupUseCase,
-    private val backupPreferences: BackupPreferences
+    private val backupPreferences: BackupPreferences,
+    private val categoryDao: CategoryDao
 ) : CoroutineWorker(appContext, workerParams) {
 
     companion object {
@@ -58,6 +60,15 @@ class BackupWorker @AssistedInject constructor(
         // Nothing to back up to if no folder is configured.
         if (!backupPreferences.hasSafFolderConfigured()) {
             Log.d(TAG, "No backup folder configured, skipping")
+            return Result.success()
+        }
+
+        // CRITICAL: never overwrite an existing backup with an empty database.
+        // A fresh install (or any transient empty state) must not clobber a real
+        // backup before the user has had the chance to restore it. Flashcards
+        // can't exist without a category, so zero categories means an empty DB.
+        if (categoryDao.getCategoryCount() == 0) {
+            Log.d(TAG, "Database is empty, skipping automatic backup to protect existing backup")
             return Result.success()
         }
 
