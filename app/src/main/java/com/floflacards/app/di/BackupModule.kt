@@ -21,6 +21,7 @@ import android.content.Context
 import com.floflacards.app.data.backup.BackupManager
 import com.floflacards.app.data.dao.CategoryDao
 import com.floflacards.app.data.dao.FlashcardDao
+import com.floflacards.app.data.database.FloatingLearningDatabase
 import com.floflacards.app.data.source.BackupPreferences
 import com.floflacards.app.data.source.StreakPreferences
 import com.floflacards.app.data.repository.BackupRepository
@@ -43,6 +44,7 @@ object BackupModule {
     @Singleton
     fun provideBackupManager(
         @ApplicationContext context: Context,
+        database: FloatingLearningDatabase,
         flashcardDao: FlashcardDao,
         categoryDao: CategoryDao,
         streakPreferences: StreakPreferences,
@@ -50,6 +52,7 @@ object BackupModule {
     ): BackupManager {
         return BackupManager(
             context = context,
+            database = database,
             flashcardDao = flashcardDao,
             categoryDao = categoryDao,
             streakPreferences = streakPreferences,

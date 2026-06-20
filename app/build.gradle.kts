@@ -102,6 +102,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.9.2")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.9.2")
+    // ProcessLifecycleOwner - detect app foreground/background for backup-on-background
+    implementation("androidx.lifecycle:lifecycle-process:2.9.2")
     
     // Testing
     testImplementation(libs.junit)

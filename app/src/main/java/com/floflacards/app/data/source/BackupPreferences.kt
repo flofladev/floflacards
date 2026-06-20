@@ -41,6 +41,12 @@ class BackupPreferences @Inject constructor(
         private const val KEY_LAST_BACKUP_TIMESTAMP = "last_backup_timestamp"
         private const val KEY_APP_INSTALLED_TIMESTAMP = "app_installed_timestamp"
         private const val KEY_SAF_TREE_URI = "saf_tree_uri"
+
+        // Dirty-flag tracking: a monotonic counter bumped on every data change,
+        // compared against the last successfully-backed-up value so automatic
+        // backups can be skipped when nothing has changed (avoids sync churn).
+        private const val KEY_DATA_VERSION = "data_version"
+        private const val KEY_LAST_BACKED_UP_VERSION = "last_backed_up_version"
         
         // Session tracking to prevent multiple checks in same app session
         private var hasCheckedThisSession = false
@@ -159,6 +165,45 @@ class BackupPreferences @Inject constructor(
      */
     fun hasSafFolderConfigured(): Boolean {
         return getSafTreeUri() != null
+    }
+
+    /**
+     * Increments the data-version counter. Called cheaply on every data change
+     * (no file I/O). Used by the automatic backup path to detect whether a backup
+     * is actually needed.
+     */
+    fun incrementDataVersion() {
+        val current = prefs.getLong(KEY_DATA_VERSION, 0L)
+        prefs.edit().putLong(KEY_DATA_VERSION, current + 1).apply()
+    }
+
+    /**
+     * Returns the current data-version counter.
+     */
+    fun getDataVersion(): Long {
+        return prefs.getLong(KEY_DATA_VERSION, 0L)
+    }
+
+    /**
+     * Returns true if data has changed since the last successful automatic backup.
+     */
+    fun hasUnbackedUpChanges(): Boolean {
+        return getDataVersion() != prefs.getLong(KEY_LAST_BACKED_UP_VERSION, -1L)
+    }
+
+    /**
+     * Records that a backup successfully captured the given data version.
+     * Pass the value of [getDataVersion] read *before* the backup started.
+     */
+    fun setLastBackedUpVersion(version: Long) {
+        prefs.edit().putLong(KEY_LAST_BACKED_UP_VERSION, version).apply()
+    }
+
+    /**
+     * Records the timestamp of the last successful backup.
+     */
+    fun setLastBackupTimestamp(timestamp: Long) {
+        prefs.edit().putLong(KEY_LAST_BACKUP_TIMESTAMP, timestamp).apply()
     }
 
     /**
