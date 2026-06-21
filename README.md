@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://github.com/mhss1/MyBrain">
+  <a href="https://github.com/flofladev/floflacards">
     <img alt="FloFla Cards" src="https://raw.githubusercontent.com/flofladev/floflacards/refs/heads/main/fastlane/metadata/android/en-US/images/icon.png" width="180" />
   </a>
   <br>
@@ -18,26 +18,26 @@
 
 ## What is FloFla Cards?
 
-FloFla Cards helps you learn **passively** while using your phone. Flashcards will appear on top of other apps at intervals you choose – so you can memorize words, formulas, or definitions while scrolling, chatting, or browsing.No extra effort. Just daily learning in the background.
+FloFla Cards helps you learn **passively** while using your phone. Flashcards will appear on top of other apps at intervals you choose – so you can memorize words, formulas, or definitions while scrolling, chatting, or browsing. No extra effort. Just daily learning in the background.
 
 ### With FloFla Cards, you can: 
 - Learn new words daily while scrolling social media 
 - Revise definitions before a test 
 - Practice foreign languages without opening a book 
-- Build your own library of flashcards for any subject👩‍🎓 
+- Build your own library of flashcards for any subject 👩‍🎓 
 
 ### Perfect for: 
 - Students and high schoolers preparing for exams 
 - Language learners who want to expand vocabulary 
-- Anyone who wants tolearn on the go
+- Anyone who wants to learn on the go
 
 ### Why FloFla Cards? 
-- Unlike other flashcard apps, FloFla Cards **doesn’t** require you to open it every time. It gently reminds you of what you want to learn while you’re already using your phone. Simple,effective, and distraction-free.📌 
-- Privacy first: FloFla Cards works fully offline. We do notcollect, store, or share any personal data. No ads, no analytics, no hidden costs – just learning. Start learning passively today and turn your screen time into studytime! 🚀
+- Unlike other flashcard apps, FloFla Cards **doesn’t** require you to open it every time. It gently reminds you of what you want to learn while you’re already using your phone. Simple, effective, and distraction-free. 📌 
+- Privacy first: FloFla Cards works fully offline. We do not collect, store, or share any personal data. No ads, no analytics, no hidden costs – just learning. Start learning passively today and turn your screen time into study time! 🚀
 
 ## Features
 - 📂 Create your own categories and flashcards 
-- ⏰Set the interval for how often cards appear 
+- ⏰ Set the interval for how often cards appear 
 - 📐 Adjust the size and opacity so they don’t disturb you 
 - 🔒 100% offline – no internet, no accounts, no data collection 
 - 💡 Learn languages, prepare for exams, or memorize anything 
@@ -51,9 +51,10 @@ FloFla Cards helps you learn **passively** while using your phone. Flashcards wi
 
 ## Roadmap
 
-- [ ] Import/Export flashcards
-- [ ] Use phone's TTS for pronunciation practice while learning vocabulary
-- [ ] Smarter Scheduling with algorithms like **FSRS**  
+- [x] Import/Export flashcards (CSV)
+- [ ] Rework import/export — a solid base that scales to large libraries, a clearer home under Settings, and more formats (e.g. Anki, JSON) added one at a time
+- [ ] Less repetition — better card variety so the same cards don't cluster together
+- [ ] Use the phone's TTS for pronunciation practice while learning vocabulary
 
 ---
 ## License
