@@ -28,21 +28,11 @@ package com.floflacards.app.domain.model
  * - RESIZE: Adjust flashcard dimensions
  * - OPACITY: Control flashcard transparency (10%-100%)
  */
-enum class InteractionMode(
-    val icon: String
-) {
-    NORMAL(
-        icon = "📖"
-    ),
-    DRAG(
-        icon = "🎯"
-    ),
-    RESIZE(
-        icon = "📏"
-    ),
-    OPACITY(
-        icon = "👁️"
-    );
+enum class InteractionMode {
+    NORMAL,
+    DRAG,
+    RESIZE,
+    OPACITY;
 
     /**
      * Check if this mode allows flashcard content interaction

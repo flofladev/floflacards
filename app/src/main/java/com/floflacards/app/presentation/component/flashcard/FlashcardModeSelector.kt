@@ -27,8 +27,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.AspectRatio
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Opacity
+import androidx.compose.material.icons.filled.OpenWith
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -57,6 +62,17 @@ fun InteractionMode.getDisplayName(): String {
         InteractionMode.RESIZE -> stringResource(R.string.interaction_mode_resize)
         InteractionMode.OPACITY -> stringResource(R.string.interaction_mode_opacity)
     }
+}
+
+/**
+ * Material icon for each mode (kept in the UI layer so the domain enum stays Compose-free):
+ * learning (book), move (open-with arrows), resize (aspect ratio), opacity (droplet).
+ */
+fun InteractionMode.getModeIcon(): ImageVector = when (this) {
+    InteractionMode.NORMAL -> Icons.AutoMirrored.Filled.MenuBook
+    InteractionMode.DRAG -> Icons.Filled.OpenWith
+    InteractionMode.RESIZE -> Icons.Filled.AspectRatio
+    InteractionMode.OPACITY -> Icons.Filled.Opacity
 }
 
 /**
@@ -241,9 +257,11 @@ private fun ModeCard(
             verticalArrangement = Arrangement.Center
         ) {
             // Mode icon
-            Text(
-                text = mode.icon,
-                fontSize = 24.sp
+            Icon(
+                imageVector = mode.getModeIcon(),
+                contentDescription = null,
+                tint = if (isSelected) Color(mode.getPrimaryColor()) else Color.White,
+                modifier = Modifier.size(28.dp)
             )
             
             Spacer(modifier = Modifier.height(4.dp))

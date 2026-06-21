@@ -1,0 +1,1 @@
+Version 1.0.16 - Replaced emoji with crisp icons that look the same on every device, added a home-screen line that celebrates how many cards you've mastered, and fixed the floating card's corner shading plus the stat-tile text fitting.

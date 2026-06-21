@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -124,9 +125,11 @@ fun FlashcardHeader(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier.weight(1f)
         ) {
-            Text(
-                text = "📁",
-                fontSize = 14.sp
+            Icon(
+                imageVector = Icons.Filled.Folder,
+                contentDescription = null,
+                tint = FlashcardColors.getTextColor(theme),
+                modifier = Modifier.size(14.dp)
             )
             
             Text(

@@ -20,6 +20,7 @@ package com.floflacards.app.domain.usecase
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.repository.FlashcardRepository
 import com.floflacards.app.data.repository.SettingsRepository
+import com.floflacards.app.data.source.MasteredCardsPreferences
 import com.floflacards.app.domain.model.FlashcardRating
 import com.floflacards.app.domain.model.Sm2Config
 import com.floflacards.app.domain.model.Sm2Result
@@ -31,9 +32,17 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
+/** A card counts as "mastered" once it's reached SM-2 max easiness with a few successful reviews. */
+const val MASTERY_MIN_EASINESS = 2.5f
+const val MASTERY_MIN_REVIEWS = 3
+
+fun FlashcardEntity.isMastered(): Boolean =
+    easinessFactor >= MASTERY_MIN_EASINESS && reviewCount >= MASTERY_MIN_REVIEWS
+
 @Singleton
 class SrsUseCase @Inject constructor(
     private val repository: FlashcardRepository,
+    private val masteredCardsPreferences: MasteredCardsPreferences,
     private val settingsManager: SettingsRepository
 ) {
     private val sm2Config = Sm2Config.getDefault()
@@ -186,6 +195,14 @@ class SrsUseCase @Inject constructor(
             )
             
             repository.updateFlashcard(updatedFlashcard)
+
+            // Lifetime "cards mastered with FloFla" counter: once a card is mastered its id is
+            // remembered forever (set semantics dedupe; it is never removed on delete/reset), so the
+            // home-screen tally only ever grows and never fakes progress.
+            if (updatedFlashcard.isMastered()) {
+                masteredCardsPreferences.markMastered(updatedFlashcard.id)
+            }
+
             Result.success(updatedFlashcard)
         } catch (e: Exception) {
             Result.failure(e)

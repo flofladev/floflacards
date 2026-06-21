@@ -55,7 +55,12 @@ fun CsvExportSelectionDialog(
         shape = RoundedCornerShape(24.dp),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("📤", style = MaterialTheme.typography.headlineMedium)
+                Icon(
+                    imageVector = Icons.Filled.Upload,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp)
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = stringResource(R.string.csv_export_title),

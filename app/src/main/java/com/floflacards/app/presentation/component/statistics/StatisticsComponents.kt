@@ -71,9 +71,11 @@ fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
             accentColor = getStreakAccentColor(),
             backgroundColor = getStreakAccentBackground(),
             icon = {
-                Text(
-                    text = if (stats.streakDays > 0) "🔥" else "💤",
-                    fontSize = 14.sp
+                Icon(
+                    imageVector = Icons.Filled.LocalFireDepartment,
+                    contentDescription = null,
+                    tint = getStreakAccentColor(),
+                    modifier = Modifier.size(20.dp)
                 )
             },
             modifier = Modifier.weight(1f)
@@ -85,9 +87,11 @@ fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
             accentColor = getMasteryAccentColor(),
             backgroundColor = getMasteryAccentBackground(),
             icon = {
-                Text(
-                    text = if (stats.masteredFlashcards > 0) "⭐" else "📚",
-                    fontSize = 14.sp
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = null,
+                    tint = getMasteryAccentColor(),
+                    modifier = Modifier.size(20.dp)
                 )
             },
             modifier = Modifier.weight(1f)

@@ -19,14 +19,18 @@ package com.floflacards.app.presentation.component
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -35,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.sp
 import com.floflacards.app.presentation.component.getLightModeOnlyBorder
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.floflacards.app.R
 import com.floflacards.app.presentation.component.text.AutoSizeText
@@ -95,6 +100,38 @@ fun ModernHeaderSection(
 }
 
 /**
+ * One-line, state-aware summary that fills the space between the header and the status card:
+ *  - no cards yet  -> invite to add the first card,
+ *  - cards but none mastered yet -> gentle encouragement,
+ *  - at least one mastered -> the lifetime "mastered N cards with FloFla" achievement.
+ * The mastered tally is a never-decreasing lifetime count (see [MasteredCardsPreferences]), so it
+ * doesn't overlap with the live "active cards" tile and never shows fake/negative progress.
+ */
+@Composable
+fun HomeSummaryText(
+    masteredCount: Int,
+    activeFlashcardCount: Int,
+    modifier: Modifier = Modifier
+) {
+    val text = when {
+        masteredCount > 0 ->
+            pluralStringResource(R.plurals.home_mastered_summary, masteredCount, masteredCount)
+        activeFlashcardCount > 0 -> stringResource(R.string.home_summary_lets_learn)
+        else -> stringResource(R.string.home_summary_add_first)
+    }
+    Text(
+        text = text,
+        style = MaterialTheme.typography.headlineSmall,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.85f),
+        textAlign = TextAlign.Center,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+    )
+}
+
+/**
  * Status dashboard showing the at-a-glance learning metrics (active cards + streak).
  *
  * Service state and the live countdown are now carried by the unified learning button, so this
@@ -121,7 +158,7 @@ fun StatusDashboard(
 fun ResponsiveActionCard(
     title: String,
     subtitle: String,
-    icon: String,
+    icon: ImageVector,
     onClick: () -> Unit,
     isPrimary: Boolean,
     contentDescription: String,
@@ -153,12 +190,14 @@ fun ResponsiveActionCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Icon - adaptive size
-            Text(
-                text = icon,
-                style = if (isCompact) 
-                    MaterialTheme.typography.titleLarge 
-                else 
-                    MaterialTheme.typography.headlineMedium
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (isPrimary)
+                    MaterialTheme.colorScheme.onPrimaryContainer
+                else
+                    MaterialTheme.colorScheme.onSecondaryContainer,
+                modifier = Modifier.size(if (isCompact) 28.dp else 32.dp)
             )
             
             // Title - adaptive typography with auto-sizing
@@ -231,12 +270,11 @@ fun ResponsiveSettingsCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Icon - adaptive size
-            Text(
-                text = "⚙️",
-                style = if (isCompact) 
-                    MaterialTheme.typography.titleLarge 
-                else 
-                    MaterialTheme.typography.headlineMedium
+            Icon(
+                imageVector = Icons.Filled.Settings,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                modifier = Modifier.size(if (isCompact) 28.dp else 32.dp)
             )
             
             // Title - adaptive typography with auto-sizing
