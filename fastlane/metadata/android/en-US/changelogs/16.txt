@@ -1,0 +1,1 @@
+Version 1.0.15 - Fresh new look: cleaner home screen, a consistent colour theme in light & dark mode, a tidier category list with card counts, and a redesigned statistics screen with a per-category detail view.

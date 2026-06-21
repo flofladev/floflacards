@@ -17,17 +17,12 @@
 
 package com.floflacards.app.presentation.component.statistics
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -53,167 +48,199 @@ import com.floflacards.app.presentation.viewmodel.EnhancedOverallStats
 
 @Composable
 fun ModernStatsCardGrid(stats: EnhancedOverallStats) {
+    // Slim two-card summary: streak (current + best folded into one) and mastery. The previous
+    // three-tile row duplicated the streak metric; merging removes the redundancy.
+    // Both tiles carry a second line (best streak / mastery %) so they share line count and end up
+    // the same height — height is content-driven (see StatCard), never fixed, so text can't clip.
+    val masteredPercent = if (stats.totalFlashcards > 0) {
+        stats.masteredFlashcards * 100 / stats.totalFlashcards
+    } else {
+        0
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        CurrentStreakCard(
-            streakDays = stats.streakDays,
+        StatCard(
+            value = "${stats.streakDays}",
+            label = stringResource(R.string.stats_current_streak),
+            sublabel = stringResource(R.string.stats_best_short, stats.highestStreak),
+            accentColor = getStreakAccentColor(),
+            backgroundColor = getStreakAccentBackground(),
+            icon = {
+                Text(
+                    text = if (stats.streakDays > 0) "🔥" else "💤",
+                    fontSize = 14.sp
+                )
+            },
             modifier = Modifier.weight(1f)
         )
-        HighestStreakCard(
-            highestStreak = stats.highestStreak,
-            modifier = Modifier.weight(1f)
-        )
-        MasteredCard(
-            mastered = stats.masteredFlashcards,
-            total = stats.totalFlashcards,
+        StatCard(
+            value = "${stats.masteredFlashcards}/${stats.totalFlashcards}",
+            label = stringResource(R.string.stats_total_flashcards),
+            sublabel = stringResource(R.string.stats_percent_short, masteredPercent),
+            accentColor = getMasteryAccentColor(),
+            backgroundColor = getMasteryAccentBackground(),
+            icon = {
+                Text(
+                    text = if (stats.masteredFlashcards > 0) "⭐" else "📚",
+                    fontSize = 14.sp
+                )
+            },
             modifier = Modifier.weight(1f)
         )
     }
 }
 
 
+/**
+ * Compact, non-expanding category row. Shows name + mastery progress + average, and navigates to a
+ * dedicated detail screen on tap (replacing the old in-place accordion, which nested a scrollable
+ * list inside the screen's scroll). The reset action stays inline for quick access.
+ */
 @Composable
-fun ModernCategoryCard(
+fun CategoryStatRow(
     categoryStats: CategoryStats,
-    onToggleExpansion: () -> Unit,
-    onFlashcardResetClick: (FlashcardStats) -> Unit,
+    onClick: () -> Unit,
     onCategoryResetClick: () -> Unit
 ) {
-    val isExpanded = categoryStats.isExpanded
-    
     Card(
+        onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = getStatisticsSurface()),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column {
-            // Category header - always clickable
-            CategoryHeader(
-                categoryStats = categoryStats,
-                isExpanded = isExpanded,
-                onToggleExpansion = onToggleExpansion,
-                onCategoryResetClick = onCategoryResetClick
-            )
-            
-            // Expandable flashcards list
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically(),
-                exit = shrinkVertically()
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 4.dp, top = 12.dp, bottom = 12.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                LazyColumn(
-                    modifier = Modifier.heightIn(max = 300.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                Text(
+                    text = categoryStats.categoryName,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = getStatisticsOnSurface(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    items(categoryStats.flashcards) { flashcard ->
-                        FlashcardStatItem(
-                            flashcard = flashcard,
-                            onResetClick = { onFlashcardResetClick(flashcard) }
+                    // Progress indicator for mastered flashcards
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(getStatisticsProgressBackground())
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(categoryStats.masteredRate)
+                                .background(getStatisticsProgressFill())
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Text(
+                        text = stringResource(R.string.stats_mastered_count, categoryStats.masteredCards, categoryStats.totalCards),
+                        fontSize = 14.sp,
+                        color = getStatisticsOnSurfaceVariant(),
+                        fontWeight = FontWeight.Medium
+                    )
+
+                    if (categoryStats.averageSuccessRate > 0) {
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(R.string.stats_average_short, (categoryStats.averageSuccessRate * 100).toInt()),
+                            fontSize = 12.sp,
+                            color = AccentTeal,
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 }
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Category reset button - only show if category has flashcards with statistics
+                if (categoryStats.flashcards.any { it.totalAttempts > 0 }) {
+                    IconButton(
+                        onClick = { onCategoryResetClick() },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Refresh,
+                            contentDescription = stringResource(R.string.stats_reset_category_description),
+                            tint = getStatisticsOnSurfaceVariant(),
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                    tint = getStatisticsOnSurfaceVariant()
+                )
             }
         }
     }
 }
 
+/**
+ * Legend explaining the per-flashcard red/amber/green attempt chips and the average symbol, shown
+ * on the category detail screen where those chips appear.
+ */
 @Composable
-private fun CategoryHeader(
-    categoryStats: CategoryStats,
-    isExpanded: Boolean,
-    onToggleExpansion: () -> Unit,
-    onCategoryResetClick: () -> Unit
-) {
+fun StatLegend() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onToggleExpansion() }
-            .padding(12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
+            .padding(horizontal = 4.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Text(
-                text = categoryStats.categoryName,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = getStatisticsOnSurface()
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Progress indicator for mastered flashcards
-                Box(
-                    modifier = Modifier
-                        .width(60.dp)
-                        .height(4.dp)
-                        .clip(RoundedCornerShape(2.dp))
-                        .background(getStatisticsProgressBackground())
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .fillMaxWidth(categoryStats.masteredRate)
-                            .background(getStatisticsProgressFill())
-                    )
-                }
-                
-                Spacer(modifier = Modifier.width(12.dp))
-                
-                Text(
-                    text = stringResource(R.string.stats_mastered_count, categoryStats.masteredCards, categoryStats.totalCards),
-                    fontSize = 14.sp,
-                    color = getStatisticsOnSurfaceVariant(),
-                    fontWeight = FontWeight.Medium
-                )
-                
-                if (categoryStats.averageSuccessRate > 0) {
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = stringResource(R.string.stats_average_short, (categoryStats.averageSuccessRate * 100).toInt()),
-                        fontSize = 12.sp,
-                        color = AccentTeal,
-                        fontWeight = FontWeight.Medium
-                    )
-                }
-            }
-        }
-        
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Category reset button - only show if category has flashcards with statistics
-            if (categoryStats.flashcards.any { it.totalAttempts > 0 }) {
-                IconButton(
-                    onClick = { onCategoryResetClick() },
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Refresh,
-                        contentDescription = stringResource(R.string.stats_reset_category_description),
-                        tint = getStatisticsOnSurfaceVariant(),
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-            
-            Icon(
-                imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                contentDescription = if (isExpanded) stringResource(R.string.stats_collapse_description) else stringResource(R.string.stats_expand_description),
-                tint = getStatisticsOnSurfaceVariant()
-            )
-        }
+        LegendDot(color = AccentRed, label = stringResource(R.string.stats_legend_incorrect))
+        LegendDot(color = AccentAmber, label = stringResource(R.string.stats_legend_hard))
+        LegendDot(color = AccentGreen, label = stringResource(R.string.stats_legend_correct))
+        Text(
+            text = stringResource(R.string.stats_legend_average),
+            fontSize = 11.sp,
+            color = getStatisticsOnSurfaceVariant()
+        )
+    }
+}
+
+@Composable
+private fun LegendDot(color: Color, label: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(10.dp)
+                .background(color, RoundedCornerShape(3.dp))
+        )
+        Spacer(modifier = Modifier.width(5.dp))
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = getStatisticsOnSurfaceVariant()
+        )
     }
 }
 
@@ -359,84 +386,17 @@ private fun CompactStatChip(
 // Modern Card Components
 
 @Composable
-private fun CurrentStreakCard(
-    streakDays: Int,
-    modifier: Modifier = Modifier
-) {
-    StatCard(
-        value = "$streakDays",
-        label = stringResource(R.string.stats_current_streak),
-        accentColor = getStreakAccentColor(),
-        backgroundColor = getStreakAccentBackground(),
-        icon = {
-            Text(
-                text = if (streakDays > 0) "🔥" else "💤",
-                fontSize = 14.sp
-            )
-        },
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun HighestStreakCard(
-    highestStreak: Int,
-    modifier: Modifier = Modifier
-) {
-    StatCard(
-        value = "$highestStreak",
-        label = stringResource(R.string.stats_highest_streak),
-        accentColor = getBestAccentColor(),
-        backgroundColor = getBestAccentBackground(),
-        icon = {
-            Text(
-                text = if (highestStreak > 0) "🏆" else "🎯",
-                fontSize = 14.sp
-            )
-        },
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun MasteredCard(
-    mastered: Int,
-    total: Int,
-    modifier: Modifier = Modifier
-) {
-    StatCard(
-        value = "$mastered/$total",
-        label = stringResource(R.string.stats_total_flashcards),
-        accentColor = getMasteryAccentColor(),
-        backgroundColor = getMasteryAccentBackground(),
-        icon = {
-            Text(
-                text = if (mastered > 0) "⭐" else "📚",
-                fontSize = 14.sp
-            )
-        },
-        progressBar = null,
-        modifier = modifier
-    )
-}
-
-@Composable
 private fun StatCard(
     value: String,
     label: String,
     accentColor: Color,
     backgroundColor: Color,
+    sublabel: String? = null,
     icon: (@Composable () -> Unit)? = null,
-    progressBar: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    // Adaptive height based on content
-    val minHeight = if (progressBar != null) 110.dp else 90.dp
-    
     Card(
-        modifier = modifier
-            .wrapContentHeight()
-            .heightIn(min = minHeight),
+        modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = getStatisticsCardBackground()),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
@@ -444,7 +404,10 @@ private fun StatCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
+                // Content-driven height with a floor: grows to fit (incl. large system font scales)
+                // instead of a fixed height that clips the lower text. Paired tiles share the same
+                // line structure, so they end up the same height without intrinsic measurement.
+                .heightIn(min = 96.dp)
                 .background(
                     color = backgroundColor,
                     shape = RoundedCornerShape(12.dp)
@@ -454,20 +417,18 @@ private fun StatCard(
                     color = getStatisticsCardBorder(),
                     shape = RoundedCornerShape(12.dp)
                 )
-                .padding(horizontal = 8.dp, vertical = 10.dp) // Slightly more vertical padding
+                .padding(horizontal = 8.dp, vertical = 10.dp),
+            contentAlignment = Alignment.Center
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 // Icon at the top
                 icon?.invoke()
-                
+
                 Spacer(modifier = Modifier.height(4.dp))
-                
+
                 // Main value with stable AutoSizeText like home screen learning status
                 AutoSizeText(
                     text = value,
@@ -479,9 +440,9 @@ private fun StatCard(
                     minTextSize = 10.sp,
                     modifier = Modifier.fillMaxWidth()
                 )
-                
+
                 Spacer(modifier = Modifier.height(3.dp))
-                
+
                 // Label with stable AutoSizeText to always show full text
                 AutoSizeText(
                     text = label,
@@ -495,11 +456,20 @@ private fun StatCard(
                         .fillMaxWidth()
                         .padding(bottom = 2.dp) // Prevent descender clipping
                 )
-                
-                // Progress bar if provided
-                progressBar?.let {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    it.invoke()
+
+                // Optional secondary line (e.g. "best 3" / mastery %) — kept on both paired tiles so
+                // they share line count and therefore height.
+                sublabel?.let {
+                    AutoSizeText(
+                        text = it,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = getStatisticsOnSurfaceVariant(),
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        minTextSize = 8.sp,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }

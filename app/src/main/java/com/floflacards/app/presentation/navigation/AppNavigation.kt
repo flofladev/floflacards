@@ -27,6 +27,7 @@ import com.floflacards.app.presentation.screen.MainScreen
 import com.floflacards.app.presentation.screen.SettingsScreen
 import com.floflacards.app.presentation.screen.AppSettingsScreen
 import com.floflacards.app.presentation.screen.StatisticsScreen
+import com.floflacards.app.presentation.screen.CategoryStatsDetailScreen
 import com.floflacards.app.presentation.screen.FlashcardManagementScreen
 import com.floflacards.app.presentation.screen.AddEditFlashcardScreen
 import com.floflacards.app.presentation.screen.CsvImportScreen
@@ -82,6 +83,24 @@ fun AppNavigation(
         }
         composable("statistics") {
             StatisticsScreen(
+                onNavigateBack = { navController.popBackStack() },
+                onNavigateToCategoryDetail = { categoryId, categoryName ->
+                    navController.navigate("category-stats/$categoryId/$categoryName")
+                }
+            )
+        }
+        composable(
+            "category-stats/{categoryId}/{categoryName}",
+            arguments = listOf(
+                navArgument("categoryId") { type = NavType.LongType },
+                navArgument("categoryName") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
+            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
+            CategoryStatsDetailScreen(
+                categoryId = categoryId,
+                categoryName = categoryName,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

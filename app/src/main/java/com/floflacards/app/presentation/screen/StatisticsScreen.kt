@@ -50,18 +50,17 @@ import com.floflacards.app.presentation.component.EmptyStateCard
 import androidx.compose.ui.res.stringResource
 import com.floflacards.app.R
 import com.floflacards.app.presentation.viewmodel.CategoryStats
-import com.floflacards.app.presentation.viewmodel.FlashcardStats
 import com.floflacards.app.presentation.viewmodel.StatisticsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatisticsScreen(
     onNavigateBack: () -> Unit,
+    onNavigateToCategoryDetail: (Long, String) -> Unit,
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showResetDialog by remember { mutableStateOf(false) }
-    var showFlashcardResetDialog by remember { mutableStateOf<FlashcardStats?>(null) }
     var showCategoryResetDialog by remember { mutableStateOf<CategoryStats?>(null) }
     
     // Get filtered category stats based on search query
@@ -84,18 +83,6 @@ fun StatisticsScreen(
             currentStreak = uiState.overallStats?.streakDays ?: 0,
             highestStreak = uiState.overallStats?.highestStreak ?: 0,
             totalFlashcards = uiState.overallStats?.totalFlashcards ?: 0
-        )
-    }
-    
-    // Individual flashcard reset confirmation dialog
-    showFlashcardResetDialog?.let { flashcard ->
-        FlashcardResetConfirmationDialog(
-            flashcard = flashcard,
-            onDismiss = { showFlashcardResetDialog = null },
-            onConfirm = {
-                viewModel.resetFlashcardStatistics(flashcard.id)
-                showFlashcardResetDialog = null
-            }
         )
     }
     
@@ -203,12 +190,11 @@ fun StatisticsScreen(
                             }
                         }
                         
-                        // Category Cards - use filtered stats
+                        // Category rows - tap to open the per-category detail screen
                         items(filteredCategoryStats) { categoryStats ->
-                            ModernCategoryCard(
+                            CategoryStatRow(
                                 categoryStats = categoryStats,
-                                onToggleExpansion = { viewModel.toggleCategoryExpansion(categoryStats.categoryId) },
-                                onFlashcardResetClick = { flashcard -> showFlashcardResetDialog = flashcard },
+                                onClick = { onNavigateToCategoryDetail(categoryStats.categoryId, categoryStats.categoryName) },
                                 onCategoryResetClick = { showCategoryResetDialog = categoryStats }
                             )
                         }

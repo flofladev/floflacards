@@ -312,6 +312,13 @@
     <!-- Statistics Component Strings -->
     <string name="stats_mastered_count">%1$d/%2$d mastered</string>
     <string name="stats_average_short">%1$d%% Ø</string>
+    <string name="stats_best_short">best %1$d</string>
+    <string name="stats_percent_short">%1$d%%</string>
+    <string name="stats_legend_incorrect">Wrong</string>
+    <string name="stats_legend_hard">Hard</string>
+    <string name="stats_legend_correct">Good</string>
+    <string name="stats_legend_average">Ø = average</string>
+    <string name="stats_detail_empty">No statistics yet for this category.</string>
     <string name="stats_reset_category_description">Reset category statistics</string>
     <string name="stats_reset_flashcard_description">Reset flashcard statistics</string>
     <string name="stats_expand_description">Expand</string>
