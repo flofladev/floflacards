@@ -158,6 +158,28 @@ class OverlayManager(
     }
     
     /**
+     * Re-applies the saved geometry for the current orientation to the live window.
+     * Called on orientation change so a visible card snaps to that orientation's
+     * remembered position/size instead of keeping stale pixels from the previous one.
+     */
+    fun refreshLayoutForCurrentOrientation() {
+        overlayView?.let { view ->
+            try {
+                val params = view.layoutParams as WindowManager.LayoutParams
+                val uiState = flashcardUiPreferences.getFlashcardUiState()
+                params.x = uiState.positionX
+                params.y = uiState.positionY
+                params.width = uiState.width
+                params.height = uiState.height
+                windowManager?.updateViewLayout(view, params)
+                Log.d(TAG, "Overlay layout refreshed for new orientation")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to refresh layout for orientation", e)
+            }
+        }
+    }
+
+    /**
      * Closes overlay window with proper cleanup timing.
      * Follows SOLID principles with single responsibility for cleanup.
      */

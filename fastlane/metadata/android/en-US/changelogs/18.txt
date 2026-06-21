@@ -1,0 +1,1 @@
+Version 1.0.17 - The floating card now remembers its size and position separately for portrait and landscape, so rotating no longer squashes or misplaces it. A card that's already on screen also snaps to the right layout the moment you rotate.

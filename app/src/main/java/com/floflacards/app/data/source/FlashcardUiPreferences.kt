@@ -19,6 +19,7 @@ package com.floflacards.app.data.source
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.Configuration
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import com.floflacards.app.domain.model.InteractionMode
@@ -39,13 +40,21 @@ class FlashcardUiPreferences @Inject constructor(
     companion object {
         private const val PREFS_NAME = "flashcard_ui_preferences"
         
+        // Geometry preferences are stored per-orientation (see orientationSuffix()).
+        // The base keys below are the legacy (un-suffixed) names kept only for one-time
+        // migration into the active orientation; current reads/writes use the suffixed keys.
         // Position preferences (as percentage of screen)
         private const val KEY_POSITION_X_PERCENT = "position_x_percent"
         private const val KEY_POSITION_Y_PERCENT = "position_y_percent"
-        
+
         // Size preferences (as percentage of screen)
         private const val KEY_WIDTH_PERCENT = "width_percent"
         private const val KEY_HEIGHT_PERCENT = "height_percent"
+
+        // Orientation suffixes appended to geometry keys so portrait and landscape
+        // each remember their own position/size (fixes squashed/displaced card on rotation)
+        private const val SUFFIX_PORTRAIT = "_port"
+        private const val SUFFIX_LANDSCAPE = "_land"
         
         // Enhanced mode preferences - replacing boolean flags with single mode
         private const val KEY_CURRENT_MODE = "current_interaction_mode"
@@ -97,6 +106,43 @@ class FlashcardUiPreferences @Inject constructor(
     }
     
     /**
+     * Suffix for the current device orientation so portrait and landscape keep
+     * independent geometry. Geometry stored as a percentage of one orientation's
+     * screen does not translate to the other (width/height swap), so each is saved
+     * separately.
+     */
+    private fun orientationSuffix(): String {
+        return if (context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            SUFFIX_LANDSCAPE
+        } else {
+            SUFFIX_PORTRAIT
+        }
+    }
+
+    /**
+     * Geometry key for the current orientation.
+     */
+    private fun geometryKey(baseKey: String): String = baseKey + orientationSuffix()
+
+    /**
+     * One-time migration: if the current orientation has no saved geometry yet but
+     * legacy (un-suffixed) values exist, seed this orientation from them so existing
+     * users keep their remembered position/size. Idempotent and per-orientation.
+     */
+    private fun migrateLegacyGeometryIfNeeded() {
+        val suffix = orientationSuffix()
+        if (prefs.contains(KEY_POSITION_X_PERCENT + suffix)) return
+        if (!prefs.contains(KEY_POSITION_X_PERCENT)) return
+
+        prefs.edit()
+            .putFloat(KEY_POSITION_X_PERCENT + suffix, prefs.getFloat(KEY_POSITION_X_PERCENT, DEFAULT_POSITION_X_PERCENT))
+            .putFloat(KEY_POSITION_Y_PERCENT + suffix, prefs.getFloat(KEY_POSITION_Y_PERCENT, DEFAULT_POSITION_Y_PERCENT))
+            .putFloat(KEY_WIDTH_PERCENT + suffix, prefs.getFloat(KEY_WIDTH_PERCENT, DEFAULT_WIDTH_PERCENT))
+            .putFloat(KEY_HEIGHT_PERCENT + suffix, prefs.getFloat(KEY_HEIGHT_PERCENT, DEFAULT_HEIGHT_PERCENT))
+            .apply()
+    }
+
+    /**
      * Get current screen dimensions
      */
     private fun getScreenDimensions(): Pair<Int, Int> {
@@ -140,12 +186,13 @@ class FlashcardUiPreferences @Inject constructor(
      * Get current flashcard UI state with screen-relative positioning
      */
     fun getFlashcardUiState(): FlashcardUiState {
+        migrateLegacyGeometryIfNeeded()
         val (screenWidth, screenHeight) = getScreenDimensions()
-        
-        val xPercent = prefs.getFloat(KEY_POSITION_X_PERCENT, DEFAULT_POSITION_X_PERCENT)
-        val yPercent = prefs.getFloat(KEY_POSITION_Y_PERCENT, DEFAULT_POSITION_Y_PERCENT)
-        val widthPercent = prefs.getFloat(KEY_WIDTH_PERCENT, DEFAULT_WIDTH_PERCENT)
-        val heightPercent = prefs.getFloat(KEY_HEIGHT_PERCENT, DEFAULT_HEIGHT_PERCENT)
+
+        val xPercent = prefs.getFloat(geometryKey(KEY_POSITION_X_PERCENT), DEFAULT_POSITION_X_PERCENT)
+        val yPercent = prefs.getFloat(geometryKey(KEY_POSITION_Y_PERCENT), DEFAULT_POSITION_Y_PERCENT)
+        val widthPercent = prefs.getFloat(geometryKey(KEY_WIDTH_PERCENT), DEFAULT_WIDTH_PERCENT)
+        val heightPercent = prefs.getFloat(geometryKey(KEY_HEIGHT_PERCENT), DEFAULT_HEIGHT_PERCENT)
         
         // Convert percentages to pixels
         val positionX = percentToPixels(xPercent, screenWidth)
@@ -190,8 +237,8 @@ class FlashcardUiPreferences @Inject constructor(
         val yPercent = pixelsToPercent(y, screenHeight)
         
         prefs.edit()
-            .putFloat(KEY_POSITION_X_PERCENT, xPercent)
-            .putFloat(KEY_POSITION_Y_PERCENT, yPercent)
+            .putFloat(geometryKey(KEY_POSITION_X_PERCENT), xPercent)
+            .putFloat(geometryKey(KEY_POSITION_Y_PERCENT), yPercent)
             .apply()
     }
     
@@ -215,8 +262,8 @@ class FlashcardUiPreferences @Inject constructor(
         val heightPercent = pixelsToPercent(constrainedHeight, screenHeight)
         
         prefs.edit()
-            .putFloat(KEY_WIDTH_PERCENT, widthPercent)
-            .putFloat(KEY_HEIGHT_PERCENT, heightPercent)
+            .putFloat(geometryKey(KEY_WIDTH_PERCENT), widthPercent)
+            .putFloat(geometryKey(KEY_HEIGHT_PERCENT), heightPercent)
             .apply()
     }
     
@@ -374,10 +421,15 @@ class FlashcardUiPreferences @Inject constructor(
      */
     fun resetToDefaults() {
         prefs.edit()
-            .putFloat(KEY_POSITION_X_PERCENT, DEFAULT_POSITION_X_PERCENT)
-            .putFloat(KEY_POSITION_Y_PERCENT, DEFAULT_POSITION_Y_PERCENT)
-            .putFloat(KEY_WIDTH_PERCENT, DEFAULT_WIDTH_PERCENT)
-            .putFloat(KEY_HEIGHT_PERCENT, DEFAULT_HEIGHT_PERCENT)
+            // Reset geometry for both orientations
+            .putFloat(KEY_POSITION_X_PERCENT + SUFFIX_PORTRAIT, DEFAULT_POSITION_X_PERCENT)
+            .putFloat(KEY_POSITION_Y_PERCENT + SUFFIX_PORTRAIT, DEFAULT_POSITION_Y_PERCENT)
+            .putFloat(KEY_WIDTH_PERCENT + SUFFIX_PORTRAIT, DEFAULT_WIDTH_PERCENT)
+            .putFloat(KEY_HEIGHT_PERCENT + SUFFIX_PORTRAIT, DEFAULT_HEIGHT_PERCENT)
+            .putFloat(KEY_POSITION_X_PERCENT + SUFFIX_LANDSCAPE, DEFAULT_POSITION_X_PERCENT)
+            .putFloat(KEY_POSITION_Y_PERCENT + SUFFIX_LANDSCAPE, DEFAULT_POSITION_Y_PERCENT)
+            .putFloat(KEY_WIDTH_PERCENT + SUFFIX_LANDSCAPE, DEFAULT_WIDTH_PERCENT)
+            .putFloat(KEY_HEIGHT_PERCENT + SUFFIX_LANDSCAPE, DEFAULT_HEIGHT_PERCENT)
             .putFloat(KEY_OPACITY, 1.0f)
             .putInt(KEY_CURRENT_MODE, InteractionMode.NORMAL.ordinal)
             .putBoolean(KEY_IS_MODAL_VISIBLE, false)

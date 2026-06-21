@@ -20,6 +20,7 @@ package com.floflacards.app.service
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
@@ -413,6 +414,18 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         }
     }
     
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        Log.d(TAG, "Configuration changed (orientation=${newConfig.orientation})")
+        // Snap a visible card to the saved geometry for the new orientation.
+        // Posted so the framework finishes propagating the new metrics first.
+        if (::overlayManager.isInitialized) {
+            android.os.Handler(mainLooper).post {
+                overlayManager.refreshLayoutForCurrentOrientation()
+            }
+        }
+    }
+
     override fun onDestroy() {
         Log.d(TAG, "OverlayService onDestroy")
         try {
