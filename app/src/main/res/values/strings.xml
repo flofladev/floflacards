@@ -328,6 +328,8 @@
     <string name="settings_add_new_category">Add New Category</string>
     <string name="settings_category_name">Category Name</string>
     <string name="settings_edit_category">Edit Category</string>
+    <string name="settings_delete_category">Delete Category</string>
+    <string name="category_more_actions">More actions</string>
     <string name="settings_preferences">Preferences</string>
     
     <!-- Main Screen Next Flashcard -->

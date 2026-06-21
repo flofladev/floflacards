@@ -23,6 +23,7 @@ import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.source.BackupPreferences
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -47,6 +48,12 @@ class FlashcardRepository @Inject constructor(
     
     // Category operations
     fun getAllCategories(): Flow<List<CategoryEntity>> = categoryDao.getAllCategories()
+
+    /** Live map of categoryId -> flashcard count (categories with no cards map to 0 via the caller's default). */
+    fun getFlashcardCountsPerCategory(): Flow<Map<Long, Int>> =
+        flashcardDao.getFlashcardCountsPerCategory().map { counts ->
+            counts.associate { it.categoryId to it.count }
+        }
     
     fun getEnabledCategories(): Flow<List<CategoryEntity>> = categoryDao.getEnabledCategories()
     

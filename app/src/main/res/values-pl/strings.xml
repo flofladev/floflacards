@@ -325,6 +325,8 @@
     <string name="settings_add_new_category">Nowa kategoria</string>
     <string name="settings_category_name">Nazwa kategorii</string>
     <string name="settings_edit_category">Edytuj kategorię</string>
+    <string name="settings_delete_category">Usuń kategorię</string>
+    <string name="category_more_actions">Więcej akcji</string>
     <string name="settings_preferences">Preferencje</string>
     
     <!-- Main Screen Next Flashcard - Polish -->

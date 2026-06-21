@@ -27,11 +27,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class CategoryUiState(
     val categories: List<CategoryEntity> = emptyList(),
+    val categoryCounts: Map<Long, Int> = emptyMap(), // categoryId -> flashcard count (absent = 0)
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val categoryToDelete: CategoryEntity? = null, // Category pending deletion confirmation
@@ -55,13 +57,18 @@ class CategoryViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             try {
-                repository.getAllCategories().collect { categories ->
-                    _uiState.value = _uiState.value.copy(
-                        categories = categories,
-                        isLoading = false,
-                        errorMessage = null
-                    )
-                }
+                combine(
+                    repository.getAllCategories(),
+                    repository.getFlashcardCountsPerCategory()
+                ) { categories, counts -> categories to counts }
+                    .collect { (categories, counts) ->
+                        _uiState.value = _uiState.value.copy(
+                            categories = categories,
+                            categoryCounts = counts,
+                            isLoading = false,
+                            errorMessage = null
+                        )
+                    }
             } catch (e: Exception) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
