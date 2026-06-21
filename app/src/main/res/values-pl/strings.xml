@@ -290,7 +290,15 @@
         <item quantity="many">%1$d dni</item>
         <item quantity="other">%1$d dnia</item>
     </plurals>
-    <string name="learning_stop_with_countdown">⏸ Zatrzymaj · %1$d s</string>
+    <string name="learning_stop_with_countdown">Zatrzymaj · %1$d s</string>
+    <string name="home_summary_add_first">Dodaj pierwszą kartę, aby zacząć</string>
+    <string name="home_summary_lets_learn">Uczmy się razem</string>
+    <plurals name="home_mastered_summary">
+        <item quantity="one">Opanowano %1$d kartę z FloFla</item>
+        <item quantity="few">Opanowano %1$d karty z FloFla</item>
+        <item quantity="many">Opanowano %1$d kart z FloFla</item>
+        <item quantity="other">Opanowano %1$d karty z FloFla</item>
+    </plurals>
     <string name="csv_import_title">Importuj z CSV</string>
     <string name="csv_export_title">Eksportuj do CSV</string>
 

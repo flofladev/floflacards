@@ -192,9 +192,11 @@ private fun FileSelectionStep(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "📥",
-            style = MaterialTheme.typography.displayMedium
+        Icon(
+            imageVector = Icons.Filled.Download,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(56.dp)
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -228,7 +230,13 @@ private fun FileSelectionStep(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text("📁 " + stringResource(R.string.csv_import_pick_file_button))
+            Icon(
+                imageVector = Icons.Filled.FolderOpen,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.csv_import_pick_file_button))
         }
 
         AnimatedVisibility(visible = fileName != null) {

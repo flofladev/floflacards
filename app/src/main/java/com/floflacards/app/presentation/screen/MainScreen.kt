@@ -29,6 +29,9 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.BarChart
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.presentation.viewmodel.MainViewModel
@@ -140,18 +143,56 @@ fun MainScreen(
             modifier = Modifier.fillMaxWidth()
         )
         
-        // Content Section: vertically centered when it fits the viewport (so the lower area reads
-        // as intentional whitespace), but still scrollable on short/landscape screens.
+        // Content layout: when there's vertical room (normal portrait) the summary is a hero line
+        // centered in the gap with the cluster centered below it (weighted spacers). On short or
+        // landscape screens it falls back to a scrollable, centered column so nothing is ever
+        // clipped. The cluster itself is written once and shared between both arrangements.
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val hasRoomForHero = maxHeight >= 540.dp
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = maxHeight)
-                    .verticalScroll(rememberScrollState())
-                    .padding(contentPadding),
+                modifier = if (hasRoomForHero) {
+                    Modifier
+                        .fillMaxSize()
+                        .padding(contentPadding)
+                } else {
+                    Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = maxHeight)
+                        .verticalScroll(rememberScrollState())
+                        .padding(contentPadding)
+                },
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(contentPadding, Alignment.CenterVertically)
+                verticalArrangement = if (hasRoomForHero) Arrangement.Top else Arrangement.Center
             ) {
+                // Hero summary line — centered in the gap when there's room, inline otherwise
+                if (hasRoomForHero) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        HomeSummaryText(
+                            masteredCount = uiState.masteredCount,
+                            activeFlashcardCount = uiState.activeFlashcardCount,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                } else {
+                    HomeSummaryText(
+                        masteredCount = uiState.masteredCount,
+                        activeFlashcardCount = uiState.activeFlashcardCount,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(contentPadding))
+                }
+
+                // Status / controls / navigation cluster (kept together, centered as a group)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(contentPadding)
+                ) {
             // Status Dashboard
             StatusDashboard(
                 activeFlashcardCount = uiState.activeFlashcardCount,
@@ -185,7 +226,7 @@ fun MainScreen(
                         ResponsiveActionCard(
                             title = stringResource(R.string.home_cards_title),
                             subtitle = stringResource(R.string.home_cards_subtitle),
-                            icon = "💼",
+                            icon = Icons.AutoMirrored.Filled.MenuBook,
                             onClick = onNavigateToSettings,
                             isPrimary = true,
                             contentDescription = stringResource(R.string.home_cards_description),
@@ -197,7 +238,7 @@ fun MainScreen(
                         ResponsiveActionCard(
                             title = stringResource(R.string.home_statistics_title),
                             subtitle = stringResource(R.string.home_statistics_subtitle),
-                            icon = "📊",
+                            icon = Icons.Filled.BarChart,
                             onClick = onNavigateToStatistics,
                             isPrimary = false,
                             contentDescription = stringResource(R.string.home_statistics_description),
@@ -224,7 +265,7 @@ fun MainScreen(
                     ResponsiveActionCard(
                         title = stringResource(R.string.home_cards_title),
                         subtitle = stringResource(R.string.home_cards_subtitle),
-                        icon = "💼",
+                        icon = Icons.AutoMirrored.Filled.MenuBook,
                         onClick = onNavigateToSettings,
                         isPrimary = true,
                         contentDescription = stringResource(R.string.home_cards_description),
@@ -236,7 +277,7 @@ fun MainScreen(
                     ResponsiveActionCard(
                         title = stringResource(R.string.home_statistics_title),
                         subtitle = stringResource(R.string.home_statistics_subtitle),
-                        icon = "📊",
+                        icon = Icons.Filled.BarChart,
                         onClick = onNavigateToStatistics,
                         isPrimary = false,
                         contentDescription = stringResource(R.string.home_statistics_description),
@@ -253,6 +294,11 @@ fun MainScreen(
                     )
                 }
             }
+                } // status / controls / nav cluster
+
+                if (hasRoomForHero) {
+                    Spacer(modifier = Modifier.weight(1f))
+                }
             } // content Column
         } // BoxWithConstraints
     }

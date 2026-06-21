@@ -18,14 +18,19 @@
 package com.floflacards.app.presentation.component
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
+import com.floflacards.app.R
 import com.floflacards.app.domain.model.FlashcardRating
 
 /**
@@ -60,9 +65,11 @@ fun FlashcardControls(
                     .weight(1f)
                     .height(40.dp)
             ) {
-                Text(
-                    text = "❌",
-                    fontSize = 18.sp
+                Icon(
+                    imageVector = Icons.Filled.Close,
+                    contentDescription = stringResource(R.string.stats_legend_incorrect),
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
                 )
             }
             
@@ -79,9 +86,11 @@ fun FlashcardControls(
                     .weight(1f)
                     .height(40.dp)
             ) {
-                Text(
-                    text = "❓",
-                    fontSize = 18.sp
+                Icon(
+                    imageVector = Icons.Filled.QuestionMark,
+                    contentDescription = stringResource(R.string.stats_legend_hard),
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
                 )
             }
             
@@ -98,9 +107,11 @@ fun FlashcardControls(
                     .weight(1f)
                     .height(40.dp)
             ) {
-                Text(
-                    text = "✅",
-                    fontSize = 18.sp
+                Icon(
+                    imageVector = Icons.Filled.Check,
+                    contentDescription = stringResource(R.string.stats_legend_correct),
+                    tint = Color.White,
+                    modifier = Modifier.size(22.dp)
                 )
             }
     }

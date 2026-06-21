@@ -20,6 +20,7 @@ package com.floflacards.app.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.floflacards.app.data.repository.FlashcardRepository
+import com.floflacards.app.data.source.MasteredCardsPreferences
 import com.floflacards.app.domain.usecase.OnboardingUseCase
 import com.floflacards.app.domain.usecase.StatisticsUseCase
 import com.floflacards.app.domain.usecase.SimpleStatistics
@@ -38,6 +39,7 @@ data class MainUiState(
     val isServiceActive: Boolean = false,
     val nextFlashcardCountdown: Long = 0L,
     val activeFlashcardCount: Int = 0,
+    val masteredCount: Int = 0, // lifetime cards mastered with FloFla (never decreases)
     val selectedInterval: Int = 5, // minutes
     val isLoading: Boolean = false,
     val statistics: SimpleStatistics? = null,
@@ -47,6 +49,7 @@ data class MainUiState(
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: FlashcardRepository,
+    private val masteredCardsPreferences: MasteredCardsPreferences,
     private val onboardingUseCase: OnboardingUseCase,
     private val statisticsUseCase: StatisticsUseCase,
     private val learningServiceManager: LearningServiceManager,
@@ -90,7 +93,10 @@ class MainViewModel @Inject constructor(
     private fun loadActiveFlashcardCount() {
         viewModelScope.launch {
             val count = repository.getActiveFlashcardCount()
-            _uiState.value = _uiState.value.copy(activeFlashcardCount = count)
+            _uiState.value = _uiState.value.copy(
+                activeFlashcardCount = count,
+                masteredCount = masteredCardsPreferences.getMasteredCount()
+            )
         }
     }
     

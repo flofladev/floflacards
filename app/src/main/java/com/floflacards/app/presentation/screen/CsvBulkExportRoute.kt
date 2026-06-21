@@ -132,7 +132,12 @@ fun CsvBulkExportRoute(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 } else {
-                    Text("📦", style = MaterialTheme.typography.displayMedium)
+                    Icon(
+                        imageVector = Icons.Filled.Inventory2,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(56.dp)
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
                         text = stringResource(R.string.csv_export_bulk_preparing),

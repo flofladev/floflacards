@@ -100,9 +100,11 @@ fun FlashcardContainer(
                 .fillMaxSize()
                 .alpha(uiState.getAlpha()),
             shape = RoundedCornerShape(20.dp),
+            // No elevation: the overlay window is exactly the card's size, so a system shadow has
+            // nowhere to fall and instead fills the rounded corners as a square shade artifact.
             elevation = CardDefaults.cardElevation(
-                defaultElevation = 12.dp,
-                pressedElevation = 8.dp
+                defaultElevation = 0.dp,
+                pressedElevation = 0.dp
             ),
             colors = CardDefaults.cardColors(
                 containerColor = FlashcardColors.getBackgroundColor(theme)

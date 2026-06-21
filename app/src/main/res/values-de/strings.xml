@@ -288,7 +288,13 @@
         <item quantity="one">%1$d Tag</item>
         <item quantity="other">%1$d Tage</item>
     </plurals>
-    <string name="learning_stop_with_countdown">⏸ Stopp · %1$d s</string>
+    <string name="learning_stop_with_countdown">Stopp · %1$d s</string>
+    <string name="home_summary_add_first">Füge deine erste Karte hinzu, um zu starten</string>
+    <string name="home_summary_lets_learn">Lass uns zusammen lernen</string>
+    <plurals name="home_mastered_summary">
+        <item quantity="one">Du hast %1$d Karte mit FloFla gemeistert</item>
+        <item quantity="other">Du hast %1$d Karten mit FloFla gemeistert</item>
+    </plurals>
 
     <!-- Shared Component Strings - natural German -->
     <string name="shared_back">Zurück</string>

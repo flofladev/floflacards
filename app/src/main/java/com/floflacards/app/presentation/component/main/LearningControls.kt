@@ -21,14 +21,19 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -96,7 +101,8 @@ private data class LearningButtonState(
     val container: Color,
     val content: Color,
     val action: () -> Unit,
-    val compactText: Boolean = false
+    val compactText: Boolean = false,
+    val leadingIcon: ImageVector? = null
 )
 
 /**
@@ -125,7 +131,8 @@ private fun UnifiedLearningButton(
             text = stringResource(R.string.learning_stop_with_countdown, nextFlashcardCountdown),
             container = stopColor(),
             content = onStopColor(),
-            action = onStopLearning
+            action = onStopLearning,
+            leadingIcon = Icons.Filled.Pause
         )
         // No flashcards - navigate to cards (replaces NoFlashcardsHintCard)
         activeFlashcardCount == 0 -> LearningButtonState(
@@ -162,14 +169,27 @@ private fun UnifiedLearningButton(
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Text(
-            text = state.text,
-            color = state.content,
-            fontSize = if (state.compactText) 14.sp else 16.sp, // Smaller font for longer hint text
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.Center,
-            maxLines = 1
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            state.leadingIcon?.let { icon ->
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = state.content,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Text(
+                text = state.text,
+                color = state.content,
+                fontSize = if (state.compactText) 14.sp else 16.sp, // Smaller font for longer hint text
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 1
+            )
+        }
     }
 }
 
@@ -196,10 +216,13 @@ private fun PermissionWarningCard() {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "⚠️",
-                fontSize = 24.sp,
-                modifier = Modifier.padding(end = 12.dp)
+            Icon(
+                imageVector = Icons.Filled.Warning,
+                contentDescription = null,
+                tint = onWarningContainerColor(),
+                modifier = Modifier
+                    .padding(end = 12.dp)
+                    .size(24.dp)
             )
             Text(
                 text = stringResource(R.string.learning_overlay_permission_warning),

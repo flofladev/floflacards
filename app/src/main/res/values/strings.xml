@@ -295,7 +295,14 @@
         <item quantity="other">%1$d days</item>
     </plurals>
     <!-- Active learning button: stop action with the live countdown (seconds) -->
-    <string name="learning_stop_with_countdown">⏸ Stop · %1$d s</string>
+    <string name="learning_stop_with_countdown">Stop · %1$d s</string>
+    <!-- Home screen summary line between the header and the learning status card -->
+    <string name="home_summary_add_first">Add your first card to begin</string>
+    <string name="home_summary_lets_learn">Let\'s learn together</string>
+    <plurals name="home_mastered_summary">
+        <item quantity="one">You\'ve mastered %1$d card with FloFla</item>
+        <item quantity="other">You\'ve mastered %1$d cards with FloFla</item>
+    </plurals>
 
     <!-- Shared Component Strings -->
     <string name="shared_back">Back</string>

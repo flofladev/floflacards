@@ -19,13 +19,18 @@ package com.floflacards.app.presentation.component
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.Style
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -72,7 +77,7 @@ fun ModernLearningStatusGrid(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ModernStatusCard(
-                    icon = "📚",
+                    icon = Icons.Filled.Style,
                     label = stringResource(R.string.status_active_cards),
                     value = stringResource(R.string.stats_cards_suffix, activeFlashcardCount),
                     isPositive = activeFlashcardCount > 0,
@@ -81,7 +86,7 @@ fun ModernLearningStatusGrid(
                 )
 
                 ModernStatusCard(
-                    icon = "🔥",
+                    icon = Icons.Filled.LocalFireDepartment,
                     label = stringResource(R.string.status_streak_days),
                     value = pluralStringResource(R.plurals.status_days, streak, streak),
                     isPositive = streak > 0,
@@ -95,7 +100,7 @@ fun ModernLearningStatusGrid(
 
 @Composable
 private fun ModernStatusCard(
-    icon: String,
+    icon: ImageVector,
     label: String,
     value: String,
     isPositive: Boolean,
@@ -130,10 +135,13 @@ private fun ModernStatusCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = icon,
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 4.dp)
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .size(28.dp)
             )
             
             if (useAutoSizeText) {
