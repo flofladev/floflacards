@@ -30,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.floflacards.app.R
 import com.floflacards.app.presentation.component.text.AutoSizeText
@@ -37,7 +38,6 @@ import com.floflacards.app.presentation.component.text.AutoSizeText
 
 @Composable
 fun ModernLearningStatusGrid(
-    isServiceActive: Boolean,
     activeFlashcardCount: Int,
     streak: Int,
     modifier: Modifier = Modifier
@@ -72,15 +72,6 @@ fun ModernLearningStatusGrid(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 ModernStatusCard(
-                    icon = "🔄",
-                    label = stringResource(R.string.status_service_label),
-                    value = if (isServiceActive) stringResource(R.string.status_active) else stringResource(R.string.status_inactive),
-                    isPositive = isServiceActive,
-                    useAutoSizeText = true, // All status cards now use consistent auto-sizing
-                    modifier = Modifier.weight(1f)
-                )
-                
-                ModernStatusCard(
                     icon = "📚",
                     label = stringResource(R.string.status_active_cards),
                     value = stringResource(R.string.stats_cards_suffix, activeFlashcardCount),
@@ -88,11 +79,11 @@ fun ModernLearningStatusGrid(
                     useAutoSizeText = true,
                     modifier = Modifier.weight(1f)
                 )
-                
+
                 ModernStatusCard(
                     icon = "🔥",
                     label = stringResource(R.string.status_streak_days),
-                    value = "$streak ${stringResource(R.string.status_days_text)}",
+                    value = pluralStringResource(R.plurals.status_days, streak, streak),
                     isPositive = streak > 0,
                     useAutoSizeText = true,
                     modifier = Modifier.weight(1f)

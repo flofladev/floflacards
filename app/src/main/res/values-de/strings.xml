@@ -284,7 +284,12 @@
     <string name="status_service_label">Dienst</string>
     <string name="status_cards_suffix_text">Karten</string>
     <string name="status_days_text">Tage</string>
-    
+    <plurals name="status_days">
+        <item quantity="one">%1$d Tag</item>
+        <item quantity="other">%1$d Tage</item>
+    </plurals>
+    <string name="learning_stop_with_countdown">⏸ Stopp · %1$d s</string>
+
     <!-- Shared Component Strings - natural German -->
     <string name="shared_back">Zurück</string>
     <string name="shared_cancel">Abbrechen</string>

@@ -290,7 +290,13 @@
     <string name="status_service_label">Service</string>
     <string name="status_cards_suffix_text">cards</string>
     <string name="status_days_text">days</string>
-    
+    <plurals name="status_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <!-- Active learning button: stop action with the live countdown (seconds) -->
+    <string name="learning_stop_with_countdown">⏸ Stop · %1$d s</string>
+
     <!-- Shared Component Strings -->
     <string name="shared_back">Back</string>
     <string name="shared_cancel">Cancel</string>

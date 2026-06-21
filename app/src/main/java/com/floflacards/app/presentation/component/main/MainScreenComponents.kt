@@ -66,7 +66,11 @@ fun ModernHeaderSection(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+                // Keep the coloured bar edge-to-edge (it fills behind the status bar) but push the
+                // text below the status bar / camera cutout. Inset-based, so it's correct on every
+                // device (notch, punch-hole, tall status bars) without hardcoding pixels.
+                .windowInsetsPadding(WindowInsets.statusBars)
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -91,119 +95,22 @@ fun ModernHeaderSection(
 }
 
 /**
- * Status dashboard showing learning service state and statistics.
- * Displays key metrics in a clean, organized layout.
+ * Status dashboard showing the at-a-glance learning metrics (active cards + streak).
+ *
+ * Service state and the live countdown are now carried by the unified learning button, so this
+ * is a thin delegate over the metric grid (which already provides its own card surface).
  */
 @Composable
 fun StatusDashboard(
-    isServiceActive: Boolean,
     activeFlashcardCount: Int,
-    nextFlashcardCountdown: Long,
     streak: Int = 0,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Column {
-            ModernLearningStatusGrid(
-                isServiceActive = isServiceActive,
-                activeFlashcardCount = activeFlashcardCount,
-                streak = streak,
-                modifier = modifier
-            )
-            
-            if (isServiceActive) {
-                NextFlashcardCountdownCard(
-                    countdownSeconds = nextFlashcardCountdown,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                )
-            }
-        }
-    }
-}
-
-/**
- * Modern action card with consistent styling and accessibility.
- * Provides primary and secondary variants for visual hierarchy.
- */
-@Composable
-fun ModernActionCard(
-    title: String,
-    subtitle: String,
-    icon: String,
-    onClick: () -> Unit,
-    isPrimary: Boolean,
-    contentDescription: String,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = onClick,
+    ModernLearningStatusGrid(
+        activeFlashcardCount = activeFlashcardCount,
+        streak = streak,
         modifier = modifier
-            .height(120.dp)
-            .semantics {
-                this.contentDescription = contentDescription
-            },
-        colors = CardDefaults.cardColors(
-            containerColor = if (isPrimary) 
-                MaterialTheme.colorScheme.primaryContainer 
-            else 
-                MaterialTheme.colorScheme.secondaryContainer
-        ),
-        shape = RoundedCornerShape(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Icon
-            Text(
-                text = icon,
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            
-            // Title
-            AutoSizeText(
-                text = title,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                color = if (isPrimary) 
-                    MaterialTheme.colorScheme.onPrimaryContainer 
-                else 
-                    MaterialTheme.colorScheme.onSecondaryContainer,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                minTextSize = 12.sp,
-                modifier = Modifier.fillMaxWidth()
-            )
-            
-            // Subtitle
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = if (isPrimary) 
-                    MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) 
-                else 
-                    MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-            )
-        }
-    }
+    )
 }
 
 /**
@@ -362,42 +269,3 @@ fun ResponsiveSettingsCard(
     }
 }
 
-/**
- * Next flashcard countdown card showing time until next flashcard.
- * Provides clear visual feedback about learning session progress.
- */
-@Composable
-fun NextFlashcardCountdownCard(
-    countdownSeconds: Long,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer
-        ),
-        shape = RoundedCornerShape(8.dp),
-        modifier = modifier
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "⏰",
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = if (countdownSeconds > 0) {
-                    stringResource(R.string.main_next_flashcard_in, countdownSeconds)
-                } else {
-                    stringResource(R.string.main_preparing_next)
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer
-            )
-        }
-    }
-}
