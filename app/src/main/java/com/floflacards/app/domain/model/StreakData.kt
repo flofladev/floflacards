@@ -17,6 +17,8 @@
 
 package com.floflacards.app.domain.model
 
+import java.util.TimeZone
+
 /**
  * Simple streak data model following KISS principle.
  * Tracks user's learning streak based on flashcard viewing activity.
@@ -27,15 +29,29 @@ data class StreakData(
     val lastActivityTimestamp: Long = 0,
     val highestStreak: Int = 0
 ) {
-    
+
+    companion object {
+        private const val ONE_DAY_MS = 24 * 60 * 60 * 1000L
+
+        /**
+         * Day number relative to the user's LOCAL calendar day, not UTC.
+         * Shifts the UTC instant by the device's timezone offset for that
+         * instant (so DST is handled) before bucketing into whole days.
+         * This makes the streak roll over at local midnight instead of 00:00 UTC.
+         */
+        private fun localDayNumber(timestamp: Long): Long {
+            val offset = TimeZone.getDefault().getOffset(timestamp)
+            return (timestamp + offset) / ONE_DAY_MS
+        }
+    }
+
     /**
      * Updates streak based on today's activity.
      * Simple logic: increment if consecutive day, reset if gap, no change if same day.
      */
     fun updateStreakOnActivity(todayTimestamp: Long = System.currentTimeMillis()): StreakData {
-        val oneDayMs = 24 * 60 * 60 * 1000L
-        val todayDayNumber = todayTimestamp / oneDayMs
-        val lastActivityDayNumber = if (lastActivityTimestamp > 0) lastActivityTimestamp / oneDayMs else -1
+        val todayDayNumber = localDayNumber(todayTimestamp)
+        val lastActivityDayNumber = if (lastActivityTimestamp > 0) localDayNumber(lastActivityTimestamp) else -1
         
         return when {
             lastActivityTimestamp == 0L -> {
@@ -77,10 +93,9 @@ data class StreakData(
      */
     fun getCurrentValidStreak(currentTimestamp: Long = System.currentTimeMillis()): Int {
         if (lastActivityTimestamp == 0L || currentStreak == 0) return 0
-        
-        val oneDayMs = 24 * 60 * 60 * 1000L
-        val currentDayNumber = currentTimestamp / oneDayMs
-        val lastActivityDayNumber = lastActivityTimestamp / oneDayMs
+
+        val currentDayNumber = localDayNumber(currentTimestamp)
+        val lastActivityDayNumber = localDayNumber(lastActivityTimestamp)
         val daysSinceLastActivity = currentDayNumber - lastActivityDayNumber
         
         return when {
