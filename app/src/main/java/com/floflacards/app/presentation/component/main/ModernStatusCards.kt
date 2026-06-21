@@ -113,7 +113,7 @@ private fun ModernStatusCard(
     }
     
     Card(
-        modifier = modifier.height(100.dp),
+        modifier = modifier,
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
@@ -122,7 +122,10 @@ private fun ModernStatusCard(
     ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                // Min height with content-driven growth: the label/value can't be clipped on large
+                // font scales or dense displays (a fixed height was cutting the lower text).
+                .heightIn(min = 100.dp)
                 .padding(horizontal = 8.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -156,11 +159,14 @@ private fun ModernStatusCard(
                 )
             }
             
-            Text(
+            AutoSizeText(
                 text = label,
                 style = MaterialTheme.typography.bodySmall,
                 color = contentColor.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                minTextSize = 8.sp,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
