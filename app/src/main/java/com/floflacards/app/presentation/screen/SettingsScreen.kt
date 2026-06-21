@@ -31,14 +31,15 @@ import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -54,8 +55,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,15 +67,11 @@ import com.floflacards.app.presentation.component.UnifiedDialog
 import com.floflacards.app.presentation.component.DeleteCategoryConfirmationDialog
 import com.floflacards.app.presentation.component.ModernScreenTopAppBar
 import com.floflacards.app.presentation.component.EmptyStateCard
-import com.floflacards.app.presentation.component.StatusBadge
-import com.floflacards.app.presentation.component.ContentCard
-import com.floflacards.app.presentation.component.ModernSquareIconButton
 import com.floflacards.app.presentation.component.SearchBar
 import com.floflacards.app.presentation.component.getContentAlpha
 import com.floflacards.app.presentation.component.getCardContainerColor
 import com.floflacards.app.presentation.component.getCardBorder
 import com.floflacards.app.presentation.component.csv.CsvExportSelectionDialog
-import com.floflacards.app.util.DateUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -246,6 +243,7 @@ fun SettingsScreen(
                             ) { category ->
                                 ModernCategoryCard(
                                     category = category,
+                                    flashcardCount = categoryUiState.categoryCounts[category.id] ?: 0,
                                     onToggleEnabled = { categoryViewModel.toggleCategoryEnabled(category) },
                                     onEdit = { selectedCategory = category },
                                     onDelete = { categoryViewModel.requestDeleteCategory(category) },
@@ -316,9 +314,16 @@ fun SettingsScreen(
 
 
 
+/**
+ * Compact category row: leading list icon, name + live card count, enable toggle, and an overflow
+ * menu (edit / delete). The whole row is clickable to manage the category's flashcards. Replaces
+ * the old tall card (status badge + creation date + boxed name + full-width button) so long lists
+ * stay scannable.
+ */
 @Composable
 fun ModernCategoryCard(
     category: CategoryEntity,
+    flashcardCount: Int,
     onToggleEnabled: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
@@ -326,158 +331,53 @@ fun ModernCategoryCard(
     modifier: Modifier = Modifier
 ) {
     val contentAlpha = getContentAlpha(category.isEnabled)
-    
+    var menuExpanded by remember { mutableStateOf(false) }
+
     Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .shadow(
-                elevation = if (category.isEnabled) 4.dp else 1.dp,
-                shape = RoundedCornerShape(16.dp)
-            ),
+        onClick = onNavigateToFlashcards,
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = getCardContainerColor(category.isEnabled)
         ),
         shape = RoundedCornerShape(16.dp),
-        border = getCardBorder(category.isEnabled)
-    ) {
-        Column(
-            modifier = Modifier.padding(20.dp)
-        ) {
-            // Header with status indicator
-            CategoryHeader(
-                isEnabled = category.isEnabled,
-                createdAt = category.createdAt
-            )
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // Category name
-            CategoryNameCard(
-                categoryName = category.name,
-                isEnabled = category.isEnabled,
-                contentAlpha = contentAlpha
-            )
-            
-            Spacer(modifier = Modifier.height(20.dp))
-            
-            // Action Buttons
-            CategoryActionButtons(
-                isEnabled = category.isEnabled,
-                onNavigateToFlashcards = onNavigateToFlashcards,
-                onEdit = onEdit,
-                onDelete = onDelete,
-                onToggleEnabled = onToggleEnabled,
-                contentAlpha = contentAlpha
-            )
-        }
-    }
-}
-
-@Composable
-private fun CategoryHeader(
-    isEnabled: Boolean,
-    createdAt: Long
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        StatusBadge(isEnabled = isEnabled)
-        
-        Text(
-            text = DateUtils.formatDateTime(createdAt),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurface.copy(
-                alpha = if (isEnabled) 0.6f else 0.35f
-            )
+        border = getCardBorder(category.isEnabled),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (category.isEnabled) 3.dp else 1.dp
         )
-    }
-}
-
-@Composable
-private fun CategoryNameCard(
-    categoryName: String,
-    isEnabled: Boolean,
-    contentAlpha: Float
-) {
-    ContentCard(
-        isEnabled = isEnabled,
-        primaryContainerColor = MaterialTheme.colorScheme.primaryContainer,
-        modifier = Modifier.fillMaxWidth()
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(4.dp),
+                .padding(start = 16.dp, end = 4.dp, top = 6.dp, bottom = 6.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.List,
                 contentDescription = null,
-                tint = if (isEnabled)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.primary.copy(alpha = contentAlpha),
+                tint = MaterialTheme.colorScheme.primary.copy(alpha = contentAlpha),
                 modifier = Modifier.size(24.dp)
             )
-            Spacer(modifier = Modifier.width(12.dp))
-            Text(
-                text = categoryName,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha),
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
 
-@Composable
-private fun CategoryActionButtons(
-    isEnabled: Boolean,
-    onNavigateToFlashcards: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    onToggleEnabled: () -> Unit,
-    contentAlpha: Float
-) {
-    Column {
-        // Manage Flashcards Button
-        Button(
-            onClick = onNavigateToFlashcards,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = if (isEnabled)
-                    MaterialTheme.colorScheme.primary
-                else
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                contentColor = if (isEnabled)
-                    MaterialTheme.colorScheme.onPrimary
-                else
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
-            )
-        ) {
-            Icon(
-                Icons.Outlined.PlayArrow,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(stringResource(R.string.settings_manage_flashcards))
-        }
-        
-        Spacer(modifier = Modifier.height(12.dp))
-        
-        // Control Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Enable/Disable Switch
+            Spacer(modifier = Modifier.width(14.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = category.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = stringResource(R.string.stats_cards_suffix, flashcardCount),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha)
+                )
+            }
+
             Switch(
-                checked = isEnabled,
+                checked = category.isEnabled,
                 onCheckedChange = { onToggleEnabled() },
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = MaterialTheme.colorScheme.primary,
@@ -486,30 +386,44 @@ private fun CategoryActionButtons(
                     uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest
                 )
             )
-            
-            // Edit and Delete Buttons
-            Row {
-                ModernSquareIconButton(
-                    onClick = onEdit,
-                    icon = Icons.Outlined.Edit,
-                    contentDescription = "Edit category",
-                    isEnabled = isEnabled,
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha)
-                )
-                
-                Spacer(modifier = Modifier.width(8.dp))
-                
-                ModernSquareIconButton(
-                    onClick = onDelete,
-                    icon = Icons.Outlined.Delete,
-                    contentDescription = "Delete category",
-                    isEnabled = isEnabled,
-                    containerColor = MaterialTheme.colorScheme.errorContainer,
-                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha)
-                )
+
+            Box {
+                IconButton(onClick = { menuExpanded = true }) {
+                    Icon(
+                        imageVector = Icons.Filled.MoreVert,
+                        contentDescription = stringResource(R.string.category_more_actions),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.settings_edit_category)) },
+                        onClick = {
+                            menuExpanded = false
+                            onEdit()
+                        },
+                        leadingIcon = {
+                            Icon(Icons.Outlined.Edit, contentDescription = null)
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.settings_delete_category)) },
+                        onClick = {
+                            menuExpanded = false
+                            onDelete()
+                        },
+                        leadingIcon = {
+                            Icon(
+                                Icons.Outlined.Delete,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    )
+                }
             }
         }
     }

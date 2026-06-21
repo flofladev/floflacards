@@ -140,20 +140,21 @@ fun MainScreen(
             modifier = Modifier.fillMaxWidth()
         )
         
-        // Content Section with responsive padding and scrolling
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(contentPadding)
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(contentPadding)
-        ) {
+        // Content Section: vertically centered when it fits the viewport (so the lower area reads
+        // as intentional whitespace), but still scrollable on short/landscape screens.
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = maxHeight)
+                    .verticalScroll(rememberScrollState())
+                    .padding(contentPadding),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(contentPadding, Alignment.CenterVertically)
+            ) {
             // Status Dashboard
             StatusDashboard(
-                isServiceActive = uiState.isServiceActive,
                 activeFlashcardCount = uiState.activeFlashcardCount,
-                nextFlashcardCountdown = uiState.nextFlashcardCountdown,
                 streak = uiState.statistics?.streakDays ?: 0,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -252,7 +253,8 @@ fun MainScreen(
                     )
                 }
             }
-        }
+            } // content Column
+        } // BoxWithConstraints
     }
     
     // Unified Dialog System

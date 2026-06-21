@@ -21,6 +21,12 @@ import androidx.room.*
 import com.floflacards.app.data.entity.FlashcardEntity
 import kotlinx.coroutines.flow.Flow
 
+/** Projection for [FlashcardDao.getFlashcardCountsPerCategory]: how many flashcards a category holds. */
+data class CategoryFlashcardCount(
+    val categoryId: Long,
+    val count: Int
+)
+
 @Dao
 interface FlashcardDao {
     
@@ -119,7 +125,11 @@ interface FlashcardDao {
     
     @Query("SELECT COUNT(*) FROM flashcards WHERE categoryId = :categoryId")
     suspend fun getFlashcardCountByCategory(categoryId: Long): Int
-    
+
+    /** Live flashcard count per category in a single grouped query (categories with 0 cards are absent). */
+    @Query("SELECT categoryId AS categoryId, COUNT(*) AS count FROM flashcards GROUP BY categoryId")
+    fun getFlashcardCountsPerCategory(): Flow<List<CategoryFlashcardCount>>
+
     @Insert
     suspend fun insertFlashcard(flashcard: FlashcardEntity): Long
     

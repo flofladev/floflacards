@@ -284,7 +284,16 @@
     <string name="status_service_label">Usługa</string>
     <string name="status_cards_suffix_text">kart</string>
     <string name="status_days_text">dni</string>
-    
+    <plurals name="status_days">
+        <item quantity="one">%1$d dzień</item>
+        <item quantity="few">%1$d dni</item>
+        <item quantity="many">%1$d dni</item>
+        <item quantity="other">%1$d dnia</item>
+    </plurals>
+    <string name="learning_stop_with_countdown">⏸ Zatrzymaj · %1$d s</string>
+    <string name="csv_import_title">Importuj z CSV</string>
+    <string name="csv_export_title">Eksportuj do CSV</string>
+
     <!-- Shared Component Strings - natural Polish -->
     <string name="shared_back">Wróć</string>
     <string name="shared_cancel">Anuluj</string>
@@ -316,6 +325,8 @@
     <string name="settings_add_new_category">Nowa kategoria</string>
     <string name="settings_category_name">Nazwa kategorii</string>
     <string name="settings_edit_category">Edytuj kategorię</string>
+    <string name="settings_delete_category">Usuń kategorię</string>
+    <string name="category_more_actions">Więcej akcji</string>
     <string name="settings_preferences">Preferencje</string>
     
     <!-- Main Screen Next Flashcard - Polish -->

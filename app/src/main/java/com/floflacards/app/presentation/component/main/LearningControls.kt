@@ -23,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +35,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.res.stringResource
 import com.floflacards.app.R
+import com.floflacards.app.presentation.theme.onStopColor
+import com.floflacards.app.presentation.theme.onSuccessColor
+import com.floflacards.app.presentation.theme.onWarningColor
+import com.floflacards.app.presentation.theme.onWarningContainerColor
+import com.floflacards.app.presentation.theme.stopColor
+import com.floflacards.app.presentation.theme.successColor
+import com.floflacards.app.presentation.theme.warningColor
+import com.floflacards.app.presentation.theme.warningContainerColor
 
 /**
  * Learning controls component following SRP.
@@ -62,6 +71,7 @@ fun LearningControls(
             isServiceActive = isServiceActive,
             hasOverlayPermission = hasOverlayPermission,
             activeFlashcardCount = activeFlashcardCount,
+            nextFlashcardCountdown = nextFlashcardCountdown,
             onStartLearning = onStartLearning,
             onStopLearning = onStopLearning,
             onRequestPermission = onRequestPermission,
@@ -78,101 +88,84 @@ fun LearningControls(
 }
 
 /**
- * Status card component following SRP.
+ * Visual + behavioural description of the unified button for a given app state.
+ * Keeping it in one place means the four states stay mutually exclusive and easy to reason about.
  */
-@Composable
-private fun StatusCard(
-    isServiceActive: Boolean,
-    nextFlashcardCountdown: Long
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isServiceActive) Color(0xFF4CAF50) else Color(0xFF757575)
-        ),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = "Status: ${if (isServiceActive) "Active" else "Inactive"}",
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium
-            )
-            
-            if (isServiceActive) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Next flashcard in: ${formatTime(nextFlashcardCountdown)}",
-                    color = Color.White,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
-}
+private data class LearningButtonState(
+    val text: String,
+    val container: Color,
+    val content: Color,
+    val action: () -> Unit,
+    val compactText: Boolean = false
+)
 
 /**
  * UNIFIED Learning/Navigation button - follows SOLID, DRY, KISS principles.
  * Single responsibility: handles learning actions AND navigation hints.
  * Replaces old LearningButton + NoFlashcardsHintCard to eliminate duplication.
+ *
+ * Colours come from the theme (success/warning accessors + colorScheme) so the button is correct
+ * in both light and dark. When a session is active the button also carries the live countdown,
+ * which is why the separate status/countdown card is no longer needed.
  */
 @Composable
 private fun UnifiedLearningButton(
     isServiceActive: Boolean,
     hasOverlayPermission: Boolean,
     activeFlashcardCount: Int,
+    nextFlashcardCountdown: Long,
     onStartLearning: () -> Unit,
     onStopLearning: () -> Unit,
     onRequestPermission: () -> Unit,
     onNavigateToCards: () -> Unit
 ) {
-    val (buttonText, buttonColor, buttonAction) = when {
-        // Service is active - stop learning
-        isServiceActive -> Triple(
-            stringResource(R.string.learning_stop_button_caps),
-            Color(0xFFE91E63), // Pink/red for stop
-            onStopLearning
+    val state = when {
+        // Service is active - stop learning, and surface the live countdown inline
+        isServiceActive -> LearningButtonState(
+            text = stringResource(R.string.learning_stop_with_countdown, nextFlashcardCountdown),
+            container = stopColor(),
+            content = onStopColor(),
+            action = onStopLearning
         )
         // No flashcards - navigate to cards (replaces NoFlashcardsHintCard)
-        activeFlashcardCount == 0 -> Triple(
-            stringResource(R.string.learning_no_cards_hint),
-            Color(0xFF1DB096), // Purple theme to match app design
-            onNavigateToCards
+        activeFlashcardCount == 0 -> LearningButtonState(
+            text = stringResource(R.string.learning_no_cards_hint),
+            container = MaterialTheme.colorScheme.primary,
+            content = MaterialTheme.colorScheme.onPrimary,
+            action = onNavigateToCards,
+            compactText = true
         )
         // Has flashcards but no overlay permission - request permission
-        !hasOverlayPermission -> Triple(
-            stringResource(R.string.learning_permission_required_button),
-            Color(0xFFFF9800), // Orange for permission
-            onRequestPermission
+        !hasOverlayPermission -> LearningButtonState(
+            text = stringResource(R.string.learning_permission_required_button),
+            container = warningColor(),
+            content = onWarningColor(),
+            action = onRequestPermission
         )
         // Ready to start learning
-        else -> Triple(
-            stringResource(R.string.learning_start_button_caps),
-            Color(0xFF4CAF50), // Green for go
-            onStartLearning
+        else -> LearningButtonState(
+            text = stringResource(R.string.learning_start_button_caps),
+            container = successColor(),
+            content = onSuccessColor(),
+            action = onStartLearning
         )
     }
-    
+
     Button(
-        onClick = buttonAction,
+        onClick = state.action,
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = buttonColor
+            containerColor = state.container,
+            contentColor = state.content
         ),
-        shape = RoundedCornerShape(12.dp),
-        enabled = true // Always enabled - button handles all states
+        shape = RoundedCornerShape(12.dp)
     ) {
         Text(
-            text = buttonText,
-            color = Color.White,
-            fontSize = if (activeFlashcardCount == 0) 14.sp else 16.sp, // Smaller font for longer hint text
+            text = state.text,
+            color = state.content,
+            fontSize = if (state.compactText) 14.sp else 16.sp, // Smaller font for longer hint text
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             maxLines = 1
@@ -192,7 +185,7 @@ private fun PermissionWarningCard() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFFF8E1) // Light amber background
+            containerColor = warningContainerColor()
         ),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -212,19 +205,9 @@ private fun PermissionWarningCard() {
                 text = stringResource(R.string.learning_overlay_permission_warning),
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
-                color = Color(0xFFFF8F00), // Amber
+                color = onWarningContainerColor(),
                 modifier = Modifier.weight(1f)
             )
         }
     }
-}
-
-/**
- * Utility function for formatting time.
- * Moved here to follow DRY principle.
- */
-private fun formatTime(seconds: Long): String {
-    val minutes = seconds / 60
-    val remainingSeconds = seconds % 60
-    return String.format("%02d:%02d", minutes, remainingSeconds)
 }
