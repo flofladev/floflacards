@@ -1,0 +1,1 @@
+Version 1.0.14 - Streaks now roll over at your local midnight instead of UTC, so daily activity counts correctly no matter your timezone
