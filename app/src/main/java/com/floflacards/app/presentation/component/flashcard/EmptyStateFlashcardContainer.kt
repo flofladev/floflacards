@@ -155,7 +155,8 @@ fun EmptyStateFlashcardContainer(
                 onModeSelected(mode)
                 onHideModeSelector()
             },
-            onDismiss = onHideModeSelector
+            onDismiss = onHideModeSelector,
+            theme = theme
         )
     }
 }

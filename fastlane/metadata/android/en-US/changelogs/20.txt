@@ -1,0 +1,1 @@
+Version 1.0.19 - The floating card's settings panel (mode, move, resize, opacity) now fits neatly no matter how big or small the card is - no more overlapping or cut-off buttons. It also follows your card's light or dark theme, and the selected option looks clean without the odd square shading.
