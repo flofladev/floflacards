@@ -287,11 +287,17 @@ class FakeFlashcardDao : FlashcardDao {
 
     // Unused stubs — Room interfaces require all methods
     override fun getFlashcardsByCategory(categoryId: Long) = throw NotImplementedError()
+    override fun getFlashcardCountsPerCategory() = throw NotImplementedError()
     override suspend fun getAllFlashcards() = cards
     override suspend fun getAllFlashcardsForStatistics() = cards
     override suspend fun getFlashcardById(id: Long) = cards.find { it.id == id }
     override suspend fun getNextFlashcardForReview(currentTime: Long, excludeId: Long) = throw NotImplementedError()
     override suspend fun getCardWithShortestCooldown(excludeId: Long) = throw NotImplementedError()
+    override suspend fun countActiveLearningCards(masteryEasiness: Float, masteryReviews: Int) = throw NotImplementedError()
+    override suspend fun getNextDueLearningCard(currentTime: Long, masteryEasiness: Float, masteryReviews: Int, excludeId: Long) = throw NotImplementedError()
+    override suspend fun getNextNewCard(excludeId: Long) = throw NotImplementedError()
+    override suspend fun getNextDueMasteredCard(currentTime: Long, masteryEasiness: Float, masteryReviews: Int, excludeId: Long) = throw NotImplementedError()
+    override suspend fun getFallbackCard(excludeId: Long) = throw NotImplementedError()
     override suspend fun getNextAvailableFlashcard(currentTime: Long, excludeId: Long) = throw NotImplementedError()
     override suspend fun getActiveFlashcardCount() = cards.size
     override suspend fun getFlashcardCountByCategory(categoryId: Long) =

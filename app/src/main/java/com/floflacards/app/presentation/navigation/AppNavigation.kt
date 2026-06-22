@@ -17,6 +17,9 @@
 
 package com.floflacards.app.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -47,9 +50,18 @@ fun AppNavigation(
     navController: NavHostController,
     onRequestOverlayPermission: () -> Unit
 ) {
+    // Snappy screen transitions. NavHost's default is a 700ms crossfade, which makes every
+    // navigation feel sluggish; a short fade keeps things smooth without the lag. These apply
+    // to screen-to-screen navigation only and are independent of any in-screen content
+    // animations.
+    val screenFade = tween<Float>(durationMillis = 150)
     NavHost(
         navController = navController,
-        startDestination = "main"
+        startDestination = "main",
+        enterTransition = { fadeIn(animationSpec = screenFade) },
+        exitTransition = { fadeOut(animationSpec = screenFade) },
+        popEnterTransition = { fadeIn(animationSpec = screenFade) },
+        popExitTransition = { fadeOut(animationSpec = screenFade) }
     ) {
         composable("main") {
             MainScreen(

@@ -91,6 +91,106 @@ interface FlashcardDao {
     suspend fun getCardWithShortestCooldown(excludeId: Long = NO_EXCLUDED_CARD): FlashcardEntity?
 
     /**
+     * Number of cards currently being learned: enabled, already introduced
+     * ([FlashcardEntity.lastReviewedAt] > 0), and not yet mastered. This is the count
+     * throttled by [com.floflacards.app.domain.usecase.ACTIVE_POOL_CAP] so new cards are
+     * introduced gradually rather than all at once.
+     */
+    @Query("""
+        SELECT COUNT(*) FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
+        AND f.lastReviewedAt > 0
+        AND NOT (f.easinessFactor >= :masteryEasiness AND f.reviewCount >= :masteryReviews)
+    """)
+    suspend fun countActiveLearningCards(masteryEasiness: Float, masteryReviews: Int): Int
+
+    /**
+     * Next in-progress card due for review: enabled, already introduced, not yet mastered,
+     * and past its cooldown. Least-recently-seen first so the active set is spread out.
+     */
+    @Query("""
+        SELECT f.* FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
+        AND f.lastReviewedAt > 0
+        AND NOT (f.easinessFactor >= :masteryEasiness AND f.reviewCount >= :masteryReviews)
+        AND f.cooldownUntil <= :currentTime
+        AND f.id != :excludeId
+        ORDER BY
+            f.lastReviewedAt ASC,
+            f.easinessFactor ASC,
+            CASE WHEN (f.correctCount + f.incorrectCount) = 0 THEN 0.5
+                 ELSE CAST(f.incorrectCount AS REAL) / (f.correctCount + f.incorrectCount)
+            END DESC,
+            RANDOM()
+        LIMIT 1
+    """)
+    suspend fun getNextDueLearningCard(
+        currentTime: Long,
+        masteryEasiness: Float,
+        masteryReviews: Int,
+        excludeId: Long = NO_EXCLUDED_CARD
+    ): FlashcardEntity?
+
+    /**
+     * Next never-introduced card ([FlashcardEntity.lastReviewedAt] == 0). Oldest first, so a
+     * deck is worked through front-to-back as active-pool slots free up.
+     */
+    @Query("""
+        SELECT f.* FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
+        AND f.lastReviewedAt = 0
+        AND f.id != :excludeId
+        ORDER BY f.createdAt ASC, f.id ASC
+        LIMIT 1
+    """)
+    suspend fun getNextNewCard(excludeId: Long = NO_EXCLUDED_CARD): FlashcardEntity?
+
+    /**
+     * Next mastered card due for a maintenance review (its cooldown has elapsed).
+     * Least-recently-seen first.
+     */
+    @Query("""
+        SELECT f.* FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
+        AND f.easinessFactor >= :masteryEasiness AND f.reviewCount >= :masteryReviews
+        AND f.cooldownUntil <= :currentTime
+        AND f.id != :excludeId
+        ORDER BY f.lastReviewedAt ASC, RANDOM()
+        LIMIT 1
+    """)
+    suspend fun getNextDueMasteredCard(
+        currentTime: Long,
+        masteryEasiness: Float,
+        masteryReviews: Int,
+        excludeId: Long = NO_EXCLUDED_CARD
+    ): FlashcardEntity?
+
+    /**
+     * Last-resort fallback when nothing is due and no new card may be introduced: the
+     * soonest-to-be-ready card, but **preferring already-seen cards over never-seen ones** so the
+     * active-pool cap isn't bypassed (a new card, cooldown 0, would otherwise always look
+     * "soonest"). A never-seen card is only returned when no seen card exists (e.g. a deck made
+     * entirely of new cards where the sole non-excluded card is new).
+     */
+    @Query("""
+        SELECT f.* FROM flashcards f
+        INNER JOIN categories c ON f.categoryId = c.id
+        WHERE f.isEnabled = 1 AND c.isEnabled = 1
+        AND f.id != :excludeId
+        ORDER BY
+            CASE WHEN f.lastReviewedAt = 0 THEN 1 ELSE 0 END ASC,
+            f.cooldownUntil ASC,
+            f.easinessFactor ASC,
+            RANDOM()
+        LIMIT 1
+    """)
+    suspend fun getFallbackCard(excludeId: Long = NO_EXCLUDED_CARD): FlashcardEntity?
+
+    /**
      * Gets the next available flashcard, guaranteeing a result if any cards exist.
      *
      * Tries, in order:

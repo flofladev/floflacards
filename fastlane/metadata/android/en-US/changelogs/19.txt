@@ -1,0 +1,1 @@
+Version 1.0.18 - Faster screen switching: moving between screens is now quick instead of a slow fade. Better learning for big decks: instead of throwing every card at you at once, FloFla now teaches a few new cards at a time and adds more as you get the hang of them.

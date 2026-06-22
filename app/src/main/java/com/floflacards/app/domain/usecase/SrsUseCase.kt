@@ -36,6 +36,13 @@ import kotlin.math.roundToInt
 const val MASTERY_MIN_EASINESS = 2.5f
 const val MASTERY_MIN_REVIEWS = 3
 
+/**
+ * Max number of cards being actively learned at once (enabled, introduced, not yet mastered).
+ * New cards are introduced into rotation only while the active pool is below this cap, so a
+ * large deck is learned gradually instead of all at once.
+ */
+const val ACTIVE_POOL_CAP = 7
+
 fun FlashcardEntity.isMastered(): Boolean =
     easinessFactor >= MASTERY_MIN_EASINESS && reviewCount >= MASTERY_MIN_REVIEWS
 

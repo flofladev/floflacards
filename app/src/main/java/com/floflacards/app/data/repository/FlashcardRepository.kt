@@ -22,6 +22,10 @@ import com.floflacards.app.data.dao.FlashcardDao
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.source.BackupPreferences
+import com.floflacards.app.domain.usecase.ACTIVE_POOL_CAP
+import com.floflacards.app.domain.usecase.MASTERY_MIN_EASINESS
+import com.floflacards.app.domain.usecase.MASTERY_MIN_REVIEWS
+import com.floflacards.app.domain.util.EmptyStateFlashcard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -102,22 +106,62 @@ class FlashcardRepository @Inject constructor(
     private var lastShownFlashcardId: Long = FlashcardDao.NO_EXCLUDED_CARD
 
     /**
-     * Gets the next available flashcard with guaranteed result.
-     * Returns empty state flashcard when no cards are available instead of null.
-     * This ensures the timer service never gets stuck and provides clear user feedback.
+     * Gets the next flashcard to show, guaranteeing a result whenever any enabled card exists
+     * (otherwise the empty-state card). This implements gradual introduction: only a small
+     * "active learning" set ([ACTIVE_POOL_CAP] cards) is in rotation at once, so a large deck is
+     * learned a few cards at a time instead of all at once.
      *
-     * Excludes the previously shown card so it is never shown twice in a row,
-     * unless it is the only card available.
+     * Priority each draw (the previously shown card is excluded so it is never shown twice in a
+     * row, unless it is the only card available):
+     *  1. A card being learned that is due for review (drill the active set).
+     *  2. If the active pool has room, introduce a brand-new (never-seen) card.
+     *  3. A mastered card whose cooldown elapsed (maintenance review). Ranked below new
+     *     introduction so a large mastered set can never starve new learning.
+     *  4. The soonest-to-be-ready card; finally the just-shown card itself (single-card decks).
+     *
+     * Selection is stateless apart from [lastShownFlashcardId]: counts are recomputed from the DB
+     * every draw, so additions/edits/disables/deletes are reflected immediately.
      */
     suspend fun getNextAvailableFlashcard(): FlashcardEntity {
-        val regularFlashcard = flashcardDao.getNextAvailableFlashcard(excludeId = lastShownFlashcardId)
+        val now = System.currentTimeMillis()
+        val exclude = lastShownFlashcardId
 
-        return if (regularFlashcard != null) {
-            lastShownFlashcardId = regularFlashcard.id
-            regularFlashcard
+        // 1. A card currently being learned that is due for review.
+        var selected = flashcardDao.getNextDueLearningCard(
+            now, MASTERY_MIN_EASINESS, MASTERY_MIN_REVIEWS, exclude
+        )
+
+        // 2. Room in the active learning pool: introduce a brand-new card.
+        if (selected == null &&
+            flashcardDao.countActiveLearningCards(MASTERY_MIN_EASINESS, MASTERY_MIN_REVIEWS) < ACTIVE_POOL_CAP
+        ) {
+            selected = flashcardDao.getNextNewCard(exclude)
+        }
+
+        // 3. A mastered card due for a maintenance review.
+        if (selected == null) {
+            selected = flashcardDao.getNextDueMasteredCard(
+                now, MASTERY_MIN_EASINESS, MASTERY_MIN_REVIEWS, exclude
+            )
+        }
+
+        // 4. Nothing is due: the soonest-to-be-ready card other than the one just shown,
+        //    preferring already-seen cards so a full active pool isn't bypassed.
+        if (selected == null) {
+            selected = flashcardDao.getFallbackCard(exclude)
+        }
+
+        // 5. The just-shown card is the only enabled card: show it rather than nothing.
+        if (selected == null) {
+            selected = flashcardDao.getFallbackCard(FlashcardDao.NO_EXCLUDED_CARD)
+        }
+
+        return if (selected != null) {
+            lastShownFlashcardId = selected.id
+            selected
         } else {
-            // No regular cards available — show the empty state.
-            com.floflacards.app.domain.util.EmptyStateFlashcard.create()
+            // No enabled cards at all — show the empty state.
+            EmptyStateFlashcard.create()
         }
     }
     
