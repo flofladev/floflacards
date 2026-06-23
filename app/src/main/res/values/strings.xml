@@ -114,6 +114,12 @@
     <string name="flashcard_theme_light_name">Light</string>
     <string name="flashcard_theme_dark_name">Dark</string>
     
+    <!-- Behavior section -->
+    <string name="settings_behavior_title">Behavior</string>
+    <string name="settings_behavior_subtitle">How the floating card behaves</string>
+    <string name="settings_hide_while_typing_title">Hide card while typing</string>
+    <string name="settings_hide_while_typing_subtitle">The floating card disappears while a keyboard is on screen and returns when it closes</string>
+
     <!-- Permissions section -->
     <string name="settings_permissions_title">Permissions</string>
     <string name="settings_permissions_subtitle">Manage app permissions and optimization</string>

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -70,6 +71,7 @@ fun AppSettingsScreen(
     val currentTheme by viewModel.appTheme.collectAsState()
     val currentFlashcardTheme by viewModel.flashcardTheme.collectAsState()
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
+    val hideCardWhileTyping by viewModel.hideCardWhileTyping.collectAsState()
     
     Scaffold(
         topBar = {
@@ -162,6 +164,21 @@ fun AppSettingsScreen(
                 }
             }
             
+            // Behavior section - overlay card behavior toggles
+            item {
+                AppSettingsSection(
+                    title = stringResource(R.string.settings_behavior_title),
+                    subtitle = stringResource(R.string.settings_behavior_subtitle)
+                ) {
+                    SwitchSettingItem(
+                        title = stringResource(R.string.settings_hide_while_typing_title),
+                        subtitle = stringResource(R.string.settings_hide_while_typing_subtitle),
+                        checked = hideCardWhileTyping,
+                        onCheckedChange = { viewModel.setHideCardWhileTyping(it) }
+                    )
+                }
+            }
+
             // Permissions section - SECOND section as requested
             item {
                 AppSettingsSection(
@@ -307,6 +324,52 @@ private fun AppSettingsSection(
             
             content()
         }
+    }
+}
+
+/**
+ * Setting item with a trailing toggle switch.
+ * Used for boolean behavior preferences. The whole row is toggleable.
+ */
+@Composable
+private fun SwitchSettingItem(
+    title: String,
+    subtitle: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .toggleable(
+                value = checked,
+                onValueChange = onCheckedChange,
+                role = Role.Switch
+            )
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+
+        Spacer(modifier = Modifier.width(16.dp))
+
+        Switch(
+            checked = checked,
+            onCheckedChange = null // handled by toggleable modifier
+        )
     }
 }
 

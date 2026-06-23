@@ -59,6 +59,10 @@ class SettingsRepository @Inject constructor(
     // App locale preference tracking - allows user to override system locale
     private val _appLocale = MutableStateFlow(getAppLocale())
     val appLocale: StateFlow<Language> = _appLocale.asStateFlow()
+
+    // Whether the floating card hides itself while a soft keyboard is on screen (default on)
+    private val _hideCardWhileTyping = MutableStateFlow(getHideCardWhileTyping())
+    val hideCardWhileTyping: StateFlow<Boolean> = _hideCardWhileTyping.asStateFlow()
     
     companion object {
         private const val KEY_INTERVAL_MINUTES = "interval_minutes"
@@ -70,6 +74,7 @@ class SettingsRepository @Inject constructor(
         private const val KEY_BATTERY_OPTIMIZATION_SKIPPED = "battery_optimization_skipped"
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
+        private const val KEY_HIDE_CARD_WHILE_TYPING = "hide_card_while_typing"
     }
 
     fun getIntervalMinutes(): Int {
@@ -83,6 +88,17 @@ class SettingsRepository @Inject constructor(
         _intervalMinutes.value = minutes
     }
     
+    fun getHideCardWhileTyping(): Boolean {
+        return prefs.getBoolean(KEY_HIDE_CARD_WHILE_TYPING, true)
+    }
+
+    fun setHideCardWhileTyping(enabled: Boolean) {
+        prefs.edit()
+            .putBoolean(KEY_HIDE_CARD_WHILE_TYPING, enabled)
+            .apply()
+        _hideCardWhileTyping.value = enabled
+    }
+
     fun getIsLearningActive(): Boolean {
         return prefs.getBoolean(KEY_IS_LEARNING_ACTIVE, false)
     }

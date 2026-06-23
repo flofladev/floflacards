@@ -245,7 +245,8 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         val success = overlayManager.showOverlay(
             lifecycleOwner = this,
             viewModelStoreOwner = this,
-            savedStateRegistryOwner = this
+            savedStateRegistryOwner = this,
+            hideWhileTyping = settingsManager.getHideCardWhileTyping()
         ) {
             overlayComponents.OverlayContent(
                 flashcard = flashcard,

@@ -58,13 +58,26 @@ class AppSettingsViewModel @Inject constructor(
      * CRITICAL: This controls app language independently from system locale
      */
     val appLocale: StateFlow<Language> = settingsManager.appLocale
-    
+
+    /**
+     * Whether the floating card hides itself while a soft keyboard is on screen.
+     */
+    val hideCardWhileTyping: StateFlow<Boolean> = settingsManager.hideCardWhileTyping
+
     /**
      * Updates the app theme preference
      * CRITICAL: This will immediately change the app theme
      */
     fun setAppTheme(theme: AppTheme) {
         settingsManager.setAppTheme(theme)
+    }
+
+    /**
+     * Toggles whether the floating card hides while a keyboard is on screen.
+     * Takes effect on the next card shown.
+     */
+    fun setHideCardWhileTyping(enabled: Boolean) {
+        settingsManager.setHideCardWhileTyping(enabled)
     }
     
     /**

@@ -114,6 +114,12 @@
     <string name="flashcard_theme_light_name">Jasny</string>
     <string name="flashcard_theme_dark_name">Ciemny</string>
     
+    <!-- Behavior section -->
+    <string name="settings_behavior_title">Zachowanie</string>
+    <string name="settings_behavior_subtitle">Jak zachowuje się pływająca karta</string>
+    <string name="settings_hide_while_typing_title">Ukryj kartę podczas pisania</string>
+    <string name="settings_hide_while_typing_subtitle">Pływająca karta znika, gdy na ekranie jest klawiatura, i wraca po jej zamknięciu</string>
+
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>
     <string name="settings_permissions_subtitle">Zarządzaj uprawnieniami i optymalizacją aplikacji</string>

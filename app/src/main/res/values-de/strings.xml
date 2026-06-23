@@ -114,6 +114,12 @@
     <string name="flashcard_theme_light_name">Hell</string>
     <string name="flashcard_theme_dark_name">Dunkel</string>
     
+    <!-- Behavior section -->
+    <string name="settings_behavior_title">Verhalten</string>
+    <string name="settings_behavior_subtitle">Wie sich die schwebende Karte verhält</string>
+    <string name="settings_hide_while_typing_title">Karte beim Tippen ausblenden</string>
+    <string name="settings_hide_while_typing_subtitle">Die schwebende Karte verschwindet, solange eine Tastatur angezeigt wird, und kehrt zurück, wenn sie geschlossen wird</string>
+
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>
     <string name="settings_permissions_subtitle">App-Berechtigungen und -Optimierungen verwalten</string>

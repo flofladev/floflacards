@@ -52,6 +52,7 @@ class OverlayManager(
     private var windowManager: WindowManager? = null
     private var overlayView: View? = null
     private var isClosing = false
+    private var keyboardDetector: KeyboardVisibilityDetector? = null
     
     init {
         windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -65,6 +66,7 @@ class OverlayManager(
         lifecycleOwner: LifecycleOwner,
         viewModelStoreOwner: ViewModelStoreOwner,
         savedStateRegistryOwner: SavedStateRegistryOwner,
+        hideWhileTyping: Boolean = false,
         content: @androidx.compose.runtime.Composable () -> Unit
     ): Boolean {
         try {
@@ -105,6 +107,17 @@ class OverlayManager(
             
             windowManager?.addView(overlayView, params)
             Log.d(TAG, "Overlay window created successfully")
+
+            // Hide the card while a soft keyboard is on screen (e.g. user is typing in another
+            // app). The first layout pass also covers a keyboard that is already up at show time,
+            // so a card arriving mid-typing starts hidden and is revealed when the keyboard closes.
+            if (hideWhileTyping) {
+                keyboardDetector = KeyboardVisibilityDetector(context).apply {
+                    start { keyboardVisible ->
+                        overlayView?.visibility = if (keyboardVisible) View.GONE else View.VISIBLE
+                    }
+                }
+            }
             return true
             
         } catch (e: Exception) {
@@ -191,7 +204,11 @@ class OverlayManager(
         
         isClosing = true
         Log.d(TAG, "Closing overlay")
-        
+
+        // Tear down the keyboard probe window immediately, alongside the card.
+        keyboardDetector?.stop()
+        keyboardDetector = null
+
         serviceScope.launch {
             try {
                 // Give time for any running animations to complete
@@ -230,6 +247,8 @@ class OverlayManager(
      * Follows YAGNI principle - only what's needed for cleanup.
      */
     fun forceCleanup() {
+        keyboardDetector?.stop()
+        keyboardDetector = null
         if (!isClosing) {
             overlayView?.let { view ->
                 try {
