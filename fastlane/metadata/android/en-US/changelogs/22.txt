@@ -1,0 +1,1 @@
+Version 1.0.21 - The floating card now gets out of your way while you type: whenever a keyboard is on screen, the card quietly hides and comes back as soon as you're done. No more cards landing on top of the keys mid-message. You can turn this off anytime in Settings, under Behavior.
