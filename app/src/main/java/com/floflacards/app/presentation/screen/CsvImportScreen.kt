@@ -17,16 +17,20 @@
 
 package com.floflacards.app.presentation.screen
 
+import android.content.ContentResolver
 import android.net.Uri
+import android.provider.OpenableColumns
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -54,7 +58,29 @@ import com.floflacards.app.presentation.viewmodel.CsvImportUiState
 import com.floflacards.app.presentation.viewmodel.ImportStep
 
 /**
- * CSV Import screen with file picker, preview, category selection, and import execution.
+ * Sources the import flow can read from. CSV is the only one implemented today; others are shown
+ * as "coming soon" so the format-selection step is meaningful and easy to extend (e.g. JSON).
+ */
+private enum class ImportFormat { CSV }
+
+/**
+ * Resolves a human-readable file name for a SAF document URI via [OpenableColumns.DISPLAY_NAME].
+ * SAF URIs' last path segment is an opaque document id (e.g. "primary:Download/x.csv"), so it must
+ * not be shown directly. Returns null if the name can't be resolved.
+ */
+private fun queryDisplayName(contentResolver: ContentResolver, uri: Uri): String? {
+    return runCatching {
+        contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+            ?.use { cursor ->
+                val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                if (index >= 0 && cursor.moveToFirst()) cursor.getString(index) else null
+            }
+    }.getOrNull()
+}
+
+/**
+ * Import screen. First step lets the user pick a source format; once chosen, it runs that format's
+ * flow (currently the CSV pick file -> preview -> import stepper).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,6 +96,8 @@ fun CsvImportScreen(
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedFileName by remember { mutableStateOf<String?>(null) }
     var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
+    var selectedFormat by remember { mutableStateOf<ImportFormat?>(null) }
+    var useFileCategories by remember { mutableStateOf(true) }
 
     // Auto-select first category when loaded
     LaunchedEffect(categoryUiState.categories) {
@@ -84,8 +112,11 @@ fun CsvImportScreen(
     ) { uri ->
         uri?.let {
             selectedFileUri = it
-            selectedFileName = uri.lastPathSegment?.substringAfterLast('/') ?: "selected_file.csv"
-            viewModel.setFile(it, selectedFileName!!, context.contentResolver)
+            val name = queryDisplayName(context.contentResolver, it)
+                ?: it.lastPathSegment?.substringAfterLast('/')
+                ?: context.getString(R.string.csv_import_selected_file_fallback)
+            selectedFileName = name
+            viewModel.setFile(it, name, context.contentResolver)
             viewModel.parseForPreview(context.contentResolver)
         }
     }
@@ -93,11 +124,24 @@ fun CsvImportScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.csv_import_title)) },
+                title = {
+                    Text(
+                        stringResource(
+                            if (selectedFormat == null) R.string.action_import
+                            else R.string.csv_import_title
+                        )
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
-                        viewModel.reset()
-                        onNavigateBack()
+                        // From the CSV file-selection step, back returns to the format picker;
+                        // anywhere else it leaves the import screen.
+                        if (selectedFormat != null && uiState.step == ImportStep.IDLE) {
+                            selectedFormat = null
+                        } else {
+                            viewModel.reset()
+                            onNavigateBack()
+                        }
                     }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
@@ -113,6 +157,13 @@ fun CsvImportScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            if (selectedFormat == null) {
+                FormatSelectionStep(
+                    onSelectCsv = { selectedFormat = ImportFormat.CSV },
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                return@Column
+            }
             when (uiState.step) {
                 ImportStep.IDLE -> {
                     FileSelectionStep(
@@ -128,16 +179,25 @@ fun CsvImportScreen(
                     uiState.parseResult?.let { result ->
                         val selectedCatId = selectedCategoryId
                         if (selectedCatId != null) {
+                            val fileHasCategories = result.validCards.any { !it.category.isNullOrBlank() }
                             PreviewStep(
                                 validCards = result.validCards,
                                 errorCount = result.errors.size,
+                                duplicateCount = uiState.duplicateCount,
                                 skipDuplicates = skipDuplicates,
                                 onSkipDuplicatesChanged = { skipDuplicates = it },
+                                fileHasCategories = fileHasCategories,
+                                useFileCategories = useFileCategories,
+                                onUseFileCategoriesChanged = { useFileCategories = it },
                                 selectedCategoryId = selectedCatId,
                                 categories = categoryUiState.categories,
                                 onCategoryChanged = { selectedCategoryId = it },
                                 onImport = {
-                                    viewModel.executeImport(selectedCatId, skipDuplicates)
+                                    viewModel.executeImport(
+                                        categoryId = selectedCatId,
+                                        skipDuplicates = skipDuplicates,
+                                        resolveCategories = fileHasCategories && useFileCategories
+                                    )
                                 },
                                 onPickAnotherFile = {
                                     filePickerLauncher.launch(arrayOf("text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/*"))
@@ -155,7 +215,7 @@ fun CsvImportScreen(
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
-                ImportStep.IMPORTING -> LoadingStep()
+                ImportStep.IMPORTING -> ImportingStep()
                 ImportStep.IMPORT_COMPLETE -> {
                     uiState.importResult?.let { result ->
                         ImportCompleteStep(
@@ -170,10 +230,128 @@ fun CsvImportScreen(
                 }
                 ImportStep.ERROR -> {
                     ErrorStep(
-                        error = uiState.error ?: "Unknown error",
+                        error = uiState.error ?: stringResource(R.string.csv_import_unknown_error),
                         onClose = { viewModel.clearError() }
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FormatSelectionStep(
+    onSelectCsv: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Download,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(56.dp)
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(R.string.import_choose_source),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = stringResource(R.string.import_choose_source_subtitle),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // CSV — the only implemented source today.
+        FormatCard(
+            icon = Icons.Filled.Description,
+            name = "CSV",
+            subtitle = stringResource(R.string.import_format_csv_subtitle),
+            enabled = true,
+            onClick = onSelectCsv
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // JSON — placeholder so the source choice is meaningful and easy to enable later.
+        FormatCard(
+            icon = Icons.Filled.Code,
+            name = "JSON",
+            subtitle = stringResource(R.string.import_format_coming_soon),
+            enabled = false,
+            onClick = {}
+        )
+    }
+}
+
+@Composable
+private fun FormatCard(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    name: String,
+    subtitle: String,
+    enabled: Boolean,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = getCardContainerColor(isEnabled = enabled)
+        ),
+        border = getCardBorder(isEnabled = enabled),
+        elevation = CardDefaults.cardElevation(defaultElevation = if (enabled) 2.dp else 0.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (enabled) MaterialTheme.colorScheme.primary
+                       else MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(28.dp)
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface
+                            else MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (enabled) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
             }
         }
     }
@@ -259,7 +437,7 @@ private fun FileSelectionStep(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Star,
+                            imageVector = Icons.Filled.Description,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
                         )
@@ -296,12 +474,17 @@ private fun LoadingStep() {
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PreviewStep(
     validCards: List<CsvFlashcard>,
     errorCount: Int,
+    duplicateCount: Int,
     skipDuplicates: Boolean,
     onSkipDuplicatesChanged: (Boolean) -> Unit,
+    fileHasCategories: Boolean,
+    useFileCategories: Boolean,
+    onUseFileCategoriesChanged: (Boolean) -> Unit,
     selectedCategoryId: Long,
     categories: List<com.floflacards.app.data.entity.CategoryEntity>,
     onCategoryChanged: (Long) -> Unit,
@@ -358,10 +541,36 @@ private fun PreviewStep(
                             }
                         }
                     }
+
+                    // Duplicates already in the collection (skipped on import unless the toggle is off)
+                    if (duplicateCount > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = stringResource(R.string.csv_import_duplicates_count, duplicateCount), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                 }
             }
 
-            // Category selector
+            // Use-categories-from-file toggle (only when the file actually carries category info)
+            if (fileHasCategories) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Switch(checked = useFileCategories, onCheckedChange = onUseFileCategoriesChanged)
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
+                        Text(text = stringResource(R.string.csv_import_use_file_categories), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                        Text(text = stringResource(R.string.csv_import_use_file_categories_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+
+            // Category selector (the target category, or the fallback when using file categories)
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
@@ -372,10 +581,11 @@ private fun PreviewStep(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Category chips for selection
-            Row(
+            // Category chips for selection — FlowRow so many/long names wrap instead of clipping
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 categories.forEach { category ->
                     FilterChip(
@@ -461,14 +671,22 @@ private fun PreviewStep(
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 // Import button
+                // Reflect how many will actually be imported: duplicates are skipped unless the
+                // "skip duplicates" toggle is off.
+                val importCount = if (skipDuplicates) {
+                    (validCards.size - duplicateCount).coerceAtLeast(0)
+                } else {
+                    validCards.size
+                }
                 Button(
                     onClick = onImport,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = importCount > 0
                 ) {
                     Icon(Icons.Default.Done, contentDescription = null)
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.csv_import_import_button, validCards.size))
+                    Text(stringResource(R.string.csv_import_import_button, importCount))
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -486,7 +704,7 @@ private fun NoValidCardsStep(onPickAnotherFile: () -> Unit, modifier: Modifier =
     EmptyStateCard(
         title = stringResource(R.string.csv_import_no_valid_cards),
         description = stringResource(R.string.csv_import_supported_formats),
-        buttonText = "Pick Another File",
+        buttonText = stringResource(R.string.csv_import_pick_another),
         onButtonClick = onPickAnotherFile,
         icon = Icons.Default.Warning,
         modifier = modifier.then(Modifier.padding(16.dp))

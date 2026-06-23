@@ -154,8 +154,15 @@ fun SettingsScreen(
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.Filled.Download,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "\uD83D\uDCE5 " + stringResource(R.string.csv_import_title),
+                            text = stringResource(R.string.action_import),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -166,8 +173,15 @@ fun SettingsScreen(
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
                     ) {
+                        Icon(
+                            imageVector = Icons.Filled.Upload,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "\uD83D\uDCE4 " + stringResource(R.string.csv_export_title),
+                            text = stringResource(R.string.action_export),
                             color = MaterialTheme.colorScheme.onSurface
                         )
                     }

@@ -56,6 +56,17 @@ class ImportCsvUseCase @Inject constructor(
     }
 
     /**
+     * Counts how many of the parsed valid cards already exist in the collection (matched by
+     * question+answer across all categories — the same scope used when skipping duplicates on
+     * import). Lets the UI surface duplicates in the preview before importing.
+     */
+    suspend fun countExistingDuplicates(parseResult: CsvParseResult): Int = withContext(Dispatchers.IO) {
+        if (parseResult.validCards.isEmpty()) return@withContext 0
+        val existingPairs = fetchExistingPairs(skipDuplicates = true)
+        parseResult.validCards.count { (it.question to it.answer) in existingPairs }
+    }
+
+    /**
      * Imports pre-parsed flashcards into the database.
      *
      * This is the preferred method when the user has already previewed the file —

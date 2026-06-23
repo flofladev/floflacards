@@ -94,10 +94,12 @@ class CsvImportViewModel @Inject constructor(
                 contentResolver.openInputStream(uri)?.use { inputStream ->
                     val result = importCsvUseCase.parseForPreview(inputStream)
                     cachedParseResult = result
+                    val duplicateCount = importCsvUseCase.countExistingDuplicates(result)
 
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         parseResult = result,
+                        duplicateCount = duplicateCount,
                         step = if (result.validCards.isEmpty()) {
                             ImportStep.NO_VALID_CARDS
                         } else {
@@ -132,7 +134,8 @@ class CsvImportViewModel @Inject constructor(
      */
     fun executeImport(
         categoryId: Long,
-        skipDuplicates: Boolean
+        skipDuplicates: Boolean,
+        resolveCategories: Boolean = false
     ) {
         val parseResult = cachedParseResult ?: run {
             _uiState.value = _uiState.value.copy(
@@ -152,7 +155,7 @@ class CsvImportViewModel @Inject constructor(
                     parseResult = parseResult,
                     fallbackCategoryId = categoryId,
                     skipDuplicates = skipDuplicates,
-                    resolveCategories = false
+                    resolveCategories = resolveCategories
                 )
 
                 result.fold(
@@ -221,6 +224,7 @@ data class CsvImportUiState(
     val isImporting: Boolean = false,
     val fileName: String? = null,
     val parseResult: CsvParseResult? = null,
+    val duplicateCount: Int = 0,
     val importResult: CsvImportResult? = null,
     val error: String? = null,
     val step: ImportStep = ImportStep.IDLE

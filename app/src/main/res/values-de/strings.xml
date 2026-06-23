@@ -389,6 +389,12 @@
     <string name="search_clear">Suche löschen</string>
 
     <!-- CSV Import/Export - German -->
+    <string name="action_import">Importieren</string>
+    <string name="action_export">Exportieren</string>
+    <string name="import_choose_source">Quelle wählen</string>
+    <string name="import_choose_source_subtitle">Woher kommen deine Karten?</string>
+    <string name="import_format_csv_subtitle">Datei mit durch Komma oder Tab getrennten Werten (.csv, .tsv)</string>
+    <string name="import_format_coming_soon">Demnächst</string>
     <string name="csv_import_title">Aus CSV importieren</string>
     <string name="csv_import_back">Zurück</string>
     <string name="csv_import_select_file">CSV-Datei auswählen</string>
@@ -400,6 +406,11 @@
     <string name="csv_import_no_valid_cards">Keine gültigen Lernkarten in dieser Datei gefunden.</string>
     <string name="csv_import_skip_duplicates">Duplikate überspringen</string>
     <string name="csv_import_skip_duplicates_description">Lernkarten überspringen, die bereits existieren (gleiche Frage und Antwort)</string>
+    <string name="csv_import_duplicates_count">%1$d bereits vorhanden</string>
+    <string name="csv_import_use_file_categories">Kategorien aus Datei verwenden</string>
+    <string name="csv_import_use_file_categories_description">Karten behalten ihre eigene Kategorie (wird bei Bedarf erstellt). Karten ohne Kategorie kommen in die gewählte Kategorie.</string>
+    <string name="csv_import_unknown_error">Etwas ist schiefgelaufen</string>
+    <string name="csv_import_selected_file_fallback">Ausgewählte Datei</string>
     <string name="csv_import_import_button">%1$d Lernkarten importieren</string>
     <string name="csv_import_importing">Importieren…</string>
     <string name="csv_import_success">%1$d Lernkarten erfolgreich importiert</string>

@@ -299,7 +299,18 @@
         <item quantity="many">Opanowano %1$d kart z FloFla</item>
         <item quantity="other">Opanowano %1$d karty z FloFla</item>
     </plurals>
+    <string name="action_import">Importuj</string>
+    <string name="action_export">Eksportuj</string>
+    <string name="import_choose_source">Wybierz źródło</string>
+    <string name="import_choose_source_subtitle">Skąd pochodzą Twoje karty?</string>
+    <string name="import_format_csv_subtitle">Plik z wartościami rozdzielonymi przecinkiem lub tabulatorem (.csv, .tsv)</string>
+    <string name="import_format_coming_soon">Wkrótce</string>
     <string name="csv_import_title">Importuj z CSV</string>
+    <string name="csv_import_duplicates_count">%1$d już istnieje</string>
+    <string name="csv_import_use_file_categories">Użyj kategorii z pliku</string>
+    <string name="csv_import_use_file_categories_description">Karty zachowują własną kategorię (tworzoną w razie potrzeby). Karty bez kategorii trafiają do wybranej kategorii.</string>
+    <string name="csv_import_unknown_error">Coś poszło nie tak</string>
+    <string name="csv_import_selected_file_fallback">Wybrany plik</string>
     <string name="csv_export_title">Eksportuj do CSV</string>
 
     <!-- Shared Component Strings - natural Polish -->

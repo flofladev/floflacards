@@ -396,6 +396,16 @@
     <string name="search_no_results_description">Try a different search term or clear the search to see all items</string>
     <string name="search_clear">Clear Search</string>
 
+    <!-- Generic data actions (entry buttons; the source/target format is chosen on the next screen) -->
+    <string name="action_import">Import</string>
+    <string name="action_export">Export</string>
+
+    <!-- Import: source/format selection (first step of the import flow) -->
+    <string name="import_choose_source">Choose a source</string>
+    <string name="import_choose_source_subtitle">Where are your cards coming from?</string>
+    <string name="import_format_csv_subtitle">Comma or tab-separated file (.csv, .tsv)</string>
+    <string name="import_format_coming_soon">Coming soon</string>
+
     <!-- CSV Import -->
     <string name="csv_import_title">Import from CSV</string>
     <string name="csv_import_back">Back</string>
@@ -408,6 +418,11 @@
     <string name="csv_import_no_valid_cards">No valid flashcards found in this file.</string>
     <string name="csv_import_skip_duplicates">Skip duplicates</string>
     <string name="csv_import_skip_duplicates_description">Skip flashcards that already exist (same question and answer)</string>
+    <string name="csv_import_duplicates_count">%1$d already exist</string>
+    <string name="csv_import_use_file_categories">Use categories from file</string>
+    <string name="csv_import_use_file_categories_description">Cards keep their own category (created if needed). Cards without one go into the selected category.</string>
+    <string name="csv_import_unknown_error">Something went wrong</string>
+    <string name="csv_import_selected_file_fallback">Selected file</string>
     <string name="csv_import_import_button">Import %1$d Flashcards</string>
     <string name="csv_import_importing">Importing…</string>
     <string name="csv_import_success">Successfully imported %1$d flashcards</string>
