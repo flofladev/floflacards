@@ -17,410 +17,340 @@
 
 package com.floflacards.app.presentation.component
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.BatteryStd
+import androidx.compose.material.icons.outlined.Layers
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.floflacards.app.R
 import com.floflacards.app.data.backup.BackupInfo
 import com.floflacards.app.data.model.Language
-import com.floflacards.app.presentation.component.welcome.LanguageSelectionDialog
 import com.floflacards.app.presentation.component.welcome.WelcomeLanguageSelectionDialog
+import com.floflacards.app.presentation.viewmodel.AppSettingsViewModel
 
 /**
- * Welcome onboarding step components extracted from WelcomeScreen.kt.
- * Follows SOLID principles - each step has single responsibility.
- * Follows DRY principle - reuses WelcomeStepCard component.
- * Follows KISS principle - simple, focused step implementations.
+ * Redesigned welcome onboarding steps, grouped by intent into four screens:
+ * Welcome (intro + privacy + language), Permissions (overlay + battery),
+ * Backup (folder + inline restore), and Completed.
  */
 
-/**
- * Introduction step with streamlined question-hook approach.
- * Focuses on core value proposition with minimal text for better mobile UX.
- * Includes full-width language selection button for better mobile accessibility.
- */
+/* ----------------------------------------------------------------------- */
+/* Step 1 · Welcome + language                                             */
+/* ----------------------------------------------------------------------- */
+
 @Composable
-fun IntroductionStep(
-    onNext: () -> Unit,
+fun WelcomeIntroStep(
+    onGetStarted: () -> Unit,
     onLanguageChanged: ((Language) -> Unit)? = null
 ) {
-    // Inject AppSettingsViewModel to get current language preference
-    val viewModel: com.floflacards.app.presentation.viewmodel.AppSettingsViewModel = androidx.hilt.navigation.compose.hiltViewModel()
-    
-    // Get current language from SettingsRepository, not hardcoded English
+    val viewModel: AppSettingsViewModel = hiltViewModel()
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
     var showLanguageDialog by remember { mutableStateOf(false) }
-    
+
     WelcomeStepCard(
         title = stringResource(R.string.welcome_intro_title),
         content = {
-            Column {
-                // Core value proposition - clear and concise
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
                     text = stringResource(R.string.welcome_intro_description),
                     style = MaterialTheme.typography.bodyLarge,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 32.dp)
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 24.dp)
                 )
-                
-                // Single compelling benefit with prominent styling
-                Text(
-                    text = stringResource(R.string.welcome_intro_benefit),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+
+                // Trust line (replaces the old emoji "Local -> Secure -> Private").
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(bottom = 28.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Lock,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        text = stringResource(R.string.welcome_privacy_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                LanguageSelectorRow(currentLanguage) { showLanguageDialog = true }
             }
         },
         buttonText = stringResource(R.string.welcome_intro_button),
-        onButtonClick = { showLanguageDialog = true }, // Changed: Open language dialog instead of proceeding
-        isButtonEnabled = true,
-        secondaryButtonText = "🌐 ${currentLanguage.flagEmoji} ${currentLanguage.displayName}",
-        onSecondaryButtonClick = { showLanguageDialog = true }
+        onButtonClick = onGetStarted,
+        isButtonEnabled = true
     )
-    
-    // Language selection dialog
+
     if (showLanguageDialog) {
         WelcomeLanguageSelectionDialog(
             currentLanguage = currentLanguage,
-            onLanguageSelected = { selectedLanguage ->
-                // Apply the language change through ViewModel
-                viewModel.setAppLocale(selectedLanguage)
-                onLanguageChanged?.invoke(selectedLanguage)
-                
-                // Auto-progress to next step after language selection
+            onLanguageSelected = { selected ->
+                viewModel.setAppLocale(selected)
+                onLanguageChanged?.invoke(selected) // host recreates the activity to apply locale
                 showLanguageDialog = false
-                onNext()
             },
             onDismiss = { showLanguageDialog = false }
         )
     }
 }
 
-/**
- * Privacy step with visual flow approach.
- * Emphasizes trust through simple, clear messaging and visual representation.
- */
 @Composable
-fun PrivacyOfflineStep(onNext: () -> Unit) {
+private fun LanguageSelectorRow(language: Language, onClick: () -> Unit) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(52.dp)
+    ) {
+        Text(
+            text = "${language.flagEmoji}  ${language.displayName}",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.weight(1f)
+        )
+        Icon(Icons.Filled.KeyboardArrowDown, contentDescription = null)
+    }
+}
+
+/* ----------------------------------------------------------------------- */
+/* Step 2 · Permissions (overlay + battery)                                */
+/* ----------------------------------------------------------------------- */
+
+@Composable
+fun PermissionsStep(
+    hasOverlayPermission: Boolean,
+    isBatteryOptimizationDisabled: Boolean,
+    onGrantOverlay: () -> Unit,
+    onAllowBattery: () -> Unit,
+    onContinue: () -> Unit
+) {
     WelcomeStepCard(
-        title = stringResource(R.string.welcome_privacy_title),
+        title = stringResource(R.string.welcome_permissions_title),
         content = {
             Column {
-                // Core privacy promise - clear and concise
-                Text(
-                    text = stringResource(R.string.welcome_privacy_description),
-                    style = MaterialTheme.typography.bodyLarge,
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.padding(bottom = 32.dp)
+                PermissionRow(
+                    icon = Icons.Outlined.Layers,
+                    label = stringResource(R.string.welcome_overlay_label),
+                    granted = hasOverlayPermission,
+                    actionText = stringResource(R.string.welcome_overlay_button_grant),
+                    onAction = onGrantOverlay
                 )
-                
-                // Visual flow representation
-                Text(
-                    text = stringResource(R.string.welcome_privacy_flow),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4CAF50),
-                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
+                Spacer(Modifier.height(8.dp))
+                PermissionRow(
+                    icon = Icons.Outlined.BatteryStd,
+                    label = stringResource(R.string.welcome_battery_label),
+                    granted = isBatteryOptimizationDisabled,
+                    actionText = stringResource(R.string.welcome_battery_button_disable),
+                    onAction = onAllowBattery
                 )
             }
         },
-        buttonText = stringResource(R.string.welcome_privacy_button),
-        onButtonClick = onNext,
-        isButtonEnabled = true
+        buttonText = stringResource(R.string.welcome_overlay_button_continue),
+        onButtonClick = onContinue,
+        isButtonEnabled = hasOverlayPermission // overlay is required; battery is optional
     )
 }
 
-/**
- * Backup folder selection step using Storage Access Framework (SAF).
- */
 @Composable
-fun BackupFolderStep(
-    hasFolderConfigured: Boolean,
-    onRequestFolderSelection: () -> Unit,
-    onNext: () -> Unit
+private fun PermissionRow(
+    icon: ImageVector,
+    label: String,
+    granted: Boolean,
+    actionText: String,
+    onAction: () -> Unit
 ) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(24.dp)
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        Spacer(Modifier.width(12.dp))
+        if (granted) {
+            Icon(
+                imageVector = Icons.Filled.CheckCircle,
+                contentDescription = stringResource(R.string.welcome_backup_granted),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(24.dp)
+            )
+        } else {
+            FilledTonalButton(onClick = onAction) {
+                Text(actionText)
+            }
+        }
+    }
+}
+
+/* ----------------------------------------------------------------------- */
+/* Step 3 · Backup folder + inline restore                                 */
+/* ----------------------------------------------------------------------- */
+
+@Composable
+fun BackupStep(
+    hasFolderConfigured: Boolean,
+    hasBackup: Boolean,
+    backupInfo: BackupInfo,
+    isRestoring: Boolean,
+    onChooseFolder: () -> Unit,
+    onRestore: () -> Unit,
+    onStartFresh: () -> Unit
+) {
+    // Primary / secondary buttons depend on the state of the folder + backup detection.
+    val primaryText: String
+    val primaryAction: () -> Unit
+    var secondaryText: String? = null
+    var secondaryAction: (() -> Unit)? = null
+
+    when {
+        !hasFolderConfigured -> {
+            primaryText = stringResource(R.string.welcome_backup_button_select)
+            primaryAction = onChooseFolder
+            secondaryText = stringResource(R.string.welcome_backup_skip)
+            secondaryAction = onStartFresh
+        }
+        hasBackup -> {
+            primaryText = stringResource(R.string.welcome_backup_check_button_restore)
+            primaryAction = onRestore
+            secondaryText = stringResource(R.string.welcome_backup_check_button_fresh)
+            secondaryAction = onStartFresh
+        }
+        else -> {
+            primaryText = stringResource(R.string.welcome_backup_button_continue)
+            primaryAction = onStartFresh
+        }
+    }
+
     WelcomeStepCard(
         title = stringResource(R.string.welcome_backup_title),
         content = {
-            Column {
-                Text(
-                    text = stringResource(R.string.welcome_backup_description),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                
-                Text(
-                    text = stringResource(R.string.welcome_backup_benefits_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                val benefits = listOf(
-                    stringResource(R.string.welcome_backup_benefit_1),
-                    stringResource(R.string.welcome_backup_benefit_2),
-                    stringResource(R.string.welcome_backup_benefit_3),
-                    stringResource(R.string.welcome_backup_benefit_4)
-                )
-                
-                benefits.forEach { benefit ->
-                    Text(
-                        text = benefit,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                when {
+                    isRestoring -> {
+                        CircularProgressIndicator(modifier = Modifier.padding(8.dp))
+                    }
+                    !hasFolderConfigured -> {
+                        Text(
+                            text = stringResource(R.string.welcome_backup_description),
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    hasBackup -> {
+                        StatusLine(stringResource(R.string.welcome_backup_check_found_description))
+                        Spacer(Modifier.height(12.dp))
+                        BackupDetail(
+                            stringResource(
+                                R.string.welcome_backup_check_created,
+                                java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault())
+                                    .format(java.util.Date(backupInfo.createdAt))
+                            )
+                        )
+                        BackupDetail(stringResource(R.string.welcome_backup_check_categories, backupInfo.categoryCount))
+                        BackupDetail(stringResource(R.string.welcome_backup_check_flashcards, backupInfo.flashcardCount))
+                    }
+                    else -> {
+                        StatusLine(stringResource(R.string.welcome_backup_granted))
+                    }
                 }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                PermissionStatusIndicator(
-                    isGranted = hasFolderConfigured,
-                    grantedText = stringResource(R.string.welcome_backup_granted),
-                    deniedText = stringResource(R.string.welcome_backup_required)
-                )
             }
         },
-        buttonText = if (hasFolderConfigured) stringResource(R.string.welcome_backup_button_continue) else stringResource(R.string.welcome_backup_button_select),
-        onButtonClick = if (hasFolderConfigured) onNext else onRequestFolderSelection,
-        isButtonEnabled = true
+        buttonText = primaryText,
+        onButtonClick = primaryAction,
+        isButtonEnabled = !isRestoring,
+        secondaryButtonText = if (isRestoring) null else secondaryText,
+        onSecondaryButtonClick = if (isRestoring) null else secondaryAction
     )
 }
 
-/**
- * Overlay permission request step.
- */
 @Composable
-fun OverlayPermissionStep(
-    hasPermission: Boolean,
-    onRequestPermission: () -> Unit,
-    onNext: () -> Unit
-) {
-    WelcomeStepCard(
-        title = stringResource(R.string.welcome_overlay_title),
-        content = {
-            Column {
-                Text(
-                    text = stringResource(R.string.welcome_overlay_description),
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                
-                PermissionStatusIndicator(
-                    isGranted = hasPermission,
-                    grantedText = stringResource(R.string.welcome_overlay_granted),
-                    deniedText = stringResource(R.string.welcome_overlay_required)
-                )
-            }
-        },
-        buttonText = if (hasPermission) stringResource(R.string.welcome_overlay_button_continue) else stringResource(R.string.welcome_overlay_button_grant),
-        onButtonClick = if (hasPermission) onNext else onRequestPermission,
-        isButtonEnabled = true
-    )
-}
-
-/**
- * Battery optimization disable step with skip option.
- * Follows SOLID principles by separating concerns and providing clear user choices.
- */
-@Composable
-fun BatteryOptimizationStep(
-    isOptimizationDisabled: Boolean,
-    onRequestDisable: () -> Unit,
-    onSkip: () -> Unit,
-    onNext: () -> Unit
-) {
-    if (isOptimizationDisabled) {
-        // Show simple continue button when optimization is already disabled
-        WelcomeStepCard(
-            title = stringResource(R.string.welcome_battery_title),
-            content = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.welcome_battery_description),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    
-                    PermissionStatusIndicator(
-                        isGranted = true,
-                        grantedText = stringResource(R.string.welcome_battery_granted),
-                        deniedText = stringResource(R.string.welcome_battery_enabled)
-                    )
-                }
-            },
-            buttonText = stringResource(R.string.welcome_battery_button_continue),
-            onButtonClick = onNext,
-            isButtonEnabled = true
+private fun StatusLine(text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(
+            imageVector = Icons.Filled.CheckCircle,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
         )
-    } else {
-        // Show both disable and skip options when optimization is enabled
-        WelcomeStepCard(
-            title = stringResource(R.string.welcome_battery_title),
-            content = {
-                Column {
-                    Text(
-                        text = stringResource(R.string.welcome_battery_description),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    
-                    PermissionStatusIndicator(
-                        isGranted = false,
-                        grantedText = stringResource(R.string.welcome_battery_granted),
-                        deniedText = stringResource(R.string.welcome_battery_enabled)
-                    )
-                }
-            },
-            buttonText = stringResource(R.string.welcome_battery_button_disable),
-            onButtonClick = onRequestDisable,
-            isButtonEnabled = true,
-            secondaryButtonText = stringResource(R.string.welcome_battery_button_skip),
-            onSecondaryButtonClick = onSkip
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
 
-/**
- * Backup check and restore step.
- */
 @Composable
-fun BackupCheckStep(
-    hasBackup: Boolean,
-    backupInfo: BackupInfo,
-    onRestore: () -> Unit,
-    onSkip: () -> Unit
-) {
-    WelcomeStepCard(
-        title = if (hasBackup) stringResource(R.string.welcome_backup_check_found_title) else stringResource(R.string.welcome_backup_check_fresh_title),
-        content = {
-            Column {
-                if (hasBackup) {
-                    Text(
-                        text = stringResource(R.string.welcome_backup_check_found_description),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF4CAF50),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    
-                    Text(
-                        text = stringResource(R.string.welcome_backup_check_details_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
-                    
-                    Text(
-                        text = stringResource(
-                            R.string.welcome_backup_check_created,
-                            java.text.SimpleDateFormat("MMM dd, yyyy", java.util.Locale.getDefault()).format(java.util.Date(backupInfo.createdAt))
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    
-                    Text(
-                        text = stringResource(
-                            R.string.welcome_backup_check_categories,
-                            backupInfo.categoryCount
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                    
-                    Text(
-                        text = stringResource(
-                            R.string.welcome_backup_check_flashcards,
-                            backupInfo.flashcardCount
-                        ),
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                    
-                    Text(
-                        text = stringResource(R.string.welcome_backup_check_question),
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.Medium
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.welcome_backup_check_fresh_description),
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-            }
-        },
-        buttonText = if (hasBackup) stringResource(R.string.welcome_backup_check_button_restore) else stringResource(R.string.welcome_backup_check_button_fresh),
-        onButtonClick = if (hasBackup) onRestore else onSkip,
-        isButtonEnabled = true,
-        secondaryButtonText = if (hasBackup) stringResource(R.string.welcome_backup_check_button_fresh) else null,
-        onSecondaryButtonClick = if (hasBackup) onSkip else null
+private fun BackupDetail(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(bottom = 4.dp)
     )
 }
 
-/**
- * Welcome completion step.
- */
+/* ----------------------------------------------------------------------- */
+/* Step 4 · Completed                                                      */
+/* ----------------------------------------------------------------------- */
+
 @Composable
 fun CompletedStep(onEnterApp: () -> Unit) {
     WelcomeStepCard(
         title = stringResource(R.string.welcome_completed_title),
         content = {
-            Column {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Icon(
+                    imageVector = Icons.Filled.CheckCircle,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(56.dp)
+                )
+                Spacer(Modifier.height(16.dp))
                 Text(
                     text = stringResource(R.string.welcome_completed_description),
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-                
-                Text(
-                    text = stringResource(R.string.welcome_completed_ready_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-                
-                val readyFeatures = listOf(
-                    stringResource(R.string.welcome_completed_feature_1),
-                    stringResource(R.string.welcome_completed_feature_2),
-                    stringResource(R.string.welcome_completed_feature_3),
-                    stringResource(R.string.welcome_completed_feature_4)
-                )
-                
-                readyFeatures.forEach { feature ->
-                    Text(
-                        text = feature,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                }
-                
-                Spacer(modifier = Modifier.height(16.dp))
-                
-                Text(
-                    text = stringResource(R.string.welcome_completed_happy_learning),
-                    style = MaterialTheme.typography.bodyLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3)
+                    textAlign = TextAlign.Center
                 )
             }
         },

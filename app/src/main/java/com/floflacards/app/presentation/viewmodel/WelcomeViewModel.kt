@@ -33,9 +33,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
- * ViewModel for Welcome Screen following MVVM architecture.
- * Manages permission states and welcome flow progression.
- * Follows SRP by handling only welcome-related logic.
+ * ViewModel for the redesigned Welcome flow.
+ *
+ * The onboarding is grouped into four screens by intent instead of one-per-permission:
+ *   WELCOME (intro + privacy + language) -> PERMISSIONS (overlay + battery) ->
+ *   BACKUP (folder + inline restore) -> COMPLETED.
  */
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
@@ -51,227 +53,130 @@ class WelcomeViewModel @Inject constructor(
 
     init {
         refreshPermissions()
-        // Don't check backup availability here - only when user reaches backup step
-        // This ensures storage permission is granted first
     }
 
     /**
-     * Refreshes all permission states and SAF folder configuration.
-     * Called when returning from system settings or SAF folder selection.
-     * Tracks when user successfully disables battery optimization.
+     * Refreshes permission/folder state. Called on resume and after SAF folder selection.
+     * Also re-checks backup availability whenever a folder is configured, so the BACKUP
+     * screen can reveal the restore option as soon as a folder containing a backup is chosen.
      */
     fun refreshPermissions() {
         viewModelScope.launch {
-            val currentState = _uiState.value
             val isBatteryOptDisabled = permissionHelper.isBatteryOptimizationDisabled()
-            
-            // Track when user successfully disables battery optimization
+
+            // Track when the user successfully disables battery optimization.
             if (isBatteryOptDisabled && !settingsManager.hasBatteryOptimizationEverBeenDisabled()) {
                 settingsManager.setBatteryOptimizationEverDisabled(true)
             }
-            
-            _uiState.value = currentState.copy(
+
+            val hasFolder = backupPreferences.hasSafFolderConfigured()
+            _uiState.value = _uiState.value.copy(
                 hasOverlayPermission = permissionHelper.hasOverlayPermission(),
                 isBatteryOptimizationDisabled = isBatteryOptDisabled,
-                hasBackupFolderConfigured = backupPreferences.hasSafFolderConfigured(),
+                hasBackupFolderConfigured = hasFolder,
                 isRefreshing = false
             )
-            updateCurrentStep()
+
+            if (hasFolder) checkBackupAvailability()
         }
     }
 
-    /**
-     * Moves to the next step in the welcome flow.
-     * Automatically skips backup step if no backup is available (KISS principle).
-     */
+    /** Advances to the next onboarding screen. */
     fun nextStep() {
-        val currentState = _uiState.value
-        val nextStep = when (currentState.currentStep) {
-            WelcomeStep.INTRODUCTION -> WelcomeStep.PRIVACY_OFFLINE
-            WelcomeStep.PRIVACY_OFFLINE -> WelcomeStep.BACKUP_FOLDER
-            WelcomeStep.BACKUP_FOLDER -> WelcomeStep.OVERLAY_PERMISSION
-            WelcomeStep.OVERLAY_PERMISSION -> WelcomeStep.BATTERY_OPTIMIZATION
-            WelcomeStep.BATTERY_OPTIMIZATION -> {
-                // Check backup availability and handle step transition asynchronously
-                checkBackupAvailabilityAndAdvance()
-                // Return current step for now, actual transition happens in checkBackupAvailabilityAndAdvance
-                currentState.currentStep
-            }
-            WelcomeStep.BACKUP_CHECK -> WelcomeStep.COMPLETED
+        val next = when (_uiState.value.currentStep) {
+            WelcomeStep.WELCOME -> WelcomeStep.PERMISSIONS
+            WelcomeStep.PERMISSIONS -> WelcomeStep.BACKUP
+            WelcomeStep.BACKUP -> WelcomeStep.COMPLETED
             WelcomeStep.COMPLETED -> WelcomeStep.COMPLETED
         }
-        
-        _uiState.value = currentState.copy(currentStep = nextStep)
+        _uiState.value = _uiState.value.copy(currentStep = next)
     }
 
     /**
-     * Updates the current step based on permission states.
-     * Automatically advances if permissions are already granted.
+     * Leaves the PERMISSIONS screen. Overlay is required (the UI gates Continue on it);
+     * battery optimization is optional, so if it wasn't disabled we record it as skipped
+     * to avoid nagging the user later, then advance.
      */
-    private fun updateCurrentStep() {
-        val currentState = _uiState.value
-        
-        // Auto-advance through completed steps
-        when (currentState.currentStep) {
-            WelcomeStep.OVERLAY_PERMISSION -> {
-                if (currentState.hasOverlayPermission) {
-                    nextStep()
-                }
-            }
-            WelcomeStep.BATTERY_OPTIMIZATION -> {
-                if (currentState.isBatteryOptimizationDisabled) {
-                    nextStep()
-                }
-            }
-            else -> { /* No auto-advance needed */ }
+    fun proceedFromPermissions() {
+        if (!_uiState.value.isBatteryOptimizationDisabled) {
+            settingsManager.setBatteryOptimizationSkipped(true)
         }
+        nextStep()
     }
 
-    /**
-     * Checks backup availability and advances to appropriate step.
-     * Auto-skips backup step if no backup found (KISS principle).
-     */
-    private fun checkBackupAvailabilityAndAdvance() {
+    /** Requests the system battery-optimization-disable dialog. */
+    fun requestBatteryOptimizationDisable() {
+        permissionHelper.requestBatteryOptimizationDisable()
+    }
+
+    /** Looks up whether the configured backup folder contains a restorable backup. */
+    private fun checkBackupAvailability() {
         viewModelScope.launch {
             try {
-                val backupInfo = getBackupInfoUseCase()
-                val hasBackup = backupInfo.exists
-                
+                val info = getBackupInfoUseCase()
                 _uiState.value = _uiState.value.copy(
-                    backupInfo = backupInfo,
-                    hasBackupAvailable = hasBackup
+                    backupInfo = info,
+                    hasBackupAvailable = info.exists
                 )
-                
-                if (hasBackup) {
-                    _uiState.value = _uiState.value.copy(currentStep = WelcomeStep.BACKUP_CHECK)
-                } else {
-                    completeWelcomeFlow()
-                }
             } catch (e: Exception) {
-                // If backup check fails, assume no backup available and skip to completion
                 _uiState.value = _uiState.value.copy(
                     backupInfo = BackupInfo(exists = false, filePath = ""),
                     hasBackupAvailable = false
                 )
-                completeWelcomeFlow()
             }
         }
     }
 
-    /**
-     * Completes the welcome flow by advancing to the final step.
-     * Follows DRY principle - single point for completion logic.
-     */
+    /** Restores the detected backup, then moves to the completion screen. */
+    fun restoreBackup() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isRestoring = true)
+            try {
+                restoreBackupUseCase()
+            } catch (e: Exception) {
+                // Keep the UX simple: proceed even if restore fails.
+            }
+            _uiState.value = _uiState.value.copy(isRestoring = false)
+            completeWelcomeFlow()
+        }
+    }
+
+    /** Proceeds without restoring (fresh start or no backup found). */
+    fun startFresh() {
+        completeWelcomeFlow()
+    }
+
     private fun completeWelcomeFlow() {
         _uiState.value = _uiState.value.copy(currentStep = WelcomeStep.COMPLETED)
     }
 
-
-    /**
-     * Requests battery optimization disable.
-     */
-    fun requestBatteryOptimizationDisable() {
-        permissionHelper.requestBatteryOptimizationDisable()
-    }
-    
-    /**
-     * Skips battery optimization setup during welcome flow.
-     * Persists user choice to prevent showing dialog later.
-     * Follows SRP by handling only skip logic.
-     */
-    fun skipBatteryOptimization() {
-        settingsManager.setBatteryOptimizationSkipped(true)
-        nextStep() // Proceed to next welcome step
-    }
-
-    /**
-     * Restores backup if available.
-     * Follows SRP - handles only backup restoration, delegates flow completion.
-     */
-    fun restoreBackup() {
-        viewModelScope.launch {
-            try {
-                val result = restoreBackupUseCase()
-                result.fold(
-                    onSuccess = { restoreResult ->
-                        // After successful restore, complete the welcome flow
-                        completeWelcomeFlow()
-                    },
-                    onFailure = { error ->
-                        // On failure, still complete flow (keeps UX simple)
-                        completeWelcomeFlow()
-                    }
-                )
-            } catch (e: Exception) {
-                // On exception, still complete flow
-                completeWelcomeFlow()
-            }
-        }
-    }
-
-    /**
-     * Handles SAF tree URI result from folder selection.
-     * Stores the URI and updates the UI state.
-     */
+    /** Stores the SAF tree URI and refreshes (which re-checks for a backup). */
     fun handleSafFolderSelected(treeUri: String) {
         backupPreferences.setSafTreeUri(treeUri)
         refreshPermissions()
-    }
-
-    /**
-     * Checks if all required permissions are granted.
-     * Respects user's choice to skip battery optimization and tracks disable intent.
-     */
-    fun areAllPermissionsGranted(): Boolean {
-        val state = _uiState.value
-        val batteryOptSkipped = settingsManager.isBatteryOptimizationSkipped()
-        val batteryOptEverDisabled = settingsManager.hasBatteryOptimizationEverBeenDisabled()
-        
-        val hasRequiredPermissions = state.hasOverlayPermission
-        
-        // Battery optimization logic:
-        // 1. If user skipped: always consider requirement met
-        // 2. If user disabled but system re-enabled: consider requirement met (main app handles contextual dialogs)
-        // 3. If fresh install and not disabled: requirement not met
-        val batteryOptRequirementMet = state.isBatteryOptimizationDisabled || 
-                                       batteryOptSkipped || 
-                                       batteryOptEverDisabled
-        
-        return hasRequiredPermissions && batteryOptRequirementMet
-    }
-
-    /**
-     * Checks if the welcome flow can be completed.
-     */
-    fun canCompleteWelcome(): Boolean {
-        return areAllPermissionsGranted() && _uiState.value.currentStep == WelcomeStep.COMPLETED
     }
 }
 
 /**
  * UI state for the welcome screen.
- * Follows data encapsulation principles.
  */
 data class WelcomeUiState(
-    val currentStep: WelcomeStep = WelcomeStep.INTRODUCTION,
+    val currentStep: WelcomeStep = WelcomeStep.WELCOME,
     val hasOverlayPermission: Boolean = false,
     val isBatteryOptimizationDisabled: Boolean = false,
     val hasBackupFolderConfigured: Boolean = false,
     val hasBackupAvailable: Boolean = false,
     val backupInfo: BackupInfo = BackupInfo(exists = false, filePath = ""),
+    val isRestoring: Boolean = false,
     val isRefreshing: Boolean = false
 )
 
 /**
- * Welcome flow steps.
- * Defines the mandatory progression through the onboarding.
+ * Welcome flow steps (grouped by intent).
  */
 enum class WelcomeStep {
-    INTRODUCTION,
-    PRIVACY_OFFLINE,
-    BACKUP_FOLDER,
-    OVERLAY_PERMISSION,
-    BATTERY_OPTIMIZATION,
-    BACKUP_CHECK,
+    WELCOME,
+    PERMISSIONS,
+    BACKUP,
     COMPLETED
 }

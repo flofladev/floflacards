@@ -1,0 +1,1 @@
+Version 1.0.23 - A cleaner, faster welcome screen. Setup is now just a few simple steps that match the app's look, with clearer wording in every language.

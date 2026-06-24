@@ -6,7 +6,7 @@
     <string name="welcome_intro_title">Bereit, schlauer zu lernen – ganz nebenbei?</string>
     <string name="welcome_intro_description">Lernkarten, die über jeder App schweben – so nutzt du jede Minute.</string>
     <string name="welcome_intro_benefit">✨ Lernen beim Chatten, Surfen oder Spielen</string>
-    <string name="welcome_intro_button">Zeig mir, wie!</string>
+    <string name="welcome_intro_button">Los geht\'s</string>
     
     <!-- Privacy Step -->
     <string name="welcome_privacy_title">Deine Daten. Deine Kontrolle. 🔒</string>
@@ -15,14 +15,14 @@
     <string name="welcome_privacy_button">Alles klar!</string>
     
     <!-- Backup Folder Step -->
-    <string name="welcome_backup_title">Backup-Ordner 📁</string>
+    <string name="welcome_backup_title">Deine Backups</string>
     <string name="welcome_backup_description">Wähle einen Ordner für deine Backup-Dateien. So bleiben deine Daten auch bei einer Neuinstallation erhalten.</string>
     <string name="welcome_backup_benefits_title">Die Vorteile:</string>
     <string name="welcome_backup_benefit_1">💾 Automatische Backup-Erstellung</string>
     <string name="welcome_backup_benefit_2">🔄 Daten überleben App-Neuinstallation</string>
     <string name="welcome_backup_benefit_3">📂 Du bestimmst den Speicherort</string>
     <string name="welcome_backup_benefit_4">🔒 Datenschutz-freundlich (keine Cloud)</string>
-    <string name="welcome_backup_granted">Backup-Ordner ausgewählt! ✅</string>
+    <string name="welcome_backup_granted">Backup-Ordner ausgewählt</string>
     <string name="welcome_backup_required">Backup-Ordner erforderlich 📁</string>
     <string name="welcome_backup_button_continue">Weiter</string>
     <string name="welcome_backup_button_select">Backup-Ordner auswählen</string>
@@ -50,15 +50,15 @@
     <string name="welcome_backup_check_found_description">Wir haben ein früheres Backup deiner Daten gefunden!</string>
     <string name="welcome_backup_check_fresh_description">Kein Backup gefunden. Du kannst mit einem sauberen Blatt beginnen!</string>
     <string name="welcome_backup_check_details_title">Backup-Details:</string>
-    <string name="welcome_backup_check_created">📅 Erstellt: %1$s</string>
-    <string name="welcome_backup_check_categories">📚 Kategorien: %1$d</string>
-    <string name="welcome_backup_check_flashcards">🗂️ Lernkarten: %1$d</string>
+    <string name="welcome_backup_check_created">Erstellt: %1$s</string>
+    <string name="welcome_backup_check_categories">Kategorien: %1$d</string>
+    <string name="welcome_backup_check_flashcards">Lernkarten: %1$d</string>
     <string name="welcome_backup_check_question">Möchtest du deine früheren Daten wiederherstellen?</string>
     <string name="welcome_backup_check_button_restore">Backup wiederherstellen</string>
     <string name="welcome_backup_check_button_fresh">Neu beginnen</string>
     
     <!-- Completed Step -->
-    <string name="welcome_completed_title">Geschafft! 🎉</string>
+    <string name="welcome_completed_title">Alles bereit</string>
     <string name="welcome_completed_description">Glückwunsch! Deine App ist jetzt bereit für ein fantastisches Lernerlebnis.</string>
     <string name="welcome_completed_ready_title">Du kannst jetzt:</string>
     <string name="welcome_completed_feature_1">📚 Deine erste Lernkarten-Kategorie erstellen</string>
@@ -67,6 +67,12 @@
     <string name="welcome_completed_feature_4">⚡ Dein Lernerlebnis anpassen</string>
     <string name="welcome_completed_happy_learning">Viel Spaß beim Lernen! 🚀</string>
     <string name="welcome_completed_button">App betreten</string>
+
+    <!-- Redesigned welcome (merged screens) -->
+    <string name="welcome_permissions_title">FloFla richtig einrichten</string>
+    <string name="welcome_overlay_label">Über anderen Apps anzeigen</string>
+    <string name="welcome_battery_label">Akku-Sparmodus ignorieren</string>
+    <string name="welcome_backup_skip">Nicht jetzt</string>
     
     <!-- Language Dialog -->
     <string name="language_dialog_title">Sprache wählen</string>

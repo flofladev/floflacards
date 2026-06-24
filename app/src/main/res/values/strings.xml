@@ -6,7 +6,7 @@
     <string name="welcome_intro_title">Ready to Learn Smarter?</string>
     <string name="welcome_intro_description">Floating flashcards that appear over any app, making every moment count.</string>
     <string name="welcome_intro_benefit">✨ Learn while texting, browsing, or gaming</string>
-    <string name="welcome_intro_button">Show Me How!</string>
+    <string name="welcome_intro_button">Get started</string>
     
     <!-- Privacy Step -->
     <string name="welcome_privacy_title">Your Data, Your Control 🔒</string>
@@ -15,14 +15,14 @@
     <string name="welcome_privacy_button">Got It!</string>
     
     <!-- Backup Folder Step -->
-    <string name="welcome_backup_title">Backup Folder 📁</string>
+    <string name="welcome_backup_title">Your backups</string>
     <string name="welcome_backup_description">Select a folder where your backup files will be stored. This ensures your data persists even if you uninstall the app.</string>
     <string name="welcome_backup_benefits_title">Key Benefits:</string>
     <string name="welcome_backup_benefit_1">💾 Automatic backup creation</string>
     <string name="welcome_backup_benefit_2">🔄 Data survives app reinstall</string>
     <string name="welcome_backup_benefit_3">📂 User-controlled storage location</string>
     <string name="welcome_backup_benefit_4">🔒 Privacy-focused (no cloud)</string>
-    <string name="welcome_backup_granted">Backup folder selected! ✅</string>
+    <string name="welcome_backup_granted">Backup folder selected</string>
     <string name="welcome_backup_required">Backup folder required 📁</string>
     <string name="welcome_backup_button_continue">Continue</string>
     <string name="welcome_backup_button_select">Select Backup Folder</string>
@@ -50,15 +50,15 @@
     <string name="welcome_backup_check_found_description">We found a previous backup of your data!</string>
     <string name="welcome_backup_check_fresh_description">No backup found. You can start fresh with a clean slate!</string>
     <string name="welcome_backup_check_details_title">Backup Details:</string>
-    <string name="welcome_backup_check_created">📅 Created: %1$s</string>
-    <string name="welcome_backup_check_categories">📚 Categories: %1$d</string>
-    <string name="welcome_backup_check_flashcards">🗂️ Flashcards: %1$d</string>
+    <string name="welcome_backup_check_created">Created: %1$s</string>
+    <string name="welcome_backup_check_categories">Categories: %1$d</string>
+    <string name="welcome_backup_check_flashcards">Flashcards: %1$d</string>
     <string name="welcome_backup_check_question">Would you like to restore your previous data?</string>
     <string name="welcome_backup_check_button_restore">Restore Backup</string>
     <string name="welcome_backup_check_button_fresh">Start Fresh</string>
     
     <!-- Completed Step -->
-    <string name="welcome_completed_title">All Set! 🎉</string>
+    <string name="welcome_completed_title">All set</string>
     <string name="welcome_completed_description">Congratulations! Your app is now ready for an amazing learning experience.</string>
     <string name="welcome_completed_ready_title">You\'re ready to:</string>
     <string name="welcome_completed_feature_1">📚 Create your first flashcard category</string>
@@ -67,6 +67,12 @@
     <string name="welcome_completed_feature_4">⚡ Customize your learning experience</string>
     <string name="welcome_completed_happy_learning">Happy learning! 🚀</string>
     <string name="welcome_completed_button">Enter App</string>
+
+    <!-- Redesigned welcome (merged screens) -->
+    <string name="welcome_permissions_title">Let FloFla run properly</string>
+    <string name="welcome_overlay_label">Show over other apps</string>
+    <string name="welcome_battery_label">Ignore battery saver</string>
+    <string name="welcome_backup_skip">Not now</string>
     
     <!-- Language Dialog -->
     <string name="language_dialog_title">Choose Language</string>

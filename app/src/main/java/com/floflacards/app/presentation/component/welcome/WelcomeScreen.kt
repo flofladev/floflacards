@@ -17,32 +17,34 @@
 
 package com.floflacards.app.presentation.component
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import com.floflacards.app.R
-import com.floflacards.app.presentation.viewmodel.WelcomeViewModel
 import com.floflacards.app.presentation.viewmodel.WelcomeStep
+import com.floflacards.app.presentation.viewmodel.WelcomeViewModel
 
 /**
- * Welcome Screen component following SRP.
- * Handles mandatory onboarding flow with permission checks.
- * Follows KISS principle with clear, step-by-step progression.
+ * Redesigned welcome screen: four screens grouped by intent, a minimalist segmented
+ * progress bar, and theme-aware styling (no hardcoded colors or emojis).
  */
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WelcomeScreen(
     viewModel: WelcomeViewModel,
@@ -52,61 +54,53 @@ fun WelcomeScreen(
     onLanguageChanged: ((com.floflacards.app.data.model.Language) -> Unit)? = null
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    
-    // Move to completion step when all permissions are granted
-    LaunchedEffect(uiState) {
-        if (viewModel.canCompleteWelcome() && uiState.currentStep != WelcomeStep.COMPLETED) {
-            viewModel.nextStep() // Move to COMPLETED step instead of auto-completing
-        }
-    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
-            .verticalScroll(rememberScrollState()),
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Progress indicator
         WelcomeProgressIndicator(
             currentStep = uiState.currentStep,
-            modifier = Modifier.padding(bottom = 32.dp)
+            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
         )
 
-        // Step content
+        // Center the card in the remaining space (scrolls if the content is tall),
+        // so it sits in the middle of the screen instead of floating at the top.
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
         when (uiState.currentStep) {
-            WelcomeStep.INTRODUCTION -> IntroductionStep(
-                onNext = { viewModel.nextStep() },
+            WelcomeStep.WELCOME -> WelcomeIntroStep(
+                onGetStarted = { viewModel.nextStep() },
                 onLanguageChanged = onLanguageChanged
             )
-            WelcomeStep.PRIVACY_OFFLINE -> PrivacyOfflineStep(
-                onNext = { viewModel.nextStep() }
+            WelcomeStep.PERMISSIONS -> PermissionsStep(
+                hasOverlayPermission = uiState.hasOverlayPermission,
+                isBatteryOptimizationDisabled = uiState.isBatteryOptimizationDisabled,
+                onGrantOverlay = onRequestOverlayPermission,
+                onAllowBattery = { viewModel.requestBatteryOptimizationDisable() },
+                onContinue = { viewModel.proceedFromPermissions() }
             )
-            WelcomeStep.BACKUP_FOLDER -> BackupFolderStep(
+            WelcomeStep.BACKUP -> BackupStep(
                 hasFolderConfigured = uiState.hasBackupFolderConfigured,
-                onRequestFolderSelection = onRequestBackupFolder,
-                onNext = { viewModel.nextStep() }
-            )
-            WelcomeStep.OVERLAY_PERMISSION -> OverlayPermissionStep(
-                hasPermission = uiState.hasOverlayPermission,
-                onRequestPermission = onRequestOverlayPermission,
-                onNext = { viewModel.nextStep() }
-            )
-            WelcomeStep.BATTERY_OPTIMIZATION -> BatteryOptimizationStep(
-                isOptimizationDisabled = uiState.isBatteryOptimizationDisabled,
-                onRequestDisable = { viewModel.requestBatteryOptimizationDisable() },
-                onSkip = { viewModel.skipBatteryOptimization() },
-                onNext = { viewModel.nextStep() }
-            )
-            WelcomeStep.BACKUP_CHECK -> BackupCheckStep(
                 hasBackup = uiState.hasBackupAvailable,
                 backupInfo = uiState.backupInfo,
+                isRestoring = uiState.isRestoring,
+                onChooseFolder = onRequestBackupFolder,
                 onRestore = { viewModel.restoreBackup() },
-                onSkip = { viewModel.nextStep() }
+                onStartFresh = { viewModel.startFresh() }
             )
             WelcomeStep.COMPLETED -> CompletedStep(
                 onEnterApp = onWelcomeCompleted
             )
+        }
         }
     }
 }
@@ -116,61 +110,29 @@ private fun WelcomeProgressIndicator(
     currentStep: WelcomeStep,
     modifier: Modifier = Modifier
 ) {
-    val steps = listOf(
-        stringResource(R.string.welcome_progress_introduction),
-        stringResource(R.string.welcome_progress_privacy),
-        stringResource(R.string.welcome_progress_backup_folder),
-        stringResource(R.string.welcome_progress_overlay),
-        stringResource(R.string.welcome_progress_battery),
-        stringResource(R.string.welcome_progress_backup_check)
-    )
-    
-    val currentStepIndex = when (currentStep) {
-        WelcomeStep.INTRODUCTION -> 0
-        WelcomeStep.PRIVACY_OFFLINE -> 1
-        WelcomeStep.BACKUP_FOLDER -> 2
-        WelcomeStep.OVERLAY_PERMISSION -> 3
-        WelcomeStep.BATTERY_OPTIMIZATION -> 4
-        WelcomeStep.BACKUP_CHECK -> 5
-        WelcomeStep.COMPLETED -> 5
+    // Three setup screens; COMPLETED shows everything filled.
+    val totalSegments = 3
+    val currentIndex = when (currentStep) {
+        WelcomeStep.WELCOME -> 0
+        WelcomeStep.PERMISSIONS -> 1
+        WelcomeStep.BACKUP -> 2
+        WelcomeStep.COMPLETED -> 2
     }
 
-    Column(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.welcome_progress_title),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        
-        LinearProgressIndicator(
-            progress = { (currentStepIndex + 1) / steps.size.toFloat() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(8.dp),
-            color = Color(0xFF4CAF50),
-            trackColor = Color(0xFFE0E0E0)
-        )
-        
-        Text(
-            text = stringResource(
-                R.string.welcome_progress_step,
-                currentStepIndex + 1,
-                steps.size,
-                steps[currentStepIndex]
-            ),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(top = 8.dp)
-        )
+    Row(modifier = modifier.fillMaxWidth()) {
+        for (i in 0 until totalSegments) {
+            val filled = i <= currentIndex
+            Spacer(
+                modifier = Modifier
+                    .weight(1f)
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp))
+                    .background(
+                        if (filled) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.surfaceVariant
+                    )
+            )
+            if (i < totalSegments - 1) Spacer(Modifier.width(8.dp))
+        }
     }
 }
-
-
-
-
-
-
-
-
-

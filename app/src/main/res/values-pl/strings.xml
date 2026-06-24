@@ -6,7 +6,7 @@
     <string name="welcome_intro_title">Gotowy, żeby uczyć się sprytniej?</string>
     <string name="welcome_intro_description">Unoszące się fiszki, które pojawiają się nad każdą aplikacją – wykorzystaj każdą chwilę.</string>
     <string name="welcome_intro_benefit">✨ Ucz się podczas pisania wiadomości, przeglądania internetu czy grania</string>
-    <string name="welcome_intro_button">Pokaż mi jak!</string>
+    <string name="welcome_intro_button">Zaczynajmy</string>
     
     <!-- Privacy Step -->
     <string name="welcome_privacy_title">Twoje dane. Twoja kontrola. 🔒</string>
@@ -15,14 +15,14 @@
     <string name="welcome_privacy_button">Jasne!</string>
     
     <!-- Backup Folder Step -->
-    <string name="welcome_backup_title">Folder kopii zapasowej 📁</string>
+    <string name="welcome_backup_title">Twoje kopie zapasowe</string>
     <string name="welcome_backup_description">Wybierz folder, w którym będą przechowywane Twoje kopie zapasowe. Dzięki temu dane przetrwają nawet reinstalację aplikacji.</string>
     <string name="welcome_backup_benefits_title">Główne korzyści:</string>
     <string name="welcome_backup_benefit_1">💾 Automatyczne tworzenie kopii zapasowych</string>
     <string name="welcome_backup_benefit_2">🔄 Dane przetrwają reinstalację aplikacji</string>
     <string name="welcome_backup_benefit_3">📂 Ty kontrolujesz miejsce przechowywania</string>
     <string name="welcome_backup_benefit_4">🔒 Dbałość o prywatność (bez chmury)</string>
-    <string name="welcome_backup_granted">Folder kopii zapasowej wybrany! ✅</string>
+    <string name="welcome_backup_granted">Folder kopii zapasowej wybrany</string>
     <string name="welcome_backup_required">Wymagany folder kopii zapasowej 📁</string>
     <string name="welcome_backup_button_continue">Dalej</string>
     <string name="welcome_backup_button_select">Wybierz folder kopii zapasowej</string>
@@ -50,15 +50,15 @@
     <string name="welcome_backup_check_found_description">Znaleźliśmy wcześniejszą kopię zapasową Twoich danych!</string>
     <string name="welcome_backup_check_fresh_description">Nie znaleziono kopii zapasowej. Możesz zacząć od nowa z czystą kartą!</string>
     <string name="welcome_backup_check_details_title">Szczegóły kopii zapasowej:</string>
-    <string name="welcome_backup_check_created">📅 Utworzona: %1$s</string>
-    <string name="welcome_backup_check_categories">📚 Kategorie: %1$d</string>
-    <string name="welcome_backup_check_flashcards">🗂️ Fiszki: %1$d</string>
+    <string name="welcome_backup_check_created">Utworzona: %1$s</string>
+    <string name="welcome_backup_check_categories">Kategorie: %1$d</string>
+    <string name="welcome_backup_check_flashcards">Fiszki: %1$d</string>
     <string name="welcome_backup_check_question">Czy chcesz przywrócić wcześniejsze dane?</string>
     <string name="welcome_backup_check_button_restore">Przywróć kopię zapasową</string>
     <string name="welcome_backup_check_button_fresh">Zacznij od nowa</string>
     
     <!-- Completed Step -->
-    <string name="welcome_completed_title">Wszystko gotowe! 🎉</string>
+    <string name="welcome_completed_title">Wszystko gotowe</string>
     <string name="welcome_completed_description">Gratulacje! Twoja aplikacja jest teraz gotowa na niesamowite doświadczenie nauki.</string>
     <string name="welcome_completed_ready_title">Teraz możesz:</string>
     <string name="welcome_completed_feature_1">📚 Stworzyć pierwszą kategorię fiszek</string>
@@ -67,6 +67,12 @@
     <string name="welcome_completed_feature_4">⚡ Dostosować doświadczenie nauki</string>
     <string name="welcome_completed_happy_learning">Miłej nauki! 🚀</string>
     <string name="welcome_completed_button">Wejdź do aplikacji</string>
+
+    <!-- Redesigned welcome (merged screens) -->
+    <string name="welcome_permissions_title">Skonfiguruj FloFla poprawnie</string>
+    <string name="welcome_overlay_label">Wyświetlanie nad innymi aplikacjami</string>
+    <string name="welcome_battery_label">Ignoruj oszczędzanie baterii</string>
+    <string name="welcome_backup_skip">Nie teraz</string>
     
     <!-- Language Dialog -->
     <string name="language_dialog_title">Wybierz język</string>

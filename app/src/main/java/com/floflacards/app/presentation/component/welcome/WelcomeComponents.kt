@@ -39,7 +39,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -69,17 +68,17 @@ fun PermissionStatusIndicator(
         Icon(
             imageVector = if (isGranted) Icons.Default.Check else Icons.Default.Warning,
             contentDescription = if (isGranted) "Granted" else "Required",
-            tint = if (isGranted) Color(0xFF4CAF50) else Color(0xFFFF9800),
+            tint = if (isGranted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
             modifier = Modifier
                 .size(24.dp)
                 .padding(end = 8.dp)
         )
-        
+
         Text(
             text = if (isGranted) grantedText else deniedText,
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = if (isGranted) Color(0xFF4CAF50) else Color(0xFFFF9800)
+            color = if (isGranted) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
         )
     }
 }
@@ -124,7 +123,7 @@ fun WelcomeStepCard(
                 // Title with enhanced accessibility
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -145,9 +144,10 @@ fun WelcomeStepCard(
                         .fillMaxWidth()
                         .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF2196F3),
-                        disabledContainerColor = Color(0xFFBDBDBD),
-                        contentColor = Color.White
+                        // Match the main screen's signature deep-purple tiles (primaryContainer)
+                        // instead of the lighter `primary`, so onboarding feels like the app.
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ),
                     shape = RoundedCornerShape(14.dp), // Consistent with card rounding
                     elevation = ButtonDefaults.buttonElevation(
