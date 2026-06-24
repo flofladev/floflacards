@@ -55,6 +55,10 @@ class KeyboardVisibilityDetector(
         // to treat the keyboard as visible. Above status + navigation bars, below any soft keyboard.
         private const val KEYBOARD_HEIGHT_RATIO = 0.15f
         private const val POLL_INTERVAL_MS = 250L
+        // The visible-frame fallback is a heuristic (it also fires for split-screen dividers,
+        // immersive apps and transient layout passes). Require this many consecutive positive
+        // reads before hiding so a one-off glitch can't blink the card away. Releasing is instant.
+        private const val FALLBACK_CONFIRMATIONS = 2
     }
 
     private val windowManager: WindowManager =
@@ -66,6 +70,9 @@ class KeyboardVisibilityDetector(
     /** Last reported state, so we only emit on change. */
     var isKeyboardVisible: Boolean = false
         private set
+
+    /** Consecutive positive reads from the visible-frame fallback (main thread only). */
+    private var fallbackHits = 0
 
     private val pollRunnable = object : Runnable {
         override fun run() {
@@ -120,7 +127,6 @@ class KeyboardVisibilityDetector(
             view.viewTreeObserver.addOnGlobalLayoutListener { evaluate(view) }
             // Poll as a safety net for OEMs where the callbacks stay silent.
             view.postDelayed(pollRunnable, POLL_INTERVAL_MS)
-            Log.d(TAG, "Keyboard probe window added")
         } catch (e: Exception) {
             Log.e(TAG, "Failed to add keyboard probe window", e)
             probeView = null
@@ -131,18 +137,26 @@ class KeyboardVisibilityDetector(
     private fun evaluate(view: View) {
         val imeInset = imeInsetBottom(view)
         val visibleNow = if (imeInset > 0) {
+            // Reliable signal — act immediately.
+            fallbackHits = 0
             true
         } else {
             // Fallback: compare the visible display frame against the real screen height.
-            val visibleRect = Rect()
-            view.getWindowVisibleDisplayFrame(visibleRect)
-            val screenHeight = fullScreenHeight()
-            screenHeight > 0 && (screenHeight - visibleRect.bottom) > screenHeight * KEYBOARD_HEIGHT_RATIO
+            val occluded = try {
+                val visibleRect = Rect()
+                view.getWindowVisibleDisplayFrame(visibleRect)
+                val screenHeight = fullScreenHeight()
+                screenHeight > 0 && (screenHeight - visibleRect.bottom) > screenHeight * KEYBOARD_HEIGHT_RATIO
+            } catch (e: Exception) {
+                false
+            }
+            // Debounce the heuristic before hiding; release as soon as occlusion clears.
+            fallbackHits = if (occluded) fallbackHits + 1 else 0
+            fallbackHits >= FALLBACK_CONFIRMATIONS
         }
 
         if (visibleNow != isKeyboardVisible) {
             isKeyboardVisible = visibleNow
-            Log.d(TAG, "Keyboard visible=$visibleNow (imeInset=$imeInset)")
             onChanged?.invoke(visibleNow)
         }
     }
@@ -179,7 +193,6 @@ class KeyboardVisibilityDetector(
             try {
                 view.removeCallbacks(pollRunnable)
                 windowManager.removeView(view)
-                Log.d(TAG, "Keyboard probe window removed")
             } catch (e: Exception) {
                 Log.e(TAG, "Failed to remove keyboard probe window", e)
             }
@@ -187,5 +200,6 @@ class KeyboardVisibilityDetector(
         probeView = null
         onChanged = null
         isKeyboardVisible = false
+        fallbackHits = 0
     }
 }

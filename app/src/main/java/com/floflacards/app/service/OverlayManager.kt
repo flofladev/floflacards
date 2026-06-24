@@ -111,6 +111,11 @@ class OverlayManager(
             // Hide the card while a soft keyboard is on screen (e.g. user is typing in another
             // app). The first layout pass also covers a keyboard that is already up at show time,
             // so a card arriving mid-typing starts hidden and is revealed when the keyboard closes.
+            // Always tear down any prior probe first: showOverlay may run again before
+            // closeOverlay (e.g. a new card replacing a stuck one), and each probe is a real
+            // WindowManager.addView + poll loop that would otherwise orphan.
+            keyboardDetector?.stop()
+            keyboardDetector = null
             if (hideWhileTyping) {
                 keyboardDetector = KeyboardVisibilityDetector(context).apply {
                     start { keyboardVisible ->
