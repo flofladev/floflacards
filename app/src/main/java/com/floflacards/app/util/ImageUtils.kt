@@ -26,6 +26,7 @@ import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.security.MessageDigest
 
 /**
  * Utility object for image compression and resizing operations.
@@ -36,7 +37,30 @@ object ImageUtils {
     private const val MAX_IMAGE_DIMENSION = 2048 // Maximum width or height in pixels
     private const val JPEG_QUALITY = 85 // Quality percentage for JPEG compression
     private const val THUMBNAIL_SIZE = 100 // Thumbnail size in pixels
-    
+
+    /**
+     * SHA-256 of a file's bytes, lowercase hex, or null on failure.
+     * Used to content-address backup images so identical bytes always map to the
+     * same filename (deduplication + no rewriting of unchanged images on re-backup).
+     */
+    fun sha256(file: File): String? {
+        return try {
+            val digest = MessageDigest.getInstance("SHA-256")
+            file.inputStream().use { input ->
+                val buffer = ByteArray(8192)
+                var read = input.read(buffer)
+                while (read >= 0) {
+                    digest.update(buffer, 0, read)
+                    read = input.read(buffer)
+                }
+            }
+            digest.digest().joinToString("") { "%02x".format(it) }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     /**
      * Compress and resize an image from URI.
      * Returns the compressed bitmap or null if operation fails.

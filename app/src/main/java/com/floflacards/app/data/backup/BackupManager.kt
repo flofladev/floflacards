@@ -30,6 +30,7 @@ import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.source.BackupPreferences
 import com.floflacards.app.data.source.StreakPreferences
 import com.floflacards.app.domain.model.StreakData
+import com.floflacards.app.util.ImageUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.encodeToString
@@ -204,41 +205,56 @@ class BackupManager @Inject constructor(
      * Copies an image file to backup images folder.
      * Returns the relative path (e.g., "images/question_123.jpg") or null if copy fails.
      */
-    private fun copyImageToBackup(imagePath: String?, treeDocument: DocumentFile): String? {
+    private fun copyImageToBackup(
+        imagePath: String?,
+        imagesFolder: DocumentFile,
+        existingNames: MutableSet<String>
+    ): String? {
         if (imagePath == null) return null
-        
+
         val sourceFile = File(imagePath)
         if (!sourceFile.exists()) return null
-        
+
         try {
-            // Get or create images subfolder
-            val imagesFolder = treeDocument.findFile(IMAGES_FOLDER) 
-                ?: treeDocument.createDirectory(IMAGES_FOLDER) ?: return null
-            
-            // Ensure .nomedia file exists to prevent gallery indexing
-            ensureNoMediaInImagesFolder(imagesFolder)
-            
-            // Generate filename from source
-            val filename = sourceFile.name
-            
-            // Delete existing file if it exists (overwrite)
-            imagesFolder.findFile(filename)?.delete()
-            
-            // Create new file in backup images folder
+            // Content-addressed name: identical image bytes always map to the same file.
+            val hash = ImageUtils.sha256(sourceFile) ?: return null
+            val filename = "$hash.jpg"
+            val relativePath = "$IMAGES_FOLDER/$filename"
+
+            // Already present with this exact content → reuse it, write nothing. This is what
+            // keeps re-backups from rewriting unchanged images (no sync churn / notifications)
+            // and what prevents duplicate copies accumulating across restores.
+            if (filename in existingNames) return relativePath
+
             val backupFile = imagesFolder.createFile("image/jpeg", filename) ?: return null
-            
-            // Copy file content
             context.contentResolver.openOutputStream(backupFile.uri)?.use { output ->
                 sourceFile.inputStream().use { input ->
                     input.copyTo(output)
                 }
             }
-            
-            // Return relative path for JSON
-            return "$IMAGES_FOLDER/$filename"
+            existingNames.add(filename)
+            return relativePath
         } catch (e: Exception) {
             e.printStackTrace()
             return null
+        }
+    }
+
+    /**
+     * Deletes any file in the backup images folder that no current card references.
+     * Removes images from deleted cards and legacy duplicate copies from older versions.
+     * Only ever deletes, so an unchanged card set leaves the folder byte-identical.
+     * Must run AFTER backup.json is written, so the manifest never points at a pruned file.
+     */
+    private fun pruneBackupImages(imagesFolder: DocumentFile, referencedNames: Set<String>) {
+        try {
+            for (file in imagesFolder.listFiles()) {
+                val name = file.name ?: continue
+                if (name == ".nomedia" || !file.isFile) continue // never touch the gallery guard
+                if (name !in referencedNames) file.delete()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("BackupManager", "Failed pruning backup images", e)
         }
     }
     
@@ -323,10 +339,23 @@ class BackupManager @Inject constructor(
                 )
             }
 
+            // Resolve the images folder once and snapshot its existing filenames, so each card's
+            // image check is an in-memory lookup instead of a per-call SAF directory scan
+            // (O(n) instead of O(n²) — noticeably faster on slow/older storage).
+            val imagesFolder = treeDocument.findFile(IMAGES_FOLDER)
+                ?: treeDocument.createDirectory(IMAGES_FOLDER)
+            val existingImageNames: MutableSet<String> =
+                (imagesFolder?.listFiles() ?: emptyArray()).mapNotNull { it.name }.toMutableSet()
+            imagesFolder?.let { ensureNoMediaInImagesFolder(it) }
+
             val flashcardBackups = flashcards.map { flashcard ->
-                // Copy images to backup folder and get relative paths
-                val questionImageBackupPath = copyImageToBackup(flashcard.questionImagePath, treeDocument)
-                val answerImageBackupPath = copyImageToBackup(flashcard.answerImagePath, treeDocument)
+                // Copy images to backup folder and get relative paths (content-addressed).
+                val questionImageBackupPath = imagesFolder?.let {
+                    copyImageToBackup(flashcard.questionImagePath, it, existingImageNames)
+                }
+                val answerImageBackupPath = imagesFolder?.let {
+                    copyImageToBackup(flashcard.answerImagePath, it, existingImageNames)
+                }
                 
                 FlashcardBackup(
                     id = flashcard.id,
@@ -379,6 +408,17 @@ class BackupManager @Inject constructor(
             val jsonString = json.encodeToString(backupData)
             val finalUri = writeBackupAtomically(treeDocument, jsonString)
                 ?: return@withContext Result.failure(IllegalStateException("Cannot write backup document"))
+
+            // Prune only after the manifest is safely written, so backup.json can never
+            // reference an image we just deleted. Removes orphaned/duplicate image files.
+            imagesFolder?.let {
+                val referencedNames = flashcardBackups
+                    .flatMap { card -> listOf(card.questionImagePath, card.answerImagePath) }
+                    .filterNotNull()
+                    .map { path -> path.substringAfterLast('/') }
+                    .toSet()
+                pruneBackupImages(it, referencedNames)
+            }
 
             Result.success(finalUri)
         } catch (e: Exception) {
