@@ -28,8 +28,10 @@ import com.floflacards.app.data.database.FloatingLearningDatabase
 import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.data.source.BackupPreferences
+import com.floflacards.app.data.source.MasteredCardsPreferences
 import com.floflacards.app.data.source.StreakPreferences
 import com.floflacards.app.domain.model.StreakData
+import com.floflacards.app.domain.usecase.isMastered
 import com.floflacards.app.util.ImageUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -50,7 +52,8 @@ class BackupManager @Inject constructor(
     private val flashcardDao: FlashcardDao,
     private val categoryDao: CategoryDao,
     private val streakPreferences: StreakPreferences,
-    private val backupPreferences: BackupPreferences
+    private val backupPreferences: BackupPreferences,
+    private val masteredCardsPreferences: MasteredCardsPreferences
 ) {
     companion object {
         private const val BACKUP_FILENAME = "backup.json"
@@ -395,6 +398,7 @@ class BackupManager @Inject constructor(
                 categories = categoryBackups,
                 flashcards = flashcardBackups,
                 streakData = streakBackup,
+                masteredLifetimeCount = masteredCardsPreferences.getMasteredCount(),
                 metadata = BackupMetadata(
                     totalCategories = categories.size,
                     totalFlashcards = flashcards.size,
@@ -447,6 +451,10 @@ class BackupManager @Inject constructor(
             val backupContent = inputStream?.bufferedReader()?.use { it.readText() }
                 ?: return@withContext Result.failure(IllegalStateException("Cannot read backup file"))
             val backupData = json.decodeFromString<BackupData>(backupContent)
+
+            // Ids (post-restore) of cards that come back already mastered, collected during the
+            // insert loop below. Used to re-seed the lifetime "mastered" tally with stable ids.
+            val masteredRestoredIds = mutableSetOf<Long>()
 
             // REPLACE MODE wrapped in a single transaction: either the whole
             // restore succeeds or the database is left untouched. This fixes the
@@ -506,6 +514,13 @@ class BackupManager @Inject constructor(
                         )
                         val insertedId = flashcardDao.insertFlashcard(flashcardEntity)
 
+                        // A restored card keeps its stats, so its mastered state is meaningful.
+                        // Remember the new id so the lifetime tally can dedupe it (isMastered()
+                        // depends only on easinessFactor/reviewCount, both restored above).
+                        if (flashcardEntity.isMastered()) {
+                            masteredRestoredIds.add(insertedId)
+                        }
+
                         // Restore images from backup folder to internal storage
                         val restoredQuestionPath = restoreImageFromBackup(
                             flashcardBackup.questionImagePath, treeDocument, insertedId, isQuestion = true
@@ -554,6 +569,11 @@ class BackupManager @Inject constructor(
                 }
                 streakPreferences.saveStreakData(finalStreakData)
             }
+
+            // Restore the lifetime "cards mastered" tally, also outside the DB transaction (it lives
+            // in SharedPreferences). Re-seeds with the ids of cards that came back already mastered
+            // and folds the backup's total into a never-decreasing baseline for the rest.
+            masteredCardsPreferences.applyRestoredMastered(masteredRestoredIds, backupData.masteredLifetimeCount)
 
             Result.success(
                 RestoreResult(

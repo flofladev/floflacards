@@ -23,6 +23,7 @@ import com.floflacards.app.data.dao.CategoryDao
 import com.floflacards.app.data.dao.FlashcardDao
 import com.floflacards.app.data.database.FloatingLearningDatabase
 import com.floflacards.app.data.source.BackupPreferences
+import com.floflacards.app.data.source.MasteredCardsPreferences
 import com.floflacards.app.data.source.StreakPreferences
 import com.floflacards.app.data.repository.BackupRepository
 import dagger.Module
@@ -48,7 +49,8 @@ object BackupModule {
         flashcardDao: FlashcardDao,
         categoryDao: CategoryDao,
         streakPreferences: StreakPreferences,
-        backupPreferences: BackupPreferences
+        backupPreferences: BackupPreferences,
+        masteredCardsPreferences: MasteredCardsPreferences
     ): BackupManager {
         return BackupManager(
             context = context,
@@ -56,7 +58,8 @@ object BackupModule {
             flashcardDao = flashcardDao,
             categoryDao = categoryDao,
             streakPreferences = streakPreferences,
-            backupPreferences = backupPreferences
+            backupPreferences = backupPreferences,
+            masteredCardsPreferences = masteredCardsPreferences
         )
     }
 

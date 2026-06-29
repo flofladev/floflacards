@@ -33,6 +33,9 @@ data class BackupData(
     val categories: List<CategoryBackup>,
     val flashcards: List<FlashcardBackup>,
     val streakData: StreakBackup? = null, // Optional for backward compatibility
+    // Lifetime "cards mastered with FloFla" tally. Optional/nullable so older backups (which
+    // predate it) still restore; null means "leave the local count untouched".
+    val masteredLifetimeCount: Int? = null,
     val metadata: BackupMetadata
 )
 

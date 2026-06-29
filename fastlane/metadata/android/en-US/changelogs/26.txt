@@ -1,0 +1,1 @@
+Version 1.0.25 - Your "cards mastered with FloFla" total now survives reinstalling the app or restoring from a backup, so your lifetime progress is no longer lost. Cards that come back already mastered are recognised, so the count stays accurate.

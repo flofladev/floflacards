@@ -42,6 +42,9 @@ class MasteredCardsPreferences @Inject constructor(
     companion object {
         private const val PREFS_NAME = "mastered_cards_preferences"
         private const val KEY_EVER_MASTERED_IDS = "ever_mastered_ids"
+        // Lifetime count carried over from a restored backup. Kept separate from the id set
+        // because restore replaces every card with a fresh id, so old ids can't be matched.
+        private const val KEY_LIFETIME_BASELINE = "lifetime_baseline"
     }
 
     /** Records that [flashcardId] has been mastered. Idempotent; never decreases the count. */
@@ -54,7 +57,34 @@ class MasteredCardsPreferences @Inject constructor(
         prefs.edit().putStringSet(KEY_EVER_MASTERED_IDS, updated).apply()
     }
 
-    /** Number of distinct cards mastered over the app's lifetime. */
-    fun getMasteredCount(): Int =
-        prefs.getStringSet(KEY_EVER_MASTERED_IDS, emptySet())?.size ?: 0
+    /**
+     * Number of distinct cards mastered over the app's lifetime: cards mastered in this install
+     * (the id set) plus any baseline carried over from a restored backup.
+     */
+    fun getMasteredCount(): Int {
+        val baseline = prefs.getInt(KEY_LIFETIME_BASELINE, 0)
+        val thisInstall = prefs.getStringSet(KEY_EVER_MASTERED_IDS, emptySet())?.size ?: 0
+        return baseline + thisInstall
+    }
+
+    /**
+     * Reconciles the lifetime tally after a restore. Restore replaces every card with a brand-new
+     * id, so the old id set can't carry over — but a restored card keeps its stats, so the cards
+     * that are *currently* mastered can be re-identified by id ([masteredIds], their new ids). We
+     * seed the id set with those so re-confirming them later doesn't double-count.
+     *
+     * The backed-up lifetime total ([backupCount]) is usually larger than the currently-mastered
+     * set (it also counts cards that were mastered then later reset/forgotten, which we can't track
+     * by id). That remainder is kept in the baseline. The result never decreases relative to what
+     * was already here. Call once after a successful restore.
+     */
+    fun applyRestoredMastered(masteredIds: Set<Long>, backupCount: Int?) {
+        // max(...) guarantees a non-negative baseline even if a backup's count is missing/stale.
+        val targetLifetime = maxOf(getMasteredCount(), backupCount ?: 0, masteredIds.size)
+        val baseline = targetLifetime - masteredIds.size
+        prefs.edit()
+            .putInt(KEY_LIFETIME_BASELINE, baseline)
+            .putStringSet(KEY_EVER_MASTERED_IDS, masteredIds.map { it.toString() }.toSet())
+            .apply()
+    }
 }
