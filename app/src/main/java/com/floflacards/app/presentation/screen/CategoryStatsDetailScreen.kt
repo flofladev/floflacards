@@ -61,7 +61,6 @@ import com.floflacards.app.presentation.viewmodel.StatisticsViewModel
 @Composable
 fun CategoryStatsDetailScreen(
     categoryId: Long,
-    categoryName: String,
     onNavigateBack: () -> Unit,
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
@@ -69,11 +68,14 @@ fun CategoryStatsDetailScreen(
     var showFlashcardResetDialog by remember { mutableStateOf<FlashcardStats?>(null) }
     var showCategoryResetDialog by remember { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(categoryId) {
+        viewModel.loadCategoryName(categoryId)
         viewModel.loadStatistics()
     }
 
     val category = uiState.categoryStats.find { it.categoryId == categoryId }
+    // Title comes from the fast id lookup; fall back to the stats row once it loads.
+    val categoryName = uiState.selectedCategoryName ?: category?.categoryName ?: ""
     val flashcards = category?.flashcards ?: emptyList()
     val hasResettableStats = flashcards.any { it.totalAttempts > 0 }
 

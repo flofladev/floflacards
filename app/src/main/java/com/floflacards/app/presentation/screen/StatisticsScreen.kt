@@ -56,7 +56,7 @@ import com.floflacards.app.presentation.viewmodel.StatisticsViewModel
 @Composable
 fun StatisticsScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToCategoryDetail: (Long, String) -> Unit,
+    onNavigateToCategoryDetail: (Long) -> Unit,
     viewModel: StatisticsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -194,7 +194,7 @@ fun StatisticsScreen(
                         items(filteredCategoryStats) { categoryStats ->
                             CategoryStatRow(
                                 categoryStats = categoryStats,
-                                onClick = { onNavigateToCategoryDetail(categoryStats.categoryId, categoryStats.categoryName) },
+                                onClick = { onNavigateToCategoryDetail(categoryStats.categoryId) },
                                 onCategoryResetClick = { showCategoryResetDialog = categoryStats }
                             )
                         }

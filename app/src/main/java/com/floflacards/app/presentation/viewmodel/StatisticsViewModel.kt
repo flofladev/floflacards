@@ -87,7 +87,10 @@ data class ModernStatisticsUiState(
     val isLoading: Boolean = false,
     val overallStats: EnhancedOverallStats? = null,
     val categoryStats: List<CategoryStats> = emptyList(),
-    val searchQuery: String = "" // Current search query
+    val searchQuery: String = "", // Current search query
+    // Name of the category opened in the detail screen. Resolved by id independently of the
+    // (heavier) full stats load so the detail screen's title can paint immediately.
+    val selectedCategoryName: String? = null
 )
 
 @HiltViewModel
@@ -100,6 +103,17 @@ class StatisticsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ModernStatisticsUiState())
     val uiState: StateFlow<ModernStatisticsUiState> = _uiState.asStateFlow()
     
+    /**
+     * Resolves a category's display name from its id for the detail screen's title. Kept separate
+     * from [loadStatistics] so the title appears without waiting on the full stats computation.
+     */
+    fun loadCategoryName(categoryId: Long) {
+        viewModelScope.launch {
+            val name = repository.getCategoryById(categoryId)?.name ?: ""
+            _uiState.value = _uiState.value.copy(selectedCategoryName = name)
+        }
+    }
+
     fun loadStatistics() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)

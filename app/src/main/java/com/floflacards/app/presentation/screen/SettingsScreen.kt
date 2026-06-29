@@ -77,10 +77,10 @@ import com.floflacards.app.presentation.component.csv.CsvExportSelectionDialog
 @Composable
 fun SettingsScreen(
     onNavigateBack: () -> Unit,
-    onNavigateToFlashcards: (Long, String) -> Unit,
+    onNavigateToFlashcards: (Long) -> Unit,
     onNavigateToCsvImport: () -> Unit = {},
     onNavigateToCsvExportAll: () -> Unit = {},
-    onNavigateToCsvExport: (Long, String) -> Unit = { _, _ -> },
+    onNavigateToCsvExport: (Long) -> Unit = { },
     categoryViewModel: CategoryViewModel = hiltViewModel()
 ) {
     val categoryUiState by categoryViewModel.uiState.collectAsState()
@@ -261,7 +261,7 @@ fun SettingsScreen(
                                     onToggleEnabled = { categoryViewModel.toggleCategoryEnabled(category) },
                                     onEdit = { selectedCategory = category },
                                     onDelete = { categoryViewModel.requestDeleteCategory(category) },
-                                    onNavigateToFlashcards = { onNavigateToFlashcards(category.id, category.name) },
+                                    onNavigateToFlashcards = { onNavigateToFlashcards(category.id) },
                                     modifier = Modifier
                                 )
                             }
@@ -310,9 +310,9 @@ fun SettingsScreen(
     if (showCsvExportDialog) {
         CsvExportSelectionDialog(
             categories = categoryUiState.categories,
-            onExportCategory = { categoryId, categoryName ->
+            onExportCategory = { categoryId, _ ->
                 showCsvExportDialog = false
-                onNavigateToCsvExport(categoryId, categoryName)
+                onNavigateToCsvExport(categoryId)
             },
             onExportAll = {
                 showCsvExportDialog = false

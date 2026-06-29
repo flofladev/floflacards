@@ -37,8 +37,6 @@ import com.floflacards.app.presentation.screen.CsvImportScreen
 import com.floflacards.app.presentation.screen.CsvExportRoute
 import com.floflacards.app.presentation.screen.CsvBulkExportRoute
 import com.floflacards.app.presentation.component.csv.CsvExportSelectionDialog
-import com.floflacards.app.data.entity.CategoryEntity
-import com.floflacards.app.data.entity.FlashcardEntity
 
 /**
  * App navigation component that handles all navigation routes and screens.
@@ -74,8 +72,8 @@ fun AppNavigation(
         composable("categories") {
             SettingsScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToFlashcards = { categoryId, categoryName ->
-                    navController.navigate("flashcards/$categoryId/$categoryName")
+                onNavigateToFlashcards = { categoryId ->
+                    navController.navigate("flashcards/$categoryId")
                 },
                 onNavigateToCsvImport = {
                     navController.navigate("csv-import")
@@ -83,8 +81,8 @@ fun AppNavigation(
                 onNavigateToCsvExportAll = {
                     navController.navigate("csv-export-all")
                 },
-                onNavigateToCsvExport = { categoryId, categoryName ->
-                    navController.navigate("csv-export/$categoryId/$categoryName")
+                onNavigateToCsvExport = { categoryId ->
+                    navController.navigate("csv-export/$categoryId")
                 }
             )
         }
@@ -96,41 +94,34 @@ fun AppNavigation(
         composable("statistics") {
             StatisticsScreen(
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToCategoryDetail = { categoryId, categoryName ->
-                    navController.navigate("category-stats/$categoryId/$categoryName")
+                onNavigateToCategoryDetail = { categoryId ->
+                    navController.navigate("category-stats/$categoryId")
                 }
             )
         }
         composable(
-            "category-stats/{categoryId}/{categoryName}",
+            "category-stats/{categoryId}",
             arguments = listOf(
-                navArgument("categoryId") { type = NavType.LongType },
-                navArgument("categoryName") { type = NavType.StringType }
+                navArgument("categoryId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
-            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
             CategoryStatsDetailScreen(
                 categoryId = categoryId,
-                categoryName = categoryName,
                 onNavigateBack = { navController.popBackStack() }
             )
         }
         composable(
-            "flashcards/{categoryId}/{categoryName}",
+            "flashcards/{categoryId}",
             arguments = listOf(
-                navArgument("categoryId") { type = NavType.LongType },
-                navArgument("categoryName") { type = NavType.StringType }
+                navArgument("categoryId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
-            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
-            val category = CategoryEntity(id = categoryId, name = categoryName)
-            
-FlashcardManagementScreen(
-                category = category,
+            FlashcardManagementScreen(
+                categoryId = categoryId,
                 onNavigateBack = { navController.popBackStack() },
-                onNavigateToAddFlashcard = { 
+                onNavigateToAddFlashcard = {
                     navController.navigate("add-flashcard/$categoryId")
                 }
             )
@@ -157,17 +148,14 @@ FlashcardManagementScreen(
             )
         }
         composable(
-            "csv-export/{categoryId}/{categoryName}",
+            "csv-export/{categoryId}",
             arguments = listOf(
-                navArgument("categoryId") { type = NavType.LongType },
-                navArgument("categoryName") { type = NavType.StringType }
+                navArgument("categoryId") { type = NavType.LongType }
             )
         ) { backStackEntry ->
             val categoryId = backStackEntry.arguments?.getLong("categoryId") ?: 0L
-            val categoryName = backStackEntry.arguments?.getString("categoryName") ?: ""
             CsvExportRoute(
                 categoryId = categoryId,
-                categoryName = categoryName,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

@@ -55,6 +55,7 @@ FloFla Cards helps you learn **passively** while using your phone. Flashcards wi
 - [ ] Rework import/export — a solid base that scales to large libraries, a clearer home under Settings, and more formats (e.g. Anki, JSON) added one at a time
 - [ ] Less repetition — better card variety so the same cards don't cluster together
 - [ ] Use the phone's TTS for pronunciation practice while learning vocabulary
+- [ ] Safer screen navigation (type-safe) — a more modern setup under the hood to prevent rare crashes and keep the app easy to maintain
 
 ---
 ## License

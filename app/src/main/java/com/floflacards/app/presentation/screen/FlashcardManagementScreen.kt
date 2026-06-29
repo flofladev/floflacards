@@ -58,7 +58,6 @@ import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.floflacards.app.data.entity.CategoryEntity
 import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.presentation.viewmodel.FlashcardViewModel
 import com.floflacards.app.presentation.component.DeleteFlashcardConfirmationDialog
@@ -72,7 +71,7 @@ import com.floflacards.app.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashcardManagementScreen(
-    category: CategoryEntity,
+    categoryId: Long,
     onNavigateBack: () -> Unit,
     onNavigateToAddFlashcard: () -> Unit,
     viewModel: FlashcardViewModel = hiltViewModel()
@@ -88,14 +87,14 @@ fun FlashcardManagementScreen(
     // Calculate bulk action state
     val bulkActionState = viewModel.getBulkActionState()
     
-    LaunchedEffect(category.id) {
-        viewModel.loadFlashcardsByCategory(category.id)
+    LaunchedEffect(categoryId) {
+        viewModel.loadFlashcardsByCategory(categoryId)
     }
     
     Scaffold(
         topBar = {
             ModernScreenTopAppBar(
-                title = category.name,
+                title = uiState.categoryName,
                 onNavigateBack = onNavigateBack,
                 itemCount = uiState.flashcards.size,
                 activeCount = uiState.flashcards.count { it.isEnabled },
@@ -217,7 +216,7 @@ fun FlashcardManagementScreen(
     // Show edit flashcard screen when editing
     editingFlashcard?.let { flashcard ->
         AddEditFlashcardScreen(
-            categoryId = category.id,
+            categoryId = categoryId,
             flashcardToEdit = flashcard,
             onNavigateBack = { editingFlashcard = null }
         )

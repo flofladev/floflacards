@@ -1,0 +1,1 @@
+Version 1.0.24 - Fixed a crash that could happen when you opened a category whose name contained a slash ("/") or similar characters. Categories with any name now open, show their statistics, and export without issues.

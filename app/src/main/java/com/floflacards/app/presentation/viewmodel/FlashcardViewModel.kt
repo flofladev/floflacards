@@ -38,6 +38,7 @@ data class FlashcardUiState(
     val errorMessage: String? = null,
     val flashcardToDelete: FlashcardEntity? = null, // Flashcard pending deletion confirmation
     val currentCategoryId: Long = 0L, // Track current category for bulk operations
+    val categoryName: String = "", // Display name of the current category, loaded by id
     val searchQuery: String = "", // Current search query
     // Image state for add/edit screen
     val tempQuestionImagePath: String? = null,
@@ -56,10 +57,14 @@ class FlashcardViewModel @Inject constructor(
     fun loadFlashcardsByCategory(categoryId: Long) {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
-                isLoading = true, 
+                isLoading = true,
                 currentCategoryId = categoryId
             )
             try {
+                // Resolve the category name from the id (the route only carries the id, so the
+                // name is looked up here from the single source of truth).
+                val categoryName = repository.getCategoryById(categoryId)?.name ?: ""
+                _uiState.value = _uiState.value.copy(categoryName = categoryName)
                 repository.getFlashcardsByCategory(categoryId).collect { flashcards ->
                     _uiState.value = _uiState.value.copy(
                         flashcards = flashcards,

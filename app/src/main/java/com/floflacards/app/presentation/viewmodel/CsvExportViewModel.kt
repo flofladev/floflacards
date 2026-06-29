@@ -21,6 +21,7 @@ import android.content.ContentResolver
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.floflacards.app.data.repository.FlashcardRepository
 import com.floflacards.app.domain.usecase.csv.ExportCsvUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -35,11 +36,23 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class CsvExportViewModel @Inject constructor(
-    private val exportCsvUseCase: ExportCsvUseCase
+    private val exportCsvUseCase: ExportCsvUseCase,
+    private val repository: FlashcardRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CsvExportUiState())
     val uiState: StateFlow<CsvExportUiState> = _uiState.asStateFlow()
+
+    /**
+     * Loads the category's display name from its id. The route only carries the id, so the name
+     * is resolved here from the single source of truth (immune to special characters in the name).
+     */
+    fun loadCategory(categoryId: Long) {
+        viewModelScope.launch {
+            val name = repository.getCategoryById(categoryId)?.name ?: ""
+            _uiState.value = _uiState.value.copy(categoryName = name)
+        }
+    }
 
     /**
      * Exports flashcards from the given category to a URI.
@@ -94,5 +107,7 @@ data class CsvExportUiState(
     val isLoading: Boolean = false,
     val exportedCount: Int = 0,
     val exportComplete: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    // Category display name; null until loaded (the route waits for it before suggesting a filename).
+    val categoryName: String? = null
 )

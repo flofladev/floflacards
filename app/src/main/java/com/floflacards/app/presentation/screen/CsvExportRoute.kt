@@ -17,7 +17,6 @@
 
 package com.floflacards.app.presentation.screen
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
@@ -27,6 +26,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -46,7 +46,6 @@ import com.floflacards.app.presentation.viewmodel.CsvExportUiState
 @Composable
 fun CsvExportRoute(
     categoryId: Long,
-    categoryName: String,
     onNavigateBack: () -> Unit,
     viewModel: CsvExportViewModel = hiltViewModel()
 ) {
@@ -54,9 +53,10 @@ fun CsvExportRoute(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Default filename
-    val defaultFilename = stringResource(R.string.csv_export_default_filename, categoryName)
-        .replace(" ", "_") + ".csv"
+    // The route only carries the category id; resolve the display name from it.
+    LaunchedEffect(categoryId) {
+        viewModel.loadCategory(categoryId)
+    }
 
     // SAF create document launcher
     val saveFileLauncher = rememberLauncherForActivityResult(
@@ -86,9 +86,19 @@ fun CsvExportRoute(
         }
     }
 
-    // Launch file picker on first composition
-    LaunchedEffect(Unit) {
-        saveFileLauncher.launch(defaultFilename)
+    // Launch the file picker once the category name has loaded, suggesting a safe filename.
+    // The name is sanitized so characters that are illegal in filenames (e.g. a "/" in the
+    // category name) don't produce a broken suggestion.
+    var pickerLaunched by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(uiState.categoryName) {
+        val name = uiState.categoryName
+        if (name != null && !pickerLaunched) {
+            pickerLaunched = true
+            val safeName = sanitizeFilename(
+                context.getString(R.string.csv_export_default_filename, name)
+            )
+            saveFileLauncher.launch("$safeName.csv")
+        }
     }
 
     Scaffold(
@@ -98,7 +108,7 @@ fun CsvExportRoute(
                     Column {
                         Text(stringResource(R.string.csv_export_title))
                         Text(
-                            text = categoryName,
+                            text = uiState.categoryName ?: "",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -161,4 +171,17 @@ fun CsvExportRoute(
             }
         }
     }
+}
+
+/**
+ * Strips characters that are illegal or problematic in filenames (path separators, reserved
+ * characters, control chars) and collapses whitespace to underscores, so a category name like
+ * "Spanish/English" yields a valid suggested filename instead of a broken path.
+ */
+private fun sanitizeFilename(raw: String): String {
+    val cleaned = raw
+        .replace(Regex("[/\\\\:*?\"<>|\\x00-\\x1F]"), "_")
+        .replace(Regex("\\s+"), "_")
+        .trim('_', '.')
+    return cleaned.ifBlank { "flashcards" }
 }
