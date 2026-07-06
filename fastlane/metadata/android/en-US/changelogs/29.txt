@@ -1,0 +1,1 @@
+Version 1.0.28 - Closing a flashcard now asks "Not now?": skip just that card, or snooze all cards for 30 minutes, 2 hours or a day - learning resumes on its own afterwards. A snooze survives phone restarts and app updates. The demo card and everything else behave as before
