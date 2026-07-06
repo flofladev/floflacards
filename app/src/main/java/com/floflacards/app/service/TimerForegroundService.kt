@@ -138,15 +138,42 @@ class TimerForegroundService : Service() {
             // Handle alarm trigger
             if (intent?.action == ACTION_TIMER_ALARM) {
                 Log.d(TAG, "Timer alarm triggered")
+                // The alarm PendingIntent can revive the service in a fresh process (the
+                // system killed it while the alarm was pending). Rebuild state from the
+                // saved settings instead of dropping the alarm, otherwise learning would
+                // silently stall until the user presses start again.
+                if (!isInitialized) {
+                    if (!settingsManager.getIsLearningActive()) {
+                        stopSelf()
+                        return START_NOT_STICKY
+                    }
+                    isInitialized = true
+                    intervalMinutes = settingsManager.getIntervalMinutes()
+                    startForeground(NOTIFICATION_ID, createNotification())
+                    serviceCommunicationManager.updateServiceStatus(true)
+                }
                 handleTimerAlarm()
                 return START_STICKY
             }
-            
+
             // Handle normal service start
             isInitialized = true
-            intervalMinutes = intent?.getIntExtra("interval_minutes", DEFAULT_INTERVAL_MINUTES) ?: DEFAULT_INTERVAL_MINUTES
-            
+            // A null intent is a START_STICKY revival after the system killed the process:
+            // the original extras are gone, so fall back to the interval the user chose,
+            // never the hardcoded default.
+            intervalMinutes = intent?.getIntExtra("interval_minutes", settingsManager.getIntervalMinutes())
+                ?: settingsManager.getIntervalMinutes()
+
             startForeground(NOTIFICATION_ID, createNotification())
+
+            if (intent == null && !settingsManager.getIsLearningActive()) {
+                // Sticky revival of a timer the user has since stopped: don't resurrect it.
+                Log.d(TAG, "Revived after process death but learning is stopped, exiting")
+                stopSelf()
+                return START_NOT_STICKY
+            }
+
+            serviceCommunicationManager.updateServiceStatus(true)
             startTimer()
             
             Log.d(TAG, "Timer service started with interval: $intervalMinutes minutes")

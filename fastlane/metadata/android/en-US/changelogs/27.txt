@@ -1,0 +1,1 @@
+Version 1.0.26 - Learning now resumes on its own after a phone restart and after app updates - no more silently stopped sessions. Also fixed: when Android killed the app in the background, cards could stop appearing or fall back to a 5-minute rhythm; your chosen interval and schedule now always survive.

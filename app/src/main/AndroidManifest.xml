@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     
     <!-- No storage permissions needed - using SAF (Storage Access Framework) -->
 
@@ -62,6 +63,19 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="Learning timer and flashcard display" />
         </service>
+
+        <!-- Restarts the learning timer after a reboot or an app update.
+             Non-exported is fine: both broadcasts are sent by the system,
+             which delivers to non-exported receivers. -->
+        <receiver
+            android:name=".service.LearningRestartReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
 
         <!-- Disable WorkManager's default initializer: the Application provides
              its own Configuration (Configuration.Provider) so workers can be
