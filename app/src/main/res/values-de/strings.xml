@@ -126,6 +126,32 @@
     <string name="settings_hide_while_typing_title">Karte beim Tippen ausblenden</string>
     <string name="settings_hide_while_typing_subtitle">Die schwebende Karte verschwindet, solange eine Tastatur angezeigt wird, und kehrt zurück, wenn sie geschlossen wird</string>
 
+    <!-- Data section (backup & restore) -->
+    <string name="settings_data_title">Daten</string>
+    <string name="settings_data_subtitle">Sichere deine Lernkarten und stelle sie wieder her</string>
+    <string name="data_backup_folder_title">Backup-Ordner</string>
+    <string name="data_backup_folder_not_set">Nicht festgelegt – wähle, wo Backups gespeichert werden</string>
+    <string name="data_backup_folder_change">%1$s · zum Ändern tippen</string>
+    <string name="data_auto_backup_title">Automatisches Backup</string>
+    <string name="data_auto_backup_subtitle">Sichert täglich und beim Verlassen der App</string>
+    <string name="data_needs_folder">Wähle zuerst einen Backup-Ordner</string>
+    <string name="data_backup_now_title">Jetzt sichern</string>
+    <string name="data_last_backup">Letztes Backup: %1$s</string>
+    <string name="data_no_backup_yet">Noch kein Backup in diesem Ordner</string>
+    <string name="data_restore_title">Backup wiederherstellen</string>
+    <string name="data_restore_details">%1$s · %2$d Kategorien · %3$d Karten</string>
+    <string name="data_restore_confirm_title">Dieses Backup wiederherstellen?</string>
+    <string name="data_restore_confirm_message">Alle aktuellen Kategorien, Karten und Fortschritte werden durch das Backup vom %1$s ersetzt. Läuft gerade eine Lernsession, wird sie gestoppt.</string>
+    <string name="data_restore_success_title">Backup wiederhergestellt</string>
+    <string name="data_restore_success_message">%1$d Kategorien und %2$d Karten wiederhergestellt.</string>
+    <string name="data_backup_success_title">Backup erstellt</string>
+    <string name="data_backup_success_message">Deine Lernkarten wurden im Backup-Ordner gespeichert.</string>
+    <string name="data_action_failed_title">Etwas ist schiefgelaufen</string>
+    <string name="data_backup_failed_message">Das Backup konnte nicht erstellt werden. Prüfe, ob der Ordner noch existiert und beschreibbar ist.</string>
+    <string name="data_restore_failed_message">Das Backup konnte nicht wiederhergestellt werden. Deine aktuellen Daten wurden nicht verändert.</string>
+    <string name="data_backup_blocked_empty_message">Deine Bibliothek ist leer, daher wurde nichts gesichert. Das schützt ein vorhandenes Backup vor dem Überschreiben.</string>
+    <string name="data_dialog_ok">OK</string>
+
     <!-- Permissions section -->
     <string name="settings_permissions_title">Berechtigungen</string>
     <string name="settings_permissions_subtitle">App-Berechtigungen und -Optimierungen verwalten</string>
@@ -300,7 +326,7 @@
         <item quantity="one">%1$d Tag</item>
         <item quantity="other">%1$d Tage</item>
     </plurals>
-    <string name="learning_stop_with_countdown">Stopp · %1$d s</string>
+    <string name="learning_stop_with_countdown">Stopp · %1$s</string>
     <string name="home_summary_add_first">Füge deine erste Karte hinzu, um zu starten</string>
     <string name="home_summary_lets_learn">Lass uns zusammen lernen</string>
     <plurals name="home_mastered_summary">

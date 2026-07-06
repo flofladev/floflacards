@@ -126,6 +126,32 @@
     <string name="settings_hide_while_typing_title">Hide card while typing</string>
     <string name="settings_hide_while_typing_subtitle">The floating card disappears while a keyboard is on screen and returns when it closes</string>
 
+    <!-- Data section (backup & restore) -->
+    <string name="settings_data_title">Data</string>
+    <string name="settings_data_subtitle">Back up and restore your flashcards</string>
+    <string name="data_backup_folder_title">Backup folder</string>
+    <string name="data_backup_folder_not_set">Not set — choose where backups are saved</string>
+    <string name="data_backup_folder_change">%1$s · tap to change</string>
+    <string name="data_auto_backup_title">Automatic backup</string>
+    <string name="data_auto_backup_subtitle">Backs up daily and when you leave the app</string>
+    <string name="data_needs_folder">Choose a backup folder first</string>
+    <string name="data_backup_now_title">Back up now</string>
+    <string name="data_last_backup">Last backup: %1$s</string>
+    <string name="data_no_backup_yet">No backup in this folder yet</string>
+    <string name="data_restore_title">Restore backup</string>
+    <string name="data_restore_details">%1$s · %2$d categories · %3$d cards</string>
+    <string name="data_restore_confirm_title">Restore this backup?</string>
+    <string name="data_restore_confirm_message">All current categories, cards and progress will be replaced with the backup from %1$s. If learning is running, it will be stopped.</string>
+    <string name="data_restore_success_title">Backup restored</string>
+    <string name="data_restore_success_message">Restored %1$d categories and %2$d cards.</string>
+    <string name="data_backup_success_title">Backup created</string>
+    <string name="data_backup_success_message">Your flashcards were saved to the backup folder.</string>
+    <string name="data_action_failed_title">Something went wrong</string>
+    <string name="data_backup_failed_message">The backup could not be created. Check that the folder still exists and is writable.</string>
+    <string name="data_restore_failed_message">The backup could not be restored. Your current data was not changed.</string>
+    <string name="data_backup_blocked_empty_message">Your library is empty, so nothing was backed up. This protects an existing backup from being overwritten.</string>
+    <string name="data_dialog_ok">OK</string>
+
     <!-- Permissions section -->
     <string name="settings_permissions_title">Permissions</string>
     <string name="settings_permissions_subtitle">Manage app permissions and optimization</string>
@@ -307,7 +333,7 @@
         <item quantity="other">%1$d days</item>
     </plurals>
     <!-- Active learning button: stop action with the live countdown (seconds) -->
-    <string name="learning_stop_with_countdown">Stop · %1$d s</string>
+    <string name="learning_stop_with_countdown">Stop · %1$s</string>
     <!-- Home screen summary line between the header and the learning status card -->
     <string name="home_summary_add_first">Add your first card to begin</string>
     <string name="home_summary_lets_learn">Let\'s learn together</string>

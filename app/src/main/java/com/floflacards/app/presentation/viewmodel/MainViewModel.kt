@@ -217,7 +217,7 @@ class MainViewModel @Inject constructor(
                 }
                 .onFailure { error ->
                     // Log error but don't crash - statistics are non-critical
-                    println("Failed to load statistics: ${error.message}")
+                    android.util.Log.w("MainViewModel", "Failed to load statistics: ${error.message}")
                 }
         }
     }

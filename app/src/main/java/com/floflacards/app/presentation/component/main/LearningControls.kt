@@ -128,7 +128,10 @@ private fun UnifiedLearningButton(
     val state = when {
         // Service is active - stop learning, and surface the live countdown inline
         isServiceActive -> LearningButtonState(
-            text = stringResource(R.string.learning_stop_with_countdown, nextFlashcardCountdown),
+            text = stringResource(
+                R.string.learning_stop_with_countdown,
+                formatCountdown(nextFlashcardCountdown)
+            ),
             container = stopColor(),
             content = onStopColor(),
             action = onStopLearning,
@@ -190,6 +193,21 @@ private fun UnifiedLearningButton(
                 maxLines = 1
             )
         }
+    }
+}
+
+/**
+ * Formats the remaining seconds as m:ss (or h:mm:ss for hour-long intervals),
+ * instead of raw seconds like "1795 s".
+ */
+private fun formatCountdown(totalSeconds: Long): String {
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    return if (hours > 0) {
+        String.format(java.util.Locale.getDefault(), "%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format(java.util.Locale.getDefault(), "%d:%02d", minutes, seconds)
     }
 }
 

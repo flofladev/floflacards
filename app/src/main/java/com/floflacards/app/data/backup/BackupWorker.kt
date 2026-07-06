@@ -57,6 +57,12 @@ class BackupWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
+        // User turned automatic backups off (manual "Back up now" is unaffected).
+        if (!backupPreferences.isAutoBackupEnabled()) {
+            Log.d(TAG, "Automatic backup disabled, skipping")
+            return Result.success()
+        }
+
         // Nothing to back up to if no folder is configured.
         if (!backupPreferences.hasSafFolderConfigured()) {
             Log.d(TAG, "No backup folder configured, skipping")

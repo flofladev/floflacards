@@ -41,6 +41,7 @@ class BackupPreferences @Inject constructor(
         private const val KEY_LAST_BACKUP_TIMESTAMP = "last_backup_timestamp"
         private const val KEY_APP_INSTALLED_TIMESTAMP = "app_installed_timestamp"
         private const val KEY_SAF_TREE_URI = "saf_tree_uri"
+        private const val KEY_AUTO_BACKUP_ENABLED = "auto_backup_enabled"
 
         // Dirty-flag tracking: a monotonic counter bumped on every data change,
         // compared against the last successfully-backed-up value so automatic
@@ -165,6 +166,19 @@ class BackupPreferences @Inject constructor(
      */
     fun hasSafFolderConfigured(): Boolean {
         return getSafTreeUri() != null
+    }
+
+    /**
+     * Whether automatic backups (daily + on app background) are enabled.
+     * Defaults to true so existing users' backups keep running unchanged.
+     * Manual "Back up now" is not affected by this flag.
+     */
+    fun isAutoBackupEnabled(): Boolean {
+        return prefs.getBoolean(KEY_AUTO_BACKUP_ENABLED, true)
+    }
+
+    fun setAutoBackupEnabled(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_AUTO_BACKUP_ENABLED, enabled).apply()
     }
 
     /**

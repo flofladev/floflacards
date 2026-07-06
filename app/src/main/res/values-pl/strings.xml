@@ -126,6 +126,32 @@
     <string name="settings_hide_while_typing_title">Ukryj kartę podczas pisania</string>
     <string name="settings_hide_while_typing_subtitle">Pływająca karta znika, gdy na ekranie jest klawiatura, i wraca po jej zamknięciu</string>
 
+    <!-- Data section (backup & restore) -->
+    <string name="settings_data_title">Dane</string>
+    <string name="settings_data_subtitle">Kopia zapasowa i przywracanie fiszek</string>
+    <string name="data_backup_folder_title">Folder kopii zapasowej</string>
+    <string name="data_backup_folder_not_set">Nie wybrano – wskaż, gdzie zapisywać kopie</string>
+    <string name="data_backup_folder_change">%1$s · dotknij, aby zmienić</string>
+    <string name="data_auto_backup_title">Automatyczna kopia zapasowa</string>
+    <string name="data_auto_backup_subtitle">Zapis codziennie i przy wyjściu z aplikacji</string>
+    <string name="data_needs_folder">Najpierw wybierz folder kopii zapasowej</string>
+    <string name="data_backup_now_title">Utwórz kopię teraz</string>
+    <string name="data_last_backup">Ostatnia kopia: %1$s</string>
+    <string name="data_no_backup_yet">Brak kopii zapasowej w tym folderze</string>
+    <string name="data_restore_title">Przywróć kopię zapasową</string>
+    <string name="data_restore_details">%1$s · kategorie: %2$d · fiszki: %3$d</string>
+    <string name="data_restore_confirm_title">Przywrócić tę kopię zapasową?</string>
+    <string name="data_restore_confirm_message">Wszystkie obecne kategorie, fiszki i postępy zostaną zastąpione kopią z %1$s. Jeśli nauka jest włączona, zostanie zatrzymana.</string>
+    <string name="data_restore_success_title">Przywrócono kopię zapasową</string>
+    <string name="data_restore_success_message">Przywrócono kategorie: %1$d, fiszki: %2$d.</string>
+    <string name="data_backup_success_title">Utworzono kopię zapasową</string>
+    <string name="data_backup_success_message">Twoje fiszki zapisano w folderze kopii zapasowej.</string>
+    <string name="data_action_failed_title">Coś poszło nie tak</string>
+    <string name="data_backup_failed_message">Nie udało się utworzyć kopii zapasowej. Sprawdź, czy folder nadal istnieje i można w nim zapisywać.</string>
+    <string name="data_restore_failed_message">Nie udało się przywrócić kopii zapasowej. Twoje obecne dane nie zostały zmienione.</string>
+    <string name="data_backup_blocked_empty_message">Twoja biblioteka jest pusta, więc nic nie zapisano. To chroni istniejącą kopię przed nadpisaniem.</string>
+    <string name="data_dialog_ok">OK</string>
+
     <!-- Permissions section -->
     <string name="settings_permissions_title">Uprawnienia</string>
     <string name="settings_permissions_subtitle">Zarządzaj uprawnieniami i optymalizacją aplikacji</string>
@@ -302,7 +328,7 @@
         <item quantity="many">%1$d dni</item>
         <item quantity="other">%1$d dnia</item>
     </plurals>
-    <string name="learning_stop_with_countdown">Zatrzymaj · %1$d s</string>
+    <string name="learning_stop_with_countdown">Zatrzymaj · %1$s</string>
     <string name="home_summary_add_first">Dodaj pierwszą kartę, aby zacząć</string>
     <string name="home_summary_lets_learn">Uczmy się razem</string>
     <plurals name="home_mastered_summary">

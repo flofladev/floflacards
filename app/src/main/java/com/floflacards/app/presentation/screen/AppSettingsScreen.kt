@@ -45,6 +45,7 @@ import com.floflacards.app.data.model.AppTheme
 import com.floflacards.app.data.model.FlashcardTheme
 import com.floflacards.app.data.model.Language
 import com.floflacards.app.presentation.component.BatteryOptimizationSettingItem
+import com.floflacards.app.presentation.component.DataSettingsContent
 import com.floflacards.app.presentation.component.DonationDialog
 import com.floflacards.app.presentation.component.getHeaderContainerColor
 import com.floflacards.app.presentation.component.getHeaderContentColor
@@ -176,6 +177,16 @@ fun AppSettingsScreen(
                         checked = hideCardWhileTyping,
                         onCheckedChange = { viewModel.setHideCardWhileTyping(it) }
                     )
+                }
+            }
+
+            // Data section - backup folder, automatic backup, manual backup & restore
+            item {
+                AppSettingsSection(
+                    title = stringResource(R.string.settings_data_title),
+                    subtitle = stringResource(R.string.settings_data_subtitle)
+                ) {
+                    DataSettingsContent()
                 }
             }
 

@@ -262,16 +262,7 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
             )
         }
         
-        if (success) {
-            // STREAK UPDATE: Track flashcard view activity for streak calculation
-            // This is called when flashcard becomes visible to user (both regular and demo)
-            try {
-                val updatedStreak = simpleStreakUseCase.recordFlashcardActivity()
-                Log.d(TAG, "Streak updated: current=${updatedStreak.currentStreak}, highest=${updatedStreak.highestStreak}")
-            } catch (e: Exception) {
-                Log.w(TAG, "Failed to update streak: ${e.message}") // Non-critical, don't fail overlay
-            }
-        } else {
+        if (!success) {
             Log.e(TAG, "Failed to show overlay")
             stopSelf()
         }
@@ -287,6 +278,14 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
             Log.d(TAG, "Demo flashcard completed, not updating SRS data")
             handleDemoCompletion()
         } else {
+            // STREAK: a rating is real engagement, so it counts here — merely being
+            // shown a card, skipping it, or the demo card do not.
+            try {
+                simpleStreakUseCase.recordFlashcardActivity()
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to update streak: ${e.message}") // Non-critical
+            }
+
             // Regular flashcard - update SRS data
             serviceScope.launch(Dispatchers.IO) {
                 try {
