@@ -55,6 +55,7 @@ class OverlayComponents(
         onSizeChange: (Int, Int) -> Unit,
         onRating: (FlashcardRating) -> Unit,
         onClose: () -> Unit,
+        onSnooze: (Int) -> Unit = { }, // Minutes; only reachable from regular flashcards
         onManageCards: () -> Unit = { } // Default empty implementation for regular flashcards
     ) {
         // Get category information
@@ -148,7 +149,8 @@ class OverlayComponents(
                     currentUiState = flashcardUiPreferences.getFlashcardUiState()
                 },
                 onRating = onRating,
-                onClose = onClose
+                onClose = onClose,
+                onSnooze = onSnooze
             )
         }
     }

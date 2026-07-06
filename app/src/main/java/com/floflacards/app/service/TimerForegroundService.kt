@@ -159,9 +159,10 @@ class TimerForegroundService : Service() {
             // Handle normal service start
             isInitialized = true
             // A null intent is a START_STICKY revival after the system killed the process:
-            // the original extras are gone, so fall back to the interval the user chose,
-            // never the hardcoded default.
+            // the original extras are gone, so fall back to the interval the user chose
+            // (or the remainder of an active snooze), never the hardcoded default.
             intervalMinutes = intent?.getIntExtra("interval_minutes", settingsManager.getIntervalMinutes())
+                ?: settingsManager.getSnoozeRemainingMinutes()
                 ?: settingsManager.getIntervalMinutes()
 
             startForeground(NOTIFICATION_ID, createNotification())
@@ -351,6 +352,9 @@ class TimerForegroundService : Service() {
             stopSelf()
             return
         }
+
+        // A card is being shown, so any snooze is definitionally over.
+        settingsManager.clearSnooze()
         
         try {
             val nextFlashcard = flashcardRepository.getNextAvailableFlashcard()

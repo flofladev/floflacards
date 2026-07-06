@@ -411,6 +411,13 @@
     <string name="interaction_mode_drag_instruction">Verschiebe-Modus – bewege die Lernkarte auf dem Bildschirm</string>
     <string name="interaction_mode_resize_instruction">Größen-Modus – passe die Lernkarten-Größe an</string>
     <string name="interaction_mode_opacity_instruction">Transparenz-Modus – steuere Durchsichtigkeit (mind. 10%)</string>
+
+    <!-- Close menu (header X): skip this card or snooze the session -->
+    <string name="flashcard_close_menu_title">Gerade nicht?</string>
+    <string name="flashcard_close_skip">Karte überspringen</string>
+    <string name="flashcard_close_snooze_30m">30 Minuten pausieren</string>
+    <string name="flashcard_close_snooze_2h">2 Stunden pausieren</string>
+    <string name="flashcard_close_snooze_1d">1 Tag pausieren</string>
     
     <!-- Opacity Control Strings - German -->
     <string name="opacity_control_label">👁️ Transparenz</string>

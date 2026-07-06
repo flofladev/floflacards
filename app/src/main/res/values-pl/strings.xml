@@ -428,6 +428,13 @@
     <string name="interaction_mode_drag_instruction">Tryb przeciągania – przesuń fiszkę po ekranie</string>
     <string name="interaction_mode_resize_instruction">Tryb zmiany rozmiaru – dostosuj rozmiar fiszki</string>
     <string name="interaction_mode_opacity_instruction">Tryb przezroczystości – kontroluj przezroczystość (min. 10%)</string>
+
+    <!-- Close menu (header X): skip this card or snooze the session -->
+    <string name="flashcard_close_menu_title">Nie teraz?</string>
+    <string name="flashcard_close_skip">Pomiń kartę</string>
+    <string name="flashcard_close_snooze_30m">Wstrzymaj na 30 minut</string>
+    <string name="flashcard_close_snooze_2h">Wstrzymaj na 2 godziny</string>
+    <string name="flashcard_close_snooze_1d">Wstrzymaj na 1 dzień</string>
     
     <!-- Opacity Control Strings - Polish -->
     <string name="opacity_control_label">👁️ Przezroczystość</string>

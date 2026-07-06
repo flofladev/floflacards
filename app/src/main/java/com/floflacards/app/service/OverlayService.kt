@@ -258,6 +258,7 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
                 },
                 onRating = { rating -> handleFlashcardRating(flashcard, rating) },
                 onClose = { handleFlashcardClose(flashcard) },
+                onSnooze = { minutes -> handleSnooze(minutes) },
                 onManageCards = { handleManageCardsNavigation() }
             )
         }
@@ -325,6 +326,30 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         }
     }
     
+    /**
+     * Pauses the session for the chosen duration: the card closes and the next one
+     * arrives when the snooze elapses, via a single extra-long timer cycle. The
+     * snooze-until timestamp is persisted so reboots, app updates and process
+     * death resume the remaining wait instead of the normal interval.
+     */
+    private fun handleSnooze(minutes: Int) {
+        Log.d(TAG, "Handling snooze for $minutes minutes")
+        closeOverlay()
+        try {
+            if (!settingsManager.getIsLearningActive()) {
+                Log.d(TAG, "Learning is stopped, not scheduling snoozed timer")
+                return
+            }
+            settingsManager.setSnoozeUntil(System.currentTimeMillis() + minutes * 60_000L)
+            val intent = Intent(this, TimerForegroundService::class.java).apply {
+                putExtra("interval_minutes", minutes)
+            }
+            startService(intent)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error scheduling snooze", e)
+        }
+    }
+
     /**
      * Handles manage button click from empty state overlay.
      * Stops the learning service and opens the app on home screen.

@@ -419,6 +419,13 @@
     <string name="interaction_mode_drag_instruction">Drag mode – move flashcard around screen</string>
     <string name="interaction_mode_resize_instruction">Resize mode – adjust flashcard size</string>
     <string name="interaction_mode_opacity_instruction">Opacity mode – control transparency (min 10%)</string>
+
+    <!-- Close menu (header X): skip this card or snooze the session -->
+    <string name="flashcard_close_menu_title">Not now?</string>
+    <string name="flashcard_close_skip">Skip this card</string>
+    <string name="flashcard_close_snooze_30m">Snooze 30 minutes</string>
+    <string name="flashcard_close_snooze_2h">Snooze 2 hours</string>
+    <string name="flashcard_close_snooze_1d">Snooze 1 day</string>
     
     <!-- Opacity Control Strings -->
     <string name="opacity_control_label">👁️ Opacity</string>

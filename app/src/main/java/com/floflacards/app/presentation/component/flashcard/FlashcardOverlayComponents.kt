@@ -64,9 +64,13 @@ fun FlashcardContainer(
     onHideModeSelector: () -> Unit,
     onRating: (FlashcardRating) -> Unit,
     onClose: () -> Unit,
+    onSnooze: (Int) -> Unit = { },
     modifier: Modifier = Modifier
 ) {
     var showAnswer by remember { mutableStateOf(false) }
+    // Local-only state on purpose: persisting modal visibility (like the mode modal
+    // does) is what makes stale "stuck open" flags possible across cards.
+    var showCloseMenu by remember { mutableStateOf(false) }
     
     // For overlay windows, positioning is handled by WindowManager.LayoutParams
     // Compose content should fill the entire overlay window
@@ -119,8 +123,21 @@ fun FlashcardContainer(
                     currentMode = uiState.currentMode,
                     theme = theme,
                     onPositionChange = onPositionChange,
-                    onShowModeSelector = onShowModeSelector,
-                    onClose = onClose
+                    // The two overlays are mutually exclusive: opening one closes the other.
+                    onShowModeSelector = {
+                        showCloseMenu = false
+                        onShowModeSelector()
+                    },
+                    onClose = {
+                        if (flashcard.id == -1L) {
+                            // Demo card keeps the instant close: a chooser mid-onboarding
+                            // would only confuse, and there is no session to snooze yet.
+                            onClose()
+                        } else {
+                            onHideModeSelector()
+                            showCloseMenu = true
+                        }
+                    }
                 )
                 
                 // Content area
@@ -168,6 +185,21 @@ fun FlashcardContainer(
             },
             onDismiss = onHideModeSelector,
             theme = theme
+        )
+
+        // "Not now?" chooser opened by the header X: skip or snooze the session
+        FlashcardCloseMenu(
+            isVisible = showCloseMenu,
+            theme = theme,
+            onSkip = {
+                showCloseMenu = false
+                onClose()
+            },
+            onSnooze = { minutes ->
+                showCloseMenu = false
+                onSnooze(minutes)
+            },
+            onDismiss = { showCloseMenu = false }
         )
     }
 }

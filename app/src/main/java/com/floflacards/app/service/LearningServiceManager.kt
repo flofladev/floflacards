@@ -43,12 +43,15 @@ class LearningServiceManager @Inject constructor(
     }
     
     fun startLearningService(intervalMinutes: Int) {
+        // An explicit user start overrides any pending snooze.
+        settingsManager.clearSnooze()
         serviceCommunicationManager.updateServiceStatus(true)
         settingsManager.setLearningActive(true)
         TimerForegroundService.start(context, intervalMinutes)
     }
-    
+
     fun stopLearningService() {
+        settingsManager.clearSnooze()
         serviceCommunicationManager.updateServiceStatus(false)
         serviceCommunicationManager.resetCountdown()
         settingsManager.setLearningActive(false)

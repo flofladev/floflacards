@@ -46,13 +46,13 @@ data class Sm2Config(
 }
 
 /**
- * Represents the user's rating of a flashcard
+ * Represents the user's rating of a flashcard. Closing without rating (skip or
+ * snooze) deliberately never reaches the SRS — it must not punish the card.
  */
 enum class FlashcardRating(val displayName: String) {
     WRONG("Wrong"),
-    HARD("Hard"), 
-    GOOD("Good"),
-    CLOSED("Closed") // When user closes without rating
+    HARD("Hard"),
+    GOOD("Good")
 }
 
 /**

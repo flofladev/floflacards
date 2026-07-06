@@ -76,7 +76,7 @@ class SrsUseCase @Inject constructor(
                     cooldownUntilTimestamp = currentTime + calculateIntervalMs(failedCardCooldown, intervalMinutes),
                     newEasinessFactor = flashcard.easinessFactor, // Don't change EF for failed cards
                     newReviewCount = 0, // Reset review count
-                    shouldUpdateStats = rating != FlashcardRating.CLOSED
+                    shouldUpdateStats = true
                 )
             } else {
                 // Successful review - apply SM-2 algorithm
@@ -88,7 +88,7 @@ class SrsUseCase @Inject constructor(
                     cooldownUntilTimestamp = currentTime + calculateIntervalMs(intervalMultiplier, intervalMinutes),
                     newEasinessFactor = newEasinessFactor,
                     newReviewCount = newReviewCount,
-                    shouldUpdateStats = rating != FlashcardRating.CLOSED
+                    shouldUpdateStats = true
                 )
             }
             
@@ -106,7 +106,6 @@ class SrsUseCase @Inject constructor(
             FlashcardRating.WRONG -> 0   // Complete failure
             FlashcardRating.HARD -> 3    // Correct with difficulty
             FlashcardRating.GOOD -> 5    // Perfect response
-            FlashcardRating.CLOSED -> 2  // Skip - treat as barely correct
         }
     }
     

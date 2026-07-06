@@ -75,6 +75,7 @@ class SettingsRepository @Inject constructor(
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
         private const val KEY_HIDE_CARD_WHILE_TYPING = "hide_card_while_typing"
+        private const val KEY_SNOOZE_UNTIL = "snooze_until"
     }
 
     fun getIntervalMinutes(): Int {
@@ -97,6 +98,31 @@ class SettingsRepository @Inject constructor(
             .putBoolean(KEY_HIDE_CARD_WHILE_TYPING, enabled)
             .apply()
         _hideCardWhileTyping.value = enabled
+    }
+
+    /**
+     * Timestamp until which the learning session is snoozed (0 = not snoozed).
+     * Persisted so a snooze survives reboots, app updates and process death —
+     * the restart paths read it to resume with the remaining wait instead of
+     * the normal interval.
+     */
+    fun setSnoozeUntil(timestamp: Long) {
+        prefs.edit().putLong(KEY_SNOOZE_UNTIL, timestamp).apply()
+    }
+
+    fun clearSnooze() {
+        prefs.edit().remove(KEY_SNOOZE_UNTIL).apply()
+    }
+
+    /**
+     * Minutes left on an active snooze (rounded up, at least 1), or null when
+     * not snoozed / already elapsed. Restart paths use this as the one-off
+     * timer duration so a revival never undercuts the promised quiet time.
+     */
+    fun getSnoozeRemainingMinutes(): Int? {
+        val remainingMs = prefs.getLong(KEY_SNOOZE_UNTIL, 0L) - System.currentTimeMillis()
+        if (remainingMs <= 0) return null
+        return (((remainingMs + 59_999) / 60_000).toInt()).coerceAtLeast(1)
     }
 
     fun getIsLearningActive(): Boolean {

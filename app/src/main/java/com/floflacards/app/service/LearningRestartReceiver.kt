@@ -46,9 +46,6 @@ class LearningRestartReceiver : BroadcastReceiver() {
     @Inject
     lateinit var settingsManager: SettingsRepository
 
-    @Inject
-    lateinit var learningServiceManager: LearningServiceManager
-
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         if (action != Intent.ACTION_BOOT_COMPLETED && action != Intent.ACTION_MY_PACKAGE_REPLACED) {
@@ -68,7 +65,13 @@ class LearningRestartReceiver : BroadcastReceiver() {
             return
         }
 
-        learningServiceManager.startLearningService(settingsManager.getIntervalMinutes())
-        Log.d(TAG, "Learning timer restarted after $action")
+        // Resume the session as it was: an active snooze keeps its remaining wait
+        // (going through LearningServiceManager would clear it — that path means
+        // "the user pressed start", which this is not). The service reports its
+        // own active status on start, so UI state stays consistent.
+        val minutes = settingsManager.getSnoozeRemainingMinutes()
+            ?: settingsManager.getIntervalMinutes()
+        TimerForegroundService.start(context, minutes)
+        Log.d(TAG, "Learning timer restarted after $action (${minutes} min)")
     }
 }
