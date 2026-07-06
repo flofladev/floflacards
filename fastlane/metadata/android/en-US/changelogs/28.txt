@@ -1,0 +1,1 @@
+Version 1.0.27 - New "Data" section in Settings: choose or change your backup folder anytime, switch automatic backup on or off, back up manually, and restore a backup - including one synced from another device. The day streak now only counts days where you actually answered a card, and the stop button shows a proper countdown instead of raw seconds
