@@ -1,0 +1,1 @@
+Version 1.0.30 - New option in Settings: hide the floating card while the screen is in landscape, so games and videos stay uninterrupted - the card waits and appears when you rotate back. Also fixed: with "hide while typing" on, the card no longer flashes briefly over an open keyboard
