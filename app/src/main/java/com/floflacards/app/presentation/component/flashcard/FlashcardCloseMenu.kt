@@ -35,11 +35,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material.icons.filled.Snooze
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -99,55 +101,77 @@ fun FlashcardCloseMenu(
                     pressedElevation = 0.dp
                 )
             ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.flashcard_close_menu_title),
-                        color = FlashcardColors.getTextColor(theme),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.flashcard_close_menu_title),
+                            color = FlashcardColors.getTextColor(theme),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            textAlign = TextAlign.Center,
+                            // Keep clear of the corner close button
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 32.dp)
+                        )
 
-                    // Skip first and biggest: reflex-closers land on it with two fast
-                    // taps in the same thumb zone the X occupies.
-                    CloseMenuRow(
-                        icon = Icons.Filled.SkipNext,
-                        label = stringResource(R.string.flashcard_close_skip),
-                        accented = true,
-                        theme = theme,
-                        onClick = onSkip,
-                        modifier = Modifier.weight(1f)
-                    )
-                    CloseMenuRow(
-                        icon = Icons.Filled.Snooze,
-                        label = stringResource(R.string.flashcard_close_snooze_30m),
-                        accented = false,
-                        theme = theme,
-                        onClick = { onSnooze(30) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    CloseMenuRow(
-                        icon = Icons.Filled.Snooze,
-                        label = stringResource(R.string.flashcard_close_snooze_2h),
-                        accented = false,
-                        theme = theme,
-                        onClick = { onSnooze(120) },
-                        modifier = Modifier.weight(1f)
-                    )
-                    CloseMenuRow(
-                        icon = Icons.Filled.Snooze,
-                        label = stringResource(R.string.flashcard_close_snooze_1d),
-                        accented = false,
-                        theme = theme,
-                        onClick = { onSnooze(1440) },
-                        modifier = Modifier.weight(1f)
-                    )
+                        // Skip first and biggest: reflex-closers land on it with two fast
+                        // taps in the same thumb zone the X occupies.
+                        CloseMenuRow(
+                            icon = Icons.Filled.SkipNext,
+                            label = stringResource(R.string.flashcard_close_skip),
+                            accented = true,
+                            theme = theme,
+                            onClick = onSkip,
+                            modifier = Modifier.weight(1f)
+                        )
+                        CloseMenuRow(
+                            icon = Icons.Filled.Snooze,
+                            label = stringResource(R.string.flashcard_close_snooze_30m),
+                            accented = false,
+                            theme = theme,
+                            onClick = { onSnooze(30) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CloseMenuRow(
+                            icon = Icons.Filled.Snooze,
+                            label = stringResource(R.string.flashcard_close_snooze_2h),
+                            accented = false,
+                            theme = theme,
+                            onClick = { onSnooze(120) },
+                            modifier = Modifier.weight(1f)
+                        )
+                        CloseMenuRow(
+                            icon = Icons.Filled.Snooze,
+                            label = stringResource(R.string.flashcard_close_snooze_1d),
+                            accented = false,
+                            theme = theme,
+                            onClick = { onSnooze(1440) },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+
+                    // Same compact corner close affordance as the mode selector, so the
+                    // menu can be backed out of without knowing about the tappable backdrop.
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(28.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = FlashcardColors.getTextColor(theme),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
                 }
             }
         }
