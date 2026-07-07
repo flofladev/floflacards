@@ -63,6 +63,12 @@ class SettingsRepository @Inject constructor(
     // Whether the floating card hides itself while a soft keyboard is on screen (default on)
     private val _hideCardWhileTyping = MutableStateFlow(getHideCardWhileTyping())
     val hideCardWhileTyping: StateFlow<Boolean> = _hideCardWhileTyping.asStateFlow()
+
+    // Whether the floating card hides itself while the screen is in landscape,
+    // a proxy for games and fullscreen video (default off — landscape is the
+    // normal orientation on tablets)
+    private val _hideCardInLandscape = MutableStateFlow(getHideCardInLandscape())
+    val hideCardInLandscape: StateFlow<Boolean> = _hideCardInLandscape.asStateFlow()
     
     companion object {
         private const val KEY_INTERVAL_MINUTES = "interval_minutes"
@@ -75,6 +81,7 @@ class SettingsRepository @Inject constructor(
         private const val KEY_BATTERY_OPTIMIZATION_EVER_DISABLED = "battery_optimization_ever_disabled"
         private const val KEY_APP_LOCALE = "app_locale"
         private const val KEY_HIDE_CARD_WHILE_TYPING = "hide_card_while_typing"
+        private const val KEY_HIDE_CARD_IN_LANDSCAPE = "hide_card_in_landscape"
         private const val KEY_SNOOZE_UNTIL = "snooze_until"
     }
 
@@ -98,6 +105,17 @@ class SettingsRepository @Inject constructor(
             .putBoolean(KEY_HIDE_CARD_WHILE_TYPING, enabled)
             .apply()
         _hideCardWhileTyping.value = enabled
+    }
+
+    fun getHideCardInLandscape(): Boolean {
+        return prefs.getBoolean(KEY_HIDE_CARD_IN_LANDSCAPE, false)
+    }
+
+    fun setHideCardInLandscape(enabled: Boolean) {
+        prefs.edit()
+            .putBoolean(KEY_HIDE_CARD_IN_LANDSCAPE, enabled)
+            .apply()
+        _hideCardInLandscape.value = enabled
     }
 
     /**

@@ -73,6 +73,7 @@ fun AppSettingsScreen(
     val currentFlashcardTheme by viewModel.flashcardTheme.collectAsState()
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
     val hideCardWhileTyping by viewModel.hideCardWhileTyping.collectAsState()
+    val hideCardInLandscape by viewModel.hideCardInLandscape.collectAsState()
     
     Scaffold(
         topBar = {
@@ -176,6 +177,13 @@ fun AppSettingsScreen(
                         subtitle = stringResource(R.string.settings_hide_while_typing_subtitle),
                         checked = hideCardWhileTyping,
                         onCheckedChange = { viewModel.setHideCardWhileTyping(it) }
+                    )
+
+                    SwitchSettingItem(
+                        title = stringResource(R.string.settings_hide_in_landscape_title),
+                        subtitle = stringResource(R.string.settings_hide_in_landscape_subtitle),
+                        checked = hideCardInLandscape,
+                        onCheckedChange = { viewModel.setHideCardInLandscape(it) }
                     )
                 }
             }

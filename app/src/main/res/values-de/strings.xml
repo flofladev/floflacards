@@ -125,6 +125,8 @@
     <string name="settings_behavior_subtitle">Wie sich die schwebende Karte verhält</string>
     <string name="settings_hide_while_typing_title">Karte beim Tippen ausblenden</string>
     <string name="settings_hide_while_typing_subtitle">Die schwebende Karte verschwindet, solange eine Tastatur angezeigt wird, und kehrt zurück, wenn sie geschlossen wird</string>
+    <string name="settings_hide_in_landscape_title">Karte im Querformat ausblenden</string>
+    <string name="settings_hide_in_landscape_subtitle">Die schwebende Karte bleibt verborgen, solange der Bildschirm im Querformat ist – für Spiele und Videos</string>
 
     <!-- Data section (backup & restore) -->
     <string name="settings_data_title">Daten</string>

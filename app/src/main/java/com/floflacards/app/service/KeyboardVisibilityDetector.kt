@@ -71,6 +71,14 @@ class KeyboardVisibilityDetector(
     var isKeyboardVisible: Boolean = false
         private set
 
+    /**
+     * Whether the first evaluation has been reported. The first one is always
+     * emitted, even when the state equals the "no keyboard" default: callers
+     * start the card hidden and rely on that initial report to reveal it, which
+     * is what prevents the card from flashing over an already-open keyboard.
+     */
+    private var hasReported = false
+
     /** Consecutive positive reads from the visible-frame fallback (main thread only). */
     private var fallbackHits = 0
 
@@ -85,9 +93,12 @@ class KeyboardVisibilityDetector(
     /**
      * Adds the invisible probe window and starts reporting keyboard visibility changes.
      * Safe to call once per detector; call [stop] before reusing.
+     *
+     * @return true when the probe is running (reports will follow), false when it could
+     *   not be added — callers waiting on the first report must then fail open.
      */
-    fun start(onKeyboardVisibilityChanged: (Boolean) -> Unit) {
-        if (probeView != null) return
+    fun start(onKeyboardVisibilityChanged: (Boolean) -> Unit): Boolean {
+        if (probeView != null) return true
         onChanged = onKeyboardVisibilityChanged
 
         val layoutFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -127,10 +138,12 @@ class KeyboardVisibilityDetector(
             view.viewTreeObserver.addOnGlobalLayoutListener { evaluate(view) }
             // Poll as a safety net for OEMs where the callbacks stay silent.
             view.postDelayed(pollRunnable, POLL_INTERVAL_MS)
+            return true
         } catch (e: Exception) {
             Log.e(TAG, "Failed to add keyboard probe window", e)
             probeView = null
             onChanged = null
+            return false
         }
     }
 
@@ -155,7 +168,8 @@ class KeyboardVisibilityDetector(
             fallbackHits >= FALLBACK_CONFIRMATIONS
         }
 
-        if (visibleNow != isKeyboardVisible) {
+        if (!hasReported || visibleNow != isKeyboardVisible) {
+            hasReported = true
             isKeyboardVisible = visibleNow
             onChanged?.invoke(visibleNow)
         }
@@ -200,6 +214,7 @@ class KeyboardVisibilityDetector(
         probeView = null
         onChanged = null
         isKeyboardVisible = false
+        hasReported = false
         fallbackHits = 0
     }
 }

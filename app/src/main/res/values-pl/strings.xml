@@ -125,6 +125,8 @@
     <string name="settings_behavior_subtitle">Jak zachowuje się pływająca karta</string>
     <string name="settings_hide_while_typing_title">Ukryj kartę podczas pisania</string>
     <string name="settings_hide_while_typing_subtitle">Pływająca karta znika, gdy na ekranie jest klawiatura, i wraca po jej zamknięciu</string>
+    <string name="settings_hide_in_landscape_title">Ukryj kartę w orientacji poziomej</string>
+    <string name="settings_hide_in_landscape_subtitle">Pływająca karta pozostaje ukryta, gdy ekran jest w orientacji poziomej – do gier i filmów</string>
 
     <!-- Data section (backup & restore) -->
     <string name="settings_data_title">Dane</string>

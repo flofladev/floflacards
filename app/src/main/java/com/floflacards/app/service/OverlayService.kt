@@ -246,7 +246,8 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
             lifecycleOwner = this,
             viewModelStoreOwner = this,
             savedStateRegistryOwner = this,
-            hideWhileTyping = settingsManager.getHideCardWhileTyping()
+            hideWhileTyping = settingsManager.getHideCardWhileTyping(),
+            hideInLandscape = settingsManager.getHideCardInLandscape()
         ) {
             overlayComponents.OverlayContent(
                 flashcard = flashcard,
@@ -442,11 +443,13 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         Log.d(TAG, "Configuration changed (orientation=${newConfig.orientation})")
-        // Snap a visible card to the saved geometry for the new orientation.
-        // Posted so the framework finishes propagating the new metrics first.
+        // Snap a visible card to the saved geometry for the new orientation, and
+        // re-evaluate the landscape hide. Posted so the framework finishes
+        // propagating the new metrics first.
         if (::overlayManager.isInitialized) {
             android.os.Handler(mainLooper).post {
                 overlayManager.refreshLayoutForCurrentOrientation()
+                overlayManager.refreshVisibilityForOrientation()
             }
         }
     }

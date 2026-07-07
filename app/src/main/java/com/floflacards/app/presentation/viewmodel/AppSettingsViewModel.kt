@@ -65,6 +65,12 @@ class AppSettingsViewModel @Inject constructor(
     val hideCardWhileTyping: StateFlow<Boolean> = settingsManager.hideCardWhileTyping
 
     /**
+     * Whether the floating card hides itself while the screen is in landscape
+     * (a proxy for games and fullscreen video).
+     */
+    val hideCardInLandscape: StateFlow<Boolean> = settingsManager.hideCardInLandscape
+
+    /**
      * Updates the app theme preference
      * CRITICAL: This will immediately change the app theme
      */
@@ -78,6 +84,14 @@ class AppSettingsViewModel @Inject constructor(
      */
     fun setHideCardWhileTyping(enabled: Boolean) {
         settingsManager.setHideCardWhileTyping(enabled)
+    }
+
+    /**
+     * Toggles whether the floating card hides in landscape.
+     * Takes effect on the next card shown.
+     */
+    fun setHideCardInLandscape(enabled: Boolean) {
+        settingsManager.setHideCardInLandscape(enabled)
     }
     
     /**

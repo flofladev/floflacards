@@ -18,6 +18,7 @@
 package com.floflacards.app.service
 
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.os.Build
 import android.util.Log
@@ -53,11 +54,26 @@ class OverlayManager(
     private var overlayView: View? = null
     private var isClosing = false
     private var keyboardDetector: KeyboardVisibilityDetector? = null
-    
+
+    // Visibility arbiter: the card is visible only while NO hide reason holds.
+    // Each feature owns its flag; applyVisibility() combines them, so the
+    // keyboard and landscape features can never fight over the same switch.
+    private var hideInLandscapeEnabled = false
+    private var hiddenByKeyboard = false
+    private var hiddenByLandscape = false
+
+    /**
+     * True while the card is held hidden pending the keyboard probe's first
+     * report. This is what prevents a card arriving mid-typing from flashing
+     * for a frame before the probe catches up: the card is added already GONE
+     * and only the report may reveal it.
+     */
+    private var awaitingKeyboardReport = false
+
     init {
         windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     }
-    
+
     /**
      * Creates and shows overlay window with specified content.
      * Follows KISS principle with clean parameter handling.
@@ -67,23 +83,56 @@ class OverlayManager(
         viewModelStoreOwner: ViewModelStoreOwner,
         savedStateRegistryOwner: SavedStateRegistryOwner,
         hideWhileTyping: Boolean = false,
+        hideInLandscape: Boolean = false,
         content: @androidx.compose.runtime.Composable () -> Unit
     ): Boolean {
         try {
             val uiState = flashcardUiPreferences.getFlashcardUiState()
-            
+
             // CRITICAL FIX: Ensure modal is not visible when starting a new overlay
             if (uiState.isModalVisible) {
                 flashcardUiPreferences.saveModalVisible(false)
             }
-            
+
+            // Initialize the arbiter for this card. Landscape is known synchronously;
+            // the keyboard needs the probe's first report.
+            hideInLandscapeEnabled = hideInLandscape
+            hiddenByLandscape = hideInLandscape && isLandscape()
+            hiddenByKeyboard = false
+            awaitingKeyboardReport = false
+
+            // Start the probe BEFORE the card view exists so its first layout pass has
+            // a head start; its callbacks are posted on the main looper, so nothing can
+            // fire until after this method returns. Always tear down any prior probe
+            // first: showOverlay may run again before closeOverlay (e.g. a new card
+            // replacing a stuck one), and each probe is a real WindowManager.addView +
+            // poll loop that would otherwise orphan.
+            keyboardDetector?.stop()
+            keyboardDetector = null
+            if (hideWhileTyping) {
+                val detector = KeyboardVisibilityDetector(context)
+                val started = detector.start { keyboardVisible ->
+                    hiddenByKeyboard = keyboardVisible
+                    awaitingKeyboardReport = false
+                    applyVisibility()
+                }
+                if (started) {
+                    keyboardDetector = detector
+                    awaitingKeyboardReport = true
+                } else {
+                    // Probe could not be added — fail open: a card that might flash
+                    // over a keyboard beats a card that never appears.
+                    Log.w(TAG, "Keyboard probe unavailable, showing card without it")
+                }
+            }
+
             val layoutFlag = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
                 @Suppress("DEPRECATION")
                 WindowManager.LayoutParams.TYPE_PHONE
             }
-            
+
             val params = WindowManager.LayoutParams(
                 uiState.width,
                 uiState.height,
@@ -97,38 +146,44 @@ class OverlayManager(
                 y = uiState.positionY
                 gravity = Gravity.TOP or Gravity.START
             }
-            
+
             overlayView = ComposeView(context).apply {
                 setViewTreeLifecycleOwner(lifecycleOwner)
                 setViewTreeViewModelStoreOwner(viewModelStoreOwner)
                 setViewTreeSavedStateRegistryOwner(savedStateRegistryOwner)
                 setContent(content)
+                // Correct visibility from the first frame: the card is never added
+                // visible only to be hidden a beat later.
+                visibility = currentVisibility()
             }
-            
+
             windowManager?.addView(overlayView, params)
             Log.d(TAG, "Overlay window created successfully")
-
-            // Hide the card while a soft keyboard is on screen (e.g. user is typing in another
-            // app). The first layout pass also covers a keyboard that is already up at show time,
-            // so a card arriving mid-typing starts hidden and is revealed when the keyboard closes.
-            // Always tear down any prior probe first: showOverlay may run again before
-            // closeOverlay (e.g. a new card replacing a stuck one), and each probe is a real
-            // WindowManager.addView + poll loop that would otherwise orphan.
-            keyboardDetector?.stop()
-            keyboardDetector = null
-            if (hideWhileTyping) {
-                keyboardDetector = KeyboardVisibilityDetector(context).apply {
-                    start { keyboardVisible ->
-                        overlayView?.visibility = if (keyboardVisible) View.GONE else View.VISIBLE
-                    }
-                }
-            }
             return true
-            
+
         } catch (e: Exception) {
             Log.e(TAG, "Failed to show overlay", e)
             return false
         }
+    }
+
+    private fun isLandscape(): Boolean =
+        context.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+    private fun currentVisibility(): Int =
+        if (hiddenByKeyboard || hiddenByLandscape || awaitingKeyboardReport) View.GONE else View.VISIBLE
+
+    private fun applyVisibility() {
+        overlayView?.visibility = currentVisibility()
+    }
+
+    /**
+     * Re-evaluates the landscape hide after an orientation change and re-applies
+     * the combined visibility. Called by the service's onConfigurationChanged.
+     */
+    fun refreshVisibilityForOrientation() {
+        hiddenByLandscape = hideInLandscapeEnabled && isLandscape()
+        applyVisibility()
     }
     
     /**

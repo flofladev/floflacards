@@ -125,6 +125,8 @@
     <string name="settings_behavior_subtitle">How the floating card behaves</string>
     <string name="settings_hide_while_typing_title">Hide card while typing</string>
     <string name="settings_hide_while_typing_subtitle">The floating card disappears while a keyboard is on screen and returns when it closes</string>
+    <string name="settings_hide_in_landscape_title">Hide card in landscape</string>
+    <string name="settings_hide_in_landscape_subtitle">The floating card stays hidden while the screen is in landscape — for games and videos</string>
 
     <!-- Data section (backup & restore) -->
     <string name="settings_data_title">Data</string>
