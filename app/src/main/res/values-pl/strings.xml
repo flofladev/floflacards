@@ -230,6 +230,8 @@
     <string name="flashcard_answer_label">Odpowiedź</string>
     <string name="flashcard_answer_placeholder">Wpisz odpowiedź...</string>
     <string name="flashcard_save_button">Zapisz</string>
+    <string name="flashcard_save_add_another">Zapisz i dodaj kolejną</string>
+    <string name="flashcard_card_added">Dodano fiszkę</string>
     <string name="flashcard_back_button">Wróć</string>
     <string name="flashcard_unsaved_changes_title">Niezapisane zmiany</string>
     <string name="flashcard_unsaved_changes_message">Masz niezapisane zmiany. Co chcesz zrobić?</string>

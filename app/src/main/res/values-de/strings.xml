@@ -230,6 +230,8 @@
     <string name="flashcard_answer_label">Antwort</string>
     <string name="flashcard_answer_placeholder">Gib deine Antwort ein...</string>
     <string name="flashcard_save_button">Speichern</string>
+    <string name="flashcard_save_add_another">Speichern &amp; weitere hinzufügen</string>
+    <string name="flashcard_card_added">Karte hinzugefügt</string>
     <string name="flashcard_back_button">Zurück</string>
     <string name="flashcard_unsaved_changes_title">Nicht gespeicherte Änderungen</string>
     <string name="flashcard_unsaved_changes_message">Du hast nicht gespeicherte Änderungen. Was möchtest du tun?</string>

@@ -32,10 +32,13 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
@@ -124,6 +127,11 @@ fun AddEditFlashcardScreen(
     val questionBringIntoViewRequester = remember { BringIntoViewRequester() }
     val answerBringIntoViewRequester = remember { BringIntoViewRequester() }
     val coroutineScope = rememberCoroutineScope()
+
+    // "Save & add another" flow: refocus the question field and confirm via snackbar
+    val questionFocusRequester = remember { FocusRequester() }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val cardAddedMessage = stringResource(R.string.flashcard_card_added)
     
     // Handle navigation with unsaved changes check
     val handleNavigateBack = {
@@ -165,6 +173,29 @@ fun AddEditFlashcardScreen(
         handleSave()
         showUnsavedChangesDialog = false
     }
+
+    // Save, then stay on the screen ready for the next card (add mode only):
+    // clear the fields, refocus the question so the keyboard stays open, and
+    // confirm briefly. Requesting focus also scrolls back to the top via the
+    // field's existing focus listener.
+    val handleSaveAndAddAnother = {
+        if (canSave) {
+            viewModel.createFlashcard(
+                categoryId,
+                questionText.text.trim(),
+                answerText.text.trim(),
+                uiState.tempQuestionImagePath,
+                uiState.tempAnswerImagePath
+            )
+            questionText = TextFieldValue("")
+            answerText = TextFieldValue("")
+            questionFocusRequester.requestFocus()
+            coroutineScope.launch {
+                snackbarHostState.currentSnackbarData?.dismiss()
+                snackbarHostState.showSnackbar(cardAddedMessage)
+            }
+        }
+    }
     
     // Handle discard changes
     val handleDiscardChanges = {
@@ -181,6 +212,7 @@ fun AddEditFlashcardScreen(
         modifier = Modifier
             .fillMaxSize()
             .imePadding(), // Adjust layout when keyboard appears
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
@@ -250,7 +282,8 @@ fun AddEditFlashcardScreen(
                 },
                 onRemoveImage = { viewModel.removeTempImage(isQuestion = true) },
                 bringIntoViewRequester = questionBringIntoViewRequester,
-                coroutineScope = coroutineScope
+                coroutineScope = coroutineScope,
+                focusRequester = questionFocusRequester
             )
             
             // Answer input field
@@ -268,7 +301,27 @@ fun AddEditFlashcardScreen(
                 bringIntoViewRequester = answerBringIntoViewRequester,
                 coroutineScope = coroutineScope
             )
-            
+
+            // Rapid deck-building: save and immediately start on the next card.
+            // Only when adding — "add another" makes no sense while editing.
+            if (!isEditing) {
+                FilledTonalButton(
+                    onClick = handleSaveAndAddAnother,
+                    enabled = canSave,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.flashcard_save_add_another))
+                }
+            }
+
             // Bottom spacing for better scrolling experience
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -353,7 +406,8 @@ private fun FlashcardInputCard(
     onAddImage: () -> Unit,
     onRemoveImage: () -> Unit,
     bringIntoViewRequester: BringIntoViewRequester,
-    coroutineScope: kotlinx.coroutines.CoroutineScope
+    coroutineScope: kotlinx.coroutines.CoroutineScope,
+    focusRequester: FocusRequester? = null
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -387,6 +441,9 @@ private fun FlashcardInputCard(
             },
             modifier = Modifier
                 .fillMaxWidth()
+                .then(
+                    if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
+                )
                 .bringIntoViewRequester(bringIntoViewRequester)
                 .onFocusEvent { focusState ->
                     if (focusState.isFocused) {
