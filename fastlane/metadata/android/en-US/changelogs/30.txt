@@ -1,0 +1,1 @@
+Version 1.0.29 - Adding many cards is much faster: a new "Save & add another" button saves the card and starts the next one right away, keyboard stays open. Also added a small close button to the skip/snooze menu
