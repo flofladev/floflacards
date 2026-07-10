@@ -21,6 +21,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.floflacards.app.data.model.AppTheme
 import com.floflacards.app.data.model.FlashcardTheme
+import com.floflacards.app.data.model.GlowIntensity
 import com.floflacards.app.data.model.Language
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
@@ -69,6 +70,22 @@ class SettingsRepository @Inject constructor(
     // normal orientation on tablets)
     private val _hideCardInLandscape = MutableStateFlow(getHideCardInLandscape())
     val hideCardInLandscape: StateFlow<Boolean> = _hideCardInLandscape.asStateFlow()
+
+    // Whether an edge glow announces the card a moment before it appears
+    // (default off — the sudden card is the familiar baseline, the cue is opt-in
+    // comfort for people who keep the card in their thumb zone)
+    private val _glowBeforeCard = MutableStateFlow(getGlowBeforeCard())
+    val glowBeforeCard: StateFlow<Boolean> = _glowBeforeCard.asStateFlow()
+
+    // How long the glow announces the card, in seconds. The card only appears
+    // once the glow finishes, so this is also the delay it adds.
+    private val _glowDurationSeconds = MutableStateFlow(getGlowDurationSeconds())
+    val glowDurationSeconds: StateFlow<Int> = _glowDurationSeconds.asStateFlow()
+
+    // How noticeable the glow is (alpha + strip width presets); perception of a
+    // peripheral cue varies a lot between eyes, screens and wallpapers.
+    private val _glowIntensity = MutableStateFlow(getGlowIntensity())
+    val glowIntensity: StateFlow<GlowIntensity> = _glowIntensity.asStateFlow()
     
     companion object {
         private const val KEY_INTERVAL_MINUTES = "interval_minutes"
@@ -82,7 +99,14 @@ class SettingsRepository @Inject constructor(
         private const val KEY_APP_LOCALE = "app_locale"
         private const val KEY_HIDE_CARD_WHILE_TYPING = "hide_card_while_typing"
         private const val KEY_HIDE_CARD_IN_LANDSCAPE = "hide_card_in_landscape"
+        private const val KEY_GLOW_BEFORE_CARD = "glow_before_card"
+        private const val KEY_GLOW_DURATION_SECONDS = "glow_duration_seconds"
+        private const val KEY_GLOW_INTENSITY = "glow_intensity"
         private const val KEY_SNOOZE_UNTIL = "snooze_until"
+
+        const val GLOW_DURATION_MIN_SECONDS = 1
+        const val GLOW_DURATION_MAX_SECONDS = 5
+        private const val GLOW_DURATION_DEFAULT_SECONDS = 2
     }
 
     fun getIntervalMinutes(): Int {
@@ -116,6 +140,41 @@ class SettingsRepository @Inject constructor(
             .putBoolean(KEY_HIDE_CARD_IN_LANDSCAPE, enabled)
             .apply()
         _hideCardInLandscape.value = enabled
+    }
+
+    fun getGlowBeforeCard(): Boolean {
+        return prefs.getBoolean(KEY_GLOW_BEFORE_CARD, false)
+    }
+
+    fun setGlowBeforeCard(enabled: Boolean) {
+        prefs.edit()
+            .putBoolean(KEY_GLOW_BEFORE_CARD, enabled)
+            .apply()
+        _glowBeforeCard.value = enabled
+    }
+
+    fun getGlowDurationSeconds(): Int {
+        return prefs.getInt(KEY_GLOW_DURATION_SECONDS, GLOW_DURATION_DEFAULT_SECONDS)
+            .coerceIn(GLOW_DURATION_MIN_SECONDS, GLOW_DURATION_MAX_SECONDS)
+    }
+
+    fun setGlowDurationSeconds(seconds: Int) {
+        val clamped = seconds.coerceIn(GLOW_DURATION_MIN_SECONDS, GLOW_DURATION_MAX_SECONDS)
+        prefs.edit()
+            .putInt(KEY_GLOW_DURATION_SECONDS, clamped)
+            .apply()
+        _glowDurationSeconds.value = clamped
+    }
+
+    fun getGlowIntensity(): GlowIntensity {
+        return GlowIntensity.fromString(prefs.getString(KEY_GLOW_INTENSITY, null))
+    }
+
+    fun setGlowIntensity(intensity: GlowIntensity) {
+        prefs.edit()
+            .putString(KEY_GLOW_INTENSITY, intensity.name)
+            .apply()
+        _glowIntensity.value = intensity
     }
 
     /**

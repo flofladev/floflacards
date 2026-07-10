@@ -127,6 +127,14 @@
     <string name="settings_hide_while_typing_subtitle">The floating card disappears while a keyboard is on screen and returns when it closes</string>
     <string name="settings_hide_in_landscape_title">Hide card in landscape</string>
     <string name="settings_hide_in_landscape_subtitle">The floating card stays hidden while the screen is in landscape — for games and videos</string>
+    <string name="settings_glow_before_card_title">Announce card with a glow</string>
+    <string name="settings_glow_before_card_subtitle">A soft glow at the screen edge, on the card\'s side, appears a moment before the card</string>
+    <string name="settings_glow_duration_title">Glow duration</string>
+    <string name="settings_glow_duration_value">%1$d s</string>
+    <string name="settings_glow_intensity_title">Glow intensity</string>
+    <string name="glow_intensity_subtle">Subtle</string>
+    <string name="glow_intensity_normal">Normal</string>
+    <string name="glow_intensity_strong">Strong</string>
 
     <!-- Data section (backup & restore) -->
     <string name="settings_data_title">Data</string>

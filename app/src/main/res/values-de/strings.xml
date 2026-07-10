@@ -127,6 +127,14 @@
     <string name="settings_hide_while_typing_subtitle">Die schwebende Karte verschwindet, solange eine Tastatur angezeigt wird, und kehrt zurück, wenn sie geschlossen wird</string>
     <string name="settings_hide_in_landscape_title">Karte im Querformat ausblenden</string>
     <string name="settings_hide_in_landscape_subtitle">Die schwebende Karte bleibt verborgen, solange der Bildschirm im Querformat ist – für Spiele und Videos</string>
+    <string name="settings_glow_before_card_title">Karte mit Leuchten ankündigen</string>
+    <string name="settings_glow_before_card_subtitle">Ein sanftes Leuchten am Bildschirmrand auf der Kartenseite erscheint einen Moment vor der Karte</string>
+    <string name="settings_glow_duration_title">Leuchtdauer</string>
+    <string name="settings_glow_duration_value">%1$d s</string>
+    <string name="settings_glow_intensity_title">Leuchtstärke</string>
+    <string name="glow_intensity_subtle">Dezent</string>
+    <string name="glow_intensity_normal">Normal</string>
+    <string name="glow_intensity_strong">Kräftig</string>
 
     <!-- Data section (backup & restore) -->
     <string name="settings_data_title">Daten</string>

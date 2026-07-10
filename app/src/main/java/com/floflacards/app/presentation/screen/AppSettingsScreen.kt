@@ -40,10 +40,13 @@ import android.content.Intent
 import android.net.Uri
 import android.content.Context
 import android.content.pm.PackageManager
+import kotlin.math.roundToInt
 import kotlin.random.Random
 import com.floflacards.app.data.model.AppTheme
 import com.floflacards.app.data.model.FlashcardTheme
+import com.floflacards.app.data.model.GlowIntensity
 import com.floflacards.app.data.model.Language
+import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.presentation.component.BatteryOptimizationSettingItem
 import com.floflacards.app.presentation.component.DataSettingsContent
 import com.floflacards.app.presentation.component.DonationDialog
@@ -74,6 +77,9 @@ fun AppSettingsScreen(
     val currentLanguage: Language by viewModel.appLocale.collectAsState()
     val hideCardWhileTyping by viewModel.hideCardWhileTyping.collectAsState()
     val hideCardInLandscape by viewModel.hideCardInLandscape.collectAsState()
+    val glowBeforeCard by viewModel.glowBeforeCard.collectAsState()
+    val glowDurationSeconds by viewModel.glowDurationSeconds.collectAsState()
+    val glowIntensity by viewModel.glowIntensity.collectAsState()
     
     Scaffold(
         topBar = {
@@ -185,6 +191,39 @@ fun AppSettingsScreen(
                         checked = hideCardInLandscape,
                         onCheckedChange = { viewModel.setHideCardInLandscape(it) }
                     )
+
+                    SwitchSettingItem(
+                        title = stringResource(R.string.settings_glow_before_card_title),
+                        subtitle = stringResource(R.string.settings_glow_before_card_subtitle),
+                        checked = glowBeforeCard,
+                        onCheckedChange = { viewModel.setGlowBeforeCard(it) }
+                    )
+
+                    if (glowBeforeCard) {
+                        SliderSettingItem(
+                            title = stringResource(R.string.settings_glow_duration_title),
+                            valueText = stringResource(
+                                R.string.settings_glow_duration_value,
+                                glowDurationSeconds
+                            ),
+                            value = glowDurationSeconds.toFloat(),
+                            valueRange = SettingsRepository.GLOW_DURATION_MIN_SECONDS.toFloat()..
+                                    SettingsRepository.GLOW_DURATION_MAX_SECONDS.toFloat(),
+                            steps = SettingsRepository.GLOW_DURATION_MAX_SECONDS -
+                                    SettingsRepository.GLOW_DURATION_MIN_SECONDS - 1,
+                            onValueChange = { raw ->
+                                val seconds = raw.roundToInt()
+                                if (seconds != glowDurationSeconds) {
+                                    viewModel.setGlowDurationSeconds(seconds)
+                                }
+                            }
+                        )
+
+                        GlowIntensitySettingItem(
+                            current = glowIntensity,
+                            onSelected = { viewModel.setGlowIntensity(it) }
+                        )
+                    }
                 }
             }
 
@@ -390,6 +429,94 @@ private fun SwitchSettingItem(
             onCheckedChange = null // handled by toggleable modifier
         )
     }
+}
+
+/**
+ * Setting item with a value slider.
+ * The current value is shown trailing the title so dragging gives live feedback.
+ */
+@Composable
+private fun SliderSettingItem(
+    title: String,
+    valueText: String,
+    value: Float,
+    valueRange: ClosedFloatingPointRange<Float>,
+    steps: Int,
+    onValueChange: (Float) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = valueText,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
+        Slider(
+            value = value,
+            onValueChange = onValueChange,
+            valueRange = valueRange,
+            steps = steps
+        )
+    }
+}
+
+/**
+ * Segmented selector for the glow intensity presets.
+ */
+@Composable
+private fun GlowIntensitySettingItem(
+    current: GlowIntensity,
+    onSelected: (GlowIntensity) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = stringResource(R.string.settings_glow_intensity_title),
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+            GlowIntensity.entries.forEachIndexed { index, intensity ->
+                SegmentedButton(
+                    selected = intensity == current,
+                    onClick = { onSelected(intensity) },
+                    shape = SegmentedButtonDefaults.itemShape(
+                        index = index,
+                        count = GlowIntensity.entries.size
+                    )
+                ) {
+                    Text(text = stringResource(intensity.labelRes()))
+                }
+            }
+        }
+    }
+}
+
+private fun GlowIntensity.labelRes(): Int = when (this) {
+    GlowIntensity.SUBTLE -> R.string.glow_intensity_subtle
+    GlowIntensity.NORMAL -> R.string.glow_intensity_normal
+    GlowIntensity.STRONG -> R.string.glow_intensity_strong
 }
 
 /**

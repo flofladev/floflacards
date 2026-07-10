@@ -192,6 +192,14 @@ object FlashcardColors {
         val themeColors = getThemeColors(theme)
         return themeColors.darkBackground
     }
+
+    /**
+     * Get theme-specific accent color
+     */
+    fun getAccentColor(theme: FlashcardTheme): Color {
+        val themeColors = getThemeColors(theme)
+        return themeColors.buttonAccent
+    }
     
     /**
      * Get theme-specific question text color

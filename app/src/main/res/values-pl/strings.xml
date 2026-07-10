@@ -127,6 +127,14 @@
     <string name="settings_hide_while_typing_subtitle">Pływająca karta znika, gdy na ekranie jest klawiatura, i wraca po jej zamknięciu</string>
     <string name="settings_hide_in_landscape_title">Ukryj kartę w orientacji poziomej</string>
     <string name="settings_hide_in_landscape_subtitle">Pływająca karta pozostaje ukryta, gdy ekran jest w orientacji poziomej – do gier i filmów</string>
+    <string name="settings_glow_before_card_title">Zapowiadaj kartę poświatą</string>
+    <string name="settings_glow_before_card_subtitle">Delikatna poświata przy krawędzi ekranu, po stronie karty, pojawia się chwilę przed kartą</string>
+    <string name="settings_glow_duration_title">Czas poświaty</string>
+    <string name="settings_glow_duration_value">%1$d s</string>
+    <string name="settings_glow_intensity_title">Intensywność poświaty</string>
+    <string name="glow_intensity_subtle">Subtelna</string>
+    <string name="glow_intensity_normal">Normalna</string>
+    <string name="glow_intensity_strong">Mocna</string>
 
     <!-- Data section (backup & restore) -->
     <string name="settings_data_title">Dane</string>

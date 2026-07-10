@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import com.floflacards.app.data.repository.SettingsRepository
 import com.floflacards.app.data.model.AppTheme
 import com.floflacards.app.data.model.FlashcardTheme
+import com.floflacards.app.data.model.GlowIntensity
 import com.floflacards.app.data.model.Language
 import com.floflacards.app.util.PermissionHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -71,6 +72,21 @@ class AppSettingsViewModel @Inject constructor(
     val hideCardInLandscape: StateFlow<Boolean> = settingsManager.hideCardInLandscape
 
     /**
+     * Whether an edge glow announces the card a moment before it appears.
+     */
+    val glowBeforeCard: StateFlow<Boolean> = settingsManager.glowBeforeCard
+
+    /**
+     * How long the glow announces the card, in seconds.
+     */
+    val glowDurationSeconds: StateFlow<Int> = settingsManager.glowDurationSeconds
+
+    /**
+     * How noticeable the glow is (alpha and strip width presets).
+     */
+    val glowIntensity: StateFlow<GlowIntensity> = settingsManager.glowIntensity
+
+    /**
      * Updates the app theme preference
      * CRITICAL: This will immediately change the app theme
      */
@@ -92,6 +108,28 @@ class AppSettingsViewModel @Inject constructor(
      */
     fun setHideCardInLandscape(enabled: Boolean) {
         settingsManager.setHideCardInLandscape(enabled)
+    }
+
+    /**
+     * Toggles the edge glow that announces the card before it appears.
+     * Takes effect on the next card shown.
+     */
+    fun setGlowBeforeCard(enabled: Boolean) {
+        settingsManager.setGlowBeforeCard(enabled)
+    }
+
+    /**
+     * Sets how long the glow announces the card. Takes effect on the next card.
+     */
+    fun setGlowDurationSeconds(seconds: Int) {
+        settingsManager.setGlowDurationSeconds(seconds)
+    }
+
+    /**
+     * Sets how noticeable the glow is. Takes effect on the next card.
+     */
+    fun setGlowIntensity(intensity: GlowIntensity) {
+        settingsManager.setGlowIntensity(intensity)
     }
     
     /**

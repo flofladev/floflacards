@@ -242,26 +242,46 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
     }
     
     private fun showOverlay(flashcard: FlashcardEntity) {
+        // Timer-fired cards may announce themselves with an edge glow (opt-in
+        // setting) and only turn touchable once visible; the demo card never
+        // does — the user just pressed a button and expects the card immediately.
+        // Duration and intensity are snapshotted here so one card uses one
+        // consistent set of values even if settings change mid-cue.
+        val entranceCue = flashcard.id != -1L && settingsManager.getGlowBeforeCard()
+        val glowDurationSeconds = settingsManager.getGlowDurationSeconds()
+        val glowIntensity = settingsManager.getGlowIntensity()
         val success = overlayManager.showOverlay(
             lifecycleOwner = this,
             viewModelStoreOwner = this,
             savedStateRegistryOwner = this,
             hideWhileTyping = settingsManager.getHideCardWhileTyping(),
-            hideInLandscape = settingsManager.getHideCardInLandscape()
+            hideInLandscape = settingsManager.getHideCardInLandscape(),
+            entranceCue = entranceCue,
+            entranceCueStripWidthDp = glowIntensity.stripWidthDp
         ) {
-            overlayComponents.OverlayContent(
-                flashcard = flashcard,
-                onPositionChange = { deltaX, deltaY ->
-                    overlayManager.updateWindowPositionRelative(deltaX, deltaY)
-                },
-                onSizeChange = { deltaWidth, deltaHeight ->
-                    overlayManager.updateWindowSizeRelative(deltaWidth, deltaHeight)
-                },
-                onRating = { rating -> handleFlashcardRating(flashcard, rating) },
-                onClose = { handleFlashcardClose(flashcard) },
-                onSnooze = { minutes -> handleSnooze(minutes) },
-                onManageCards = { handleManageCardsNavigation() }
-            )
+            overlayComponents.EntranceCue(
+                enabled = entranceCue,
+                cardVisible = overlayManager.cardVisible,
+                fromLeftEdge = overlayManager.cueFromLeftEdge,
+                durationSeconds = glowDurationSeconds,
+                intensity = glowIntensity,
+                onGlowDone = { overlayManager.moveWindowToCardGeometry() },
+                onRevealed = { overlayManager.makeWindowTouchable() }
+            ) {
+                overlayComponents.OverlayContent(
+                    flashcard = flashcard,
+                    onPositionChange = { deltaX, deltaY ->
+                        overlayManager.updateWindowPositionRelative(deltaX, deltaY)
+                    },
+                    onSizeChange = { deltaWidth, deltaHeight ->
+                        overlayManager.updateWindowSizeRelative(deltaWidth, deltaHeight)
+                    },
+                    onRating = { rating -> handleFlashcardRating(flashcard, rating) },
+                    onClose = { handleFlashcardClose(flashcard) },
+                    onSnooze = { minutes -> handleSnooze(minutes) },
+                    onManageCards = { handleManageCardsNavigation() }
+                )
+            }
         }
         
         if (!success) {
