@@ -113,7 +113,13 @@ class CsvParser(
         try {
             val reader = createReader(inputStream)
             reader.use {
-                val headerLine = reader.readLine()
+                // Skip leading blank lines so header detection runs against the real header,
+                // not an empty first line (which would find no columns and silently fall back
+                // to treating every row — including the real header — as headerless data).
+                var headerLine = reader.readLine()
+                while (headerLine != null && headerLine.isBlank()) {
+                    headerLine = reader.readLine()
+                }
                 if (headerLine == null) {
                     return CsvParseResult(
                         validCards = emptyList(),

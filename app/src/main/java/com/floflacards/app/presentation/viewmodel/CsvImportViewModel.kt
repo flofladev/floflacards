@@ -18,6 +18,7 @@
 package com.floflacards.app.presentation.viewmodel
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.floflacards.app.data.csv.CsvImportResult
@@ -119,9 +120,10 @@ class CsvImportViewModel @Inject constructor(
                     )
                 }
             } catch (e: Exception) {
+                Log.e("CsvImport", "Failed to parse CSV for preview", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = "Failed to parse CSV: ${e.message}",
+                    error = "Failed to parse CSV: ${e.message ?: e.javaClass.simpleName}",
                     step = ImportStep.ERROR
                 )
             }
@@ -168,17 +170,19 @@ class CsvImportViewModel @Inject constructor(
                         )
                     },
                     onFailure = { error ->
+                        Log.e("CsvImport", "Import failed", error)
                         _uiState.value = _uiState.value.copy(
                             isImporting = false,
-                            error = "Import failed: ${error.message}",
+                            error = "Import failed: ${error.message ?: error.javaClass.simpleName}",
                             step = ImportStep.ERROR
                         )
                     }
                 )
             } catch (e: Exception) {
+                Log.e("CsvImport", "Import failed", e)
                 _uiState.value = _uiState.value.copy(
                     isImporting = false,
-                    error = "Import failed: ${e.message}",
+                    error = "Import failed: ${e.message ?: e.javaClass.simpleName}",
                     step = ImportStep.ERROR
                 )
             }
@@ -193,13 +197,6 @@ class CsvImportViewModel @Inject constructor(
         pendingFileName = null
         cachedParseResult = null
         _uiState.value = CsvImportUiState()
-    }
-
-    /**
-     * Clears the current error.
-     */
-    fun clearError() {
-        _uiState.value = _uiState.value.copy(error = null)
     }
 }
 

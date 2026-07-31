@@ -205,6 +205,73 @@ class ImportCsvUseCaseTest {
         assertEquals(7L, fakeFlashcardDao.cards[0].categoryId)
     }
 
+    @Test
+    fun `importFromParsed resolves all 16 categories from the real issue #21 file`() = runBlocking {
+        val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+        val csvContent = """
+            question,answer,category
+            Welche Leinen- und Seilarten nennt die FwDV 1 für den Feuerwehrdienst?,"Feuerwehrleine, Mehrzweckleine, Dynamikseile/Kernmantelseile.",Grundlagen
+            Welche Knoten und Stiche sind für die Feuerwehr relevant gemäß FwDV 1?,"Halbschlag, Doppelter Ankerstich, Zimmermannsschlag, Spierenstich, Mastwurf, Achterknoten, Schotenstich, Halbmastwurf, Pfahlstich, Brustbund.",Grundlagen
+            Wofür dient der Halbschlag?,"Zum Führen von Gegenständen in Zugrichtung, z. B. beim Hochziehen.",Halbschlag
+            Wofür wird der Doppelter Ankerstich verwendet?,Zum Befestigen von Gegenständen und Gerätschaften beim Hochziehen sowie zum Festlegen einer Leine an einem Objekt.,Doppelter Ankerstich
+            Wofür dient der Zimmermannsschlag?,"Zum Befestigen von Gegenständen und Material beim Hochziehen, zur Sicherung des Saugkorbs und zum Anbringen einer Sicherungsleine beim Atemschutzeinsatz.",Zimmermannsschlag
+            Wofür dient der Spierenstich?,"Zur Sicherung anderer Knoten und Stiche, damit sie sich nicht lösen.",Spierenstich
+            Wofür wird der Mastwurf verwendet?,"Zum Befestigen von Gegenständen beim Hochziehen, zum Festlegen an einem Festpunkt, beim Halten, Retten und Selbstretten sowie zum Befestigen des Auszugseils der Schiebleiter.",Mastwurf
+            Wofür wird der Achterknoten bei der Feuerwehr verwendet?,"Vorrangig zum Halten, Selbstsichern und Retten, indem die Leine in den Feuerwehr-Haltegurt eingebunden wird.",Achterknoten
+            Wofür dient der Schotenstich?,"Zum Verbinden zweier Leinen, besonders wenn sie unterschiedlich stark sind.",Schotenstich
+            Wofür wird der Halbmastwurf eingesetzt?,Als Bremsknoten beim Halten und Selbstretten.,Halbmastwurf
+            Wofür wird der Pfahlstich verwendet?,"Immer dann, wenn eine Schlaufe gebraucht wird, z. B. beim Brustbund.",Pfahlstich
+            Wofür dient der Brustbund?,Zum Einbinden einer Person in eine Leine für die Menschenrettung.,Brustbund
+            Welche Knoten werden bei der Rettung einer Person benötigt?,"Brustbund, also Pfahlstich plus Spierenstich.",Rettung
+            Welche Knoten eignen sich besonders gut zum Hochziehen von Gegenständen/Geräten?,Doppelter Ankerstich und Achterknoten.,Hochziehen
+            Wozu dient der Schotenstich?,"Zum Verbinden zweier Leinen, nicht zur Personensicherung oder Rettung.",Sicherheit
+            Welcher Knoten muss grundsätzlich zur Sicherung vor andere Knoten gesetzt werden?,Der Spierenstich.,Sicherheit
+            Mit welchem Knoten wird der Brustbund abgeschlossen?,Mit einem festsitzenden Pfahlstich.,Brustbund
+            Wie wird das lose Ende beim Brustbund gesichert?,Mit einem doppelten Spierenstich.,Brustbund
+            Welche Leinen sollten nicht zur Personensicherung verwendet werden?,"Schlingenstiche, die sich beim Anziehen um den Gegenstand festziehen, sind dafür ungeeignet.",Grundlagen
+            Welche Knoten sind beim Sichern einer Schlauchleitung oder Saugleitung wichtig?,Je nach Fall Mastwurf mit Spierenstich oder Zimmermannsschlag – Saugschlauch zusätzlich Halbschlag unterhalb der Kupplung.,Anwendung
+            Wofür steht die ABC-Variante?,"A = Axt, B = Beleuchtungsmittel, C = Strahlrohr.",ABC-Variante
+            Welche wichtige Faustregel gilt beim Spierenstich?,Er wird immer zur Sicherung anderer Knoten verwendet und darf nicht an der abgehenden Leine befestigt werden.,Spierenstich
+            Welche wichtige Faustregel gilt für den Schotenstich bei Personen?,Er darf nicht zur Personensicherung oder Rettung eingesetzt werden.,Sicherheit
+            Welche wichtige Faustregel gilt beim Mastwurf an der Feuerwehr-Halteöse?,Er muss gemäß FwDV 1 mit einem Spierenstich gesichert werden.,Mastwurf
+            Wie viele Trums/Umschlingungen braucht der Zimmermannsschlag mindestens?,Mindestens 3 vollständige Trums/Umschlingungen.,Zimmermannsschlag
+            Was ist der Unterschied zwischen Pfahlstich und Schotenstich?,"Pfahlstich wird als Schlaufe verwendet, Schotenstich zum Verbinden zweier Leinen.",Grundlagen
+            Was ist der Zweck des Halbschlags beim Hochziehen?,Er führt den Gegenstand in Zugrichtung.,Halbschlag
+            Worauf muss man bei Knoten aus dem losen Ende achten?,"Das lose Ende muss nach dem Festziehen und Sichern noch lang genug überstehen, als Richtwert mindestens 10x Leinendurchmesser.",Grundlagen
+        """.trimIndent()
+
+        val csvWithBom = bom + csvContent.toByteArray(Charsets.UTF_8)
+        val parseResult = CsvParser(testLogger).parse(csvWithBom.inputStream())
+
+        // Sanity check on parsing itself before asserting on category resolution
+        assertTrue(parseResult.errors.isEmpty())
+        assertEquals(28, parseResult.validCards.size)
+
+        val result = useCase.importFromParsed(
+            parseResult,
+            fallbackCategoryId = 999,
+            resolveCategories = true
+        )
+
+        assertTrue(result.isSuccess)
+        assertEquals(28, result.getOrThrow().successCount)
+
+        val expectedCategories = setOf(
+            "Grundlagen", "Halbschlag", "Doppelter Ankerstich", "Zimmermannsschlag",
+            "Spierenstich", "Mastwurf", "Achterknoten", "Schotenstich", "Halbmastwurf",
+            "Pfahlstich", "Brustbund", "Rettung", "Hochziehen", "Sicherheit",
+            "Anwendung", "ABC-Variante"
+        )
+        assertEquals(expectedCategories.size, fakeCategoryDao.categories.size)
+        assertEquals(expectedCategories, fakeCategoryDao.categories.map { it.name }.toSet())
+
+        // Every card should be filed under its own resolved category, never the fallback
+        fakeFlashcardDao.cards.forEach { card ->
+            val category = fakeCategoryDao.categories.find { it.id == card.categoryId }
+            assertTrue(category != null && category.name in expectedCategories)
+        }
+    }
+
     // -- Error Cases --
 
     @Test

@@ -467,7 +467,7 @@
     <string name="csv_import_title">Import from CSV</string>
     <string name="csv_import_back">Back</string>
     <string name="csv_import_select_file">Select CSV File</string>
-    <string name="csv_import_file_description">Choose a CSV file to import. The file should have at least two columns: question and answer.</string>
+    <string name="csv_import_file_description">Choose a CSV file to import. The file should have at least two columns: question and answer, with an optional third column for category.</string>
     <string name="csv_import_pick_file_button">Pick CSV File</string>
     <string name="csv_import_preview_title">Preview</string>
     <string name="csv_import_valid_cards">Valid flashcards: %1$d</string>
@@ -478,6 +478,10 @@
     <string name="csv_import_duplicates_count">%1$d already exist</string>
     <string name="csv_import_use_file_categories">Use categories from file</string>
     <string name="csv_import_use_file_categories_description">Cards keep their own category (created if needed). Cards without one go into the selected category.</string>
+    <string name="csv_import_categories_found">%1$d categories found in file</string>
+    <string name="csv_import_categories_breakdown">%1$d existing · %2$d new</string>
+    <string name="csv_import_fallback_category">Cards without a category go to:</string>
+    <string name="csv_import_new_category">New category</string>
     <string name="csv_import_unknown_error">Something went wrong</string>
     <string name="csv_import_selected_file_fallback">Selected file</string>
     <string name="csv_import_import_button">Import %1$d Flashcards</string>
@@ -489,7 +493,7 @@
     <string name="csv_import_error_title">Import Error</string>
     <string name="csv_import_error_close">Close</string>
     <string name="csv_import_parsing_errors_detail">%1$d rows had errors and were skipped</string>
-    <string name="csv_import_supported_formats">Supported: CSV, TSV with headers like question/answer, front/back, term/definition</string>
+    <string name="csv_import_supported_formats">Supported: CSV, TSV with headers like question/answer, front/back, term/definition — plus an optional category column</string>
     <string name="csv_import_parsing_file">Parsing CSV file…</string>
     <string name="csv_import_into_category">Import into category:</string>
     <string name="csv_import_preview_label">Preview (first %1$d of %2$d):</string>

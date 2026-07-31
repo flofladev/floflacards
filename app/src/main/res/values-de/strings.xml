@@ -455,7 +455,7 @@
     <string name="csv_import_title">Aus CSV importieren</string>
     <string name="csv_import_back">Zurück</string>
     <string name="csv_import_select_file">CSV-Datei auswählen</string>
-    <string name="csv_import_file_description">Wähle eine CSV-Datei zum Importieren. Die Datei sollte mindestens zwei Spalten haben: Frage und Antwort.</string>
+    <string name="csv_import_file_description">Wähle eine CSV-Datei zum Importieren. Die Datei sollte mindestens zwei Spalten haben: Frage und Antwort, mit einer optionalen dritten Spalte für die Kategorie.</string>
     <string name="csv_import_pick_file_button">CSV-Datei wählen</string>
     <string name="csv_import_preview_title">Vorschau</string>
     <string name="csv_import_valid_cards">Gültige Lernkarten: %1$d</string>
@@ -466,6 +466,10 @@
     <string name="csv_import_duplicates_count">%1$d bereits vorhanden</string>
     <string name="csv_import_use_file_categories">Kategorien aus Datei verwenden</string>
     <string name="csv_import_use_file_categories_description">Karten behalten ihre eigene Kategorie (wird bei Bedarf erstellt). Karten ohne Kategorie kommen in die gewählte Kategorie.</string>
+    <string name="csv_import_categories_found">%1$d Kategorien in der Datei gefunden</string>
+    <string name="csv_import_categories_breakdown">%1$d vorhanden · %2$d neu</string>
+    <string name="csv_import_fallback_category">Karten ohne Kategorie kommen in:</string>
+    <string name="csv_import_new_category">Neue Kategorie</string>
     <string name="csv_import_unknown_error">Etwas ist schiefgelaufen</string>
     <string name="csv_import_selected_file_fallback">Ausgewählte Datei</string>
     <string name="csv_import_import_button">%1$d Lernkarten importieren</string>
@@ -477,7 +481,7 @@
     <string name="csv_import_error_title">Import-Fehler</string>
     <string name="csv_import_error_close">Schließen</string>
     <string name="csv_import_parsing_errors_detail">%1$d Zeilen hatten Fehler und wurden übersprungen</string>
-    <string name="csv_import_supported_formats">Unterstützt: CSV, TSV mit Kopfzeilen wie Frage/Antwort, Vorderseite/Rückseite, Begriff/Definition</string>
+    <string name="csv_import_supported_formats">Unterstützt: CSV, TSV mit Kopfzeilen wie Frage/Antwort, Vorderseite/Rückseite, Begriff/Definition — plus einer optionalen Kategorie-Spalte</string>
     <string name="csv_import_parsing_file">CSV-Datei wird analysiert…</string>
     <string name="csv_import_into_category">Importieren in Kategorie:</string>
     <string name="csv_import_preview_label">Vorschau (erste %1$d von %2$d):</string>

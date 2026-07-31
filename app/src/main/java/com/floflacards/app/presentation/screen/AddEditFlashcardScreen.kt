@@ -36,6 +36,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -78,10 +79,10 @@ fun AddEditFlashcardScreen(
 ) {
     // TextFieldValue preserves IME composition state (underlined autocorrect text)
     // This ensures autocorrect commits properly before newlines are inserted
-    var questionText by remember {
+    var questionText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(flashcardToEdit?.question ?: ""))
     }
-    var answerText by remember {
+    var answerText by rememberSaveable(stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(flashcardToEdit?.answer ?: ""))
     }
     

@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +48,7 @@ fun CsvExportDialog(
     onExport: (Uri) -> Unit
 ) {
     val context = LocalContext.current
-    var customFilename by remember { mutableStateOf("") }
+    var customFilename by rememberSaveable { mutableStateOf("") }
 
     // SAF create document launcher
     val saveFileLauncher = rememberLauncherForActivityResult(

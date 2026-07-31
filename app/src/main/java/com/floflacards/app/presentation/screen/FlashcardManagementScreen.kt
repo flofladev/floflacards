@@ -52,13 +52,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.floflacards.app.data.entity.FlashcardEntity
 import com.floflacards.app.presentation.viewmodel.FlashcardViewModel
 import com.floflacards.app.presentation.component.DeleteFlashcardConfirmationDialog
 import com.floflacards.app.presentation.component.ModernScreenTopAppBar
@@ -77,7 +77,10 @@ fun FlashcardManagementScreen(
     viewModel: FlashcardViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var editingFlashcard by remember { mutableStateOf<FlashcardEntity?>(null) }
+    // Only the id is saved across rotation (the entity itself isn't Parcelable);
+    // the card is re-derived from the already-loaded, rotation-safe uiState list.
+    var editingFlashcardId by rememberSaveable { mutableStateOf<Long?>(null) }
+    val editingFlashcard = editingFlashcardId?.let { id -> uiState.flashcards.firstOrNull { it.id == id } }
     
     // Get filtered flashcards based on search query
     val filteredFlashcards = viewModel.getFilteredFlashcards()
@@ -200,7 +203,7 @@ fun FlashcardManagementScreen(
                             ) { flashcard ->
                                 ModernFlashcardCard(
                                     flashcard = flashcard,
-                                    onEdit = { editingFlashcard = flashcard },
+                                    onEdit = { editingFlashcardId = flashcard.id },
                                     onDelete = { viewModel.requestDeleteFlashcard(flashcard) },
                                     onToggleEnabled = { viewModel.toggleFlashcardEnabled(flashcard) },
                                     modifier = Modifier
@@ -218,7 +221,7 @@ fun FlashcardManagementScreen(
         AddEditFlashcardScreen(
             categoryId = categoryId,
             flashcardToEdit = flashcard,
-            onNavigateBack = { editingFlashcard = null }
+            onNavigateBack = { editingFlashcardId = null }
         )
     }
     

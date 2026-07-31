@@ -213,6 +213,28 @@ class CsvParserTest {
         assertEquals(2, result.validCards.size)
     }
 
+    @Test
+    fun `leading blank line before header does not break header detection`() {
+        val csv = "\nquestion,answer,category\nQ1,A1,Science\nQ2,A2,Math\n"
+        val result = parser.parse(csv.toByteArray().inputStream())
+
+        assertTrue(result.errors.isEmpty())
+        assertEquals(2, result.validCards.size)
+        assertEquals("Q1", result.validCards[0].question)
+        assertEquals("Science", result.validCards[0].category)
+        assertEquals("Math", result.validCards[1].category)
+    }
+
+    @Test
+    fun `multiple leading blank lines before header do not break header detection`() {
+        val csv = "\n\n\nquestion,answer,category\nQ1,A1,Science\n"
+        val result = parser.parse(csv.toByteArray().inputStream())
+
+        assertTrue(result.errors.isEmpty())
+        assertEquals(1, result.validCards.size)
+        assertEquals("Science", result.validCards[0].category)
+    }
+
     // -- UTF-8 BOM --
 
     @Test
@@ -266,5 +288,29 @@ class CsvParserTest {
 
         assertEquals("Q1", result.validCards[0].question)
         assertEquals("A1", result.validCards[0].answer)
+    }
+
+    // -- Regression: GitHub issue #21 --
+
+    @Test
+    fun `BOM-prefixed 3-column CSV with quoted multi-comma German text parses cleanly (issue #21)`() {
+        val bom = byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte())
+        val csvContent = "question,answer,category\n" +
+            "Welche Leinen- und Seilarten nennt die FwDV 1 für den Feuerwehrdienst?," +
+            "\"Feuerwehrleine, Mehrzweckleine, Dynamikseile/Kernmantelseile.\",Grundlagen\n" +
+            "Wofür dient der Halbschlag?," +
+            "\"Zum Führen von Gegenständen in Zugrichtung, z. B. beim Hochziehen.\",Halbschlag\n"
+        val csvWithBom = bom + csvContent.toByteArray(Charsets.UTF_8)
+
+        val result = parser.parse(csvWithBom.inputStream())
+
+        assertTrue(result.errors.isEmpty())
+        assertEquals(2, result.validCards.size)
+        assertEquals(
+            "Feuerwehrleine, Mehrzweckleine, Dynamikseile/Kernmantelseile.",
+            result.validCards[0].answer
+        )
+        assertEquals("Grundlagen", result.validCards[0].category)
+        assertEquals("Halbschlag", result.validCards[1].category)
     }
 }

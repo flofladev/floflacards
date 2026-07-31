@@ -98,11 +98,19 @@ fun CsvImportScreen(
     var selectedCategoryId by remember { mutableStateOf<Long?>(null) }
     var selectedFormat by remember { mutableStateOf<ImportFormat?>(null) }
     var useFileCategories by remember { mutableStateOf(true) }
+    var pendingNewCategoryName by remember { mutableStateOf<String?>(null) }
 
-    // Auto-select first category when loaded
+    // Auto-select first category when loaded, and auto-select a category this screen just
+    // asked to create as soon as it shows up in the (Flow-backed) categories list.
     LaunchedEffect(categoryUiState.categories) {
         if (selectedCategoryId == null && categoryUiState.categories.isNotEmpty()) {
             selectedCategoryId = categoryUiState.categories.first().id
+        }
+        pendingNewCategoryName?.let { name ->
+            categoryUiState.categories.find { it.name == name }?.let { created ->
+                selectedCategoryId = created.id
+                pendingNewCategoryName = null
+            }
         }
     }
 
@@ -192,6 +200,10 @@ fun CsvImportScreen(
                                 selectedCategoryId = selectedCatId,
                                 categories = categoryUiState.categories,
                                 onCategoryChanged = { selectedCategoryId = it },
+                                onCreateCategory = { name ->
+                                    pendingNewCategoryName = name.trim()
+                                    categoryViewModel.createCategory(name)
+                                },
                                 onImport = {
                                     viewModel.executeImport(
                                         categoryId = selectedCatId,
@@ -231,7 +243,7 @@ fun CsvImportScreen(
                 ImportStep.ERROR -> {
                     ErrorStep(
                         error = uiState.error ?: stringResource(R.string.csv_import_unknown_error),
-                        onClose = { viewModel.clearError() }
+                        onClose = { viewModel.reset() }
                     )
                 }
             }
@@ -488,10 +500,25 @@ private fun PreviewStep(
     selectedCategoryId: Long,
     categories: List<com.floflacards.app.data.entity.CategoryEntity>,
     onCategoryChanged: (Long) -> Unit,
+    onCreateCategory: (String) -> Unit,
     onImport: () -> Unit,
     onPickAnotherFile: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // Distinct category names carried by the file, split into already-existing vs. will-be-
+    // created, so the toggle below can show what will actually happen instead of being a
+    // black box.
+    val fileCategoryNames = remember(validCards) {
+        validCards.mapNotNull { it.category?.takeIf { name -> name.isNotBlank() } }.distinct()
+    }
+    val existingCategoryNames = remember(categories) {
+        categories.map { it.name.lowercase() }.toSet()
+    }
+    val newCategoryCount = fileCategoryNames.count { it.lowercase() !in existingCategoryNames }
+    val existingCategoryCount = fileCategoryNames.size - newCategoryCount
+
+    var showAddCategoryDialog by remember { mutableStateOf(false) }
+
     Column(modifier = Modifier.fillMaxSize()) {
         // Scrollable content area
         Column(
@@ -554,27 +581,62 @@ private fun PreviewStep(
                 }
             }
 
-            // Use-categories-from-file toggle (only when the file actually carries category info)
+            // Category summary + toggle (only when the file actually carries category info).
+            // Leads with what will actually happen — existing/new counts and the names — rather
+            // than just a switch, so this isn't a black box.
             if (fileHasCategories) {
                 Spacer(modifier = Modifier.height(16.dp))
-                Row(
+                Card(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                    )
                 ) {
-                    Switch(checked = useFileCategories, onCheckedChange = onUseFileCategoriesChanged)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(text = stringResource(R.string.csv_import_use_file_categories), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
-                        Text(text = stringResource(R.string.csv_import_use_file_categories_description), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = stringResource(R.string.csv_import_categories_found, fileCategoryNames.size),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = stringResource(R.string.csv_import_categories_breakdown, existingCategoryCount, newCategoryCount),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = fileCategoryNames.joinToString(", "),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Switch(checked = useFileCategories, onCheckedChange = onUseFileCategoriesChanged)
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Text(
+                                text = stringResource(R.string.csv_import_use_file_categories),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
 
-            // Category selector (the target category, or the fallback when using file categories)
+            // Category selector: the primary target, or — when file categories are being used —
+            // just the fallback for cards the file didn't tag with one.
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = stringResource(R.string.csv_import_into_category),
+                text = if (useFileCategories && fileHasCategories) {
+                    stringResource(R.string.csv_import_fallback_category)
+                } else {
+                    stringResource(R.string.csv_import_into_category)
+                },
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.Medium
             )
@@ -597,6 +659,23 @@ private fun PreviewStep(
                         } else null
                     )
                 }
+                AssistChip(
+                    onClick = { showAddCategoryDialog = true },
+                    label = { Text(stringResource(R.string.csv_import_new_category), maxLines = 1) },
+                    leadingIcon = {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                    }
+                )
+            }
+
+            if (showAddCategoryDialog) {
+                AddCategoryDialog(
+                    onConfirm = { name ->
+                        onCreateCategory(name)
+                        showAddCategoryDialog = false
+                    },
+                    onDismiss = { showAddCategoryDialog = false }
+                )
             }
 
             // Preview table

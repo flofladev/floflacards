@@ -37,7 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -115,10 +115,10 @@ fun IntervalSelectionDialog(
     onConfirm: (Int) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var selectedInterval by remember { mutableStateOf(availableIntervals.firstOrNull() ?: IntervalConstants.DEFAULT_INTERVAL_MINUTES) }
-    var isCustomSelected by remember { mutableStateOf(false) }
-    var customIntervalText by remember { mutableStateOf("") }
-    var hasError by remember { mutableStateOf(false) }
+    var selectedInterval by rememberSaveable { mutableStateOf(availableIntervals.firstOrNull() ?: IntervalConstants.DEFAULT_INTERVAL_MINUTES) }
+    var isCustomSelected by rememberSaveable { mutableStateOf(false) }
+    var customIntervalText by rememberSaveable { mutableStateOf("") }
+    var hasError by rememberSaveable { mutableStateOf(false) }
 
     UnifiedDialog(
         title = stringResource(R.string.interval_dialog_title),

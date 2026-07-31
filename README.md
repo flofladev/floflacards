@@ -44,6 +44,23 @@ FloFla Cards helps you learn **passively** while using your phone. Flashcards wi
 - 🎉 Completely free, no ads, no tracking
 
 
+## CSV Format
+
+Exporting a category (or "Export All" from Settings) produces a ready-to-reimport file, so the easiest way to see the format is to export once. If you're creating one by hand:
+
+- Header row with `question`, `answer`, and optionally `category` (case-insensitive; a few common synonyms per language also work, e.g. `frage`/`antwort`/`kategorie`, `front`/`back`).
+- One flashcard per row after the header.
+- If a field contains a comma, wrap it in double quotes (standard CSV quoting), e.g. `"Paris, France"`.
+- UTF-8 encoding (a UTF-8 BOM, as saved by Excel/Google Sheets, is fine too).
+- Cards with a category name are filed into that category automatically — it's created if it doesn't already exist.
+
+Example:
+```csv
+question,answer,category
+What is the capital of France?,"Paris, France",Geography
+2 + 2?,4,Math
+```
+
 ## Translation
 - English
 - Polish
